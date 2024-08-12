@@ -627,6 +627,27 @@ JSON from the application's endpoints and saves it as a formatted file.
   <summary>View OpenApiConfig code</summary>
 
 ```java
+package com.ainigma100.customerapi.config;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.info.Info;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
+import org.springframework.web.client.RestClient;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Optional;
+
 @Slf4j
 @Configuration
 @OpenAPIDefinition(info = @Info(
@@ -732,6 +753,16 @@ related to Actuator and Swagger, from logging to reduce noise.
   <summary>View LoggingFilter code</summary>
 
 ```java
+package com.ainigma100.customerapi.filter;
+
+import jakarta.servlet.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+
 @Component
 @Slf4j
 public class LoggingFilter implements Filter {
@@ -805,6 +836,13 @@ This configuration class registers the `LoggingFilter` as a Spring bean and sets
   <summary>View FiltersConfig code</summary>
 
 ```java
+package com.ainigma100.customerapi.filter;
+
+import lombok.AllArgsConstructor;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
 @AllArgsConstructor
 @Configuration
 public class FiltersConfig {
@@ -824,6 +862,7 @@ public class FiltersConfig {
     }
 
 }
+
 ```
 
 </details>
@@ -844,6 +883,20 @@ context path, and active profiles. It also provides the URL for accessing the Sw
   <summary>View ServerDetails code</summary>
 
 ```java
+package com.ainigma100.customerapi.filter;
+
+import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Optional;
+
 @AllArgsConstructor
 @Component
 public class ServerDetails {

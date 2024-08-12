@@ -1,35 +1,36 @@
 # Spring Boot 3 Knowledge Sharing
 
-This document is designed to help new Spring Boot developers understand the basics of building applications using Spring 
-Boot 3. It covers the structure of a sample project, explains the purpose of key annotations, and provides insights into 
-best practices. 
+This document is designed to help new Spring Boot developers understand the basics of building applications using Spring Boot 3. It covers the structure of a sample project, explains the purpose of key annotations, and provides insights into best practices.
 
-Note: **Feedback and contributions are welcome to make this a more comprehensive resource for learners**.
+**Disclaimer**: This guide reflects my personal opinion and approach, based on the knowledge I have gained through my work as a developer and my studies. It is not necessarily the best or only way to do things, and as time passes, practices and tools may evolve. I encourage you to explore other perspectives and approaches as well.
+
+**Feedback and Contributions**: I am always open to feedback and contributions. If you have suggestions for improvement or additional insights, please feel free to share. Together, we can make this a valuable resource for anyone learning Spring Boot 3.
 
 ## Table of Contents
 1. [Introduction](#1-introduction)
 2. [Project Structure Overview](#2-project-structure-overview)
-3. [Understanding `pom.xml`](#3-understanding-pomxml)
-4. [Configuring `application.yaml`](#4-configuring-applicationyaml)
-5. [Detailed Package Breakdown](#5-detailed-package-breakdown)
-    - [Entity Layer](#entity-layer)
-    - [Repository Layer](#repository-layer)
-    - [Service Layer](#service-layer)
-    - [DTOs and MapStruct](#dtos-and-mapstruct)
-    - [Controller Layer](#controller-layer)
-6. [Key Annotations in Spring Boot](#6-key-annotations-in-spring-boot)
-7. [Naming Conventions](#7-naming-conventions)
-8. [Running the Application Without an IDE](#8-running-the-application-without-an-ide)
-9. [Security (Under Construction)](#9-security-under-construction)
-10. [Testing (Under Construction)](#10-testing-under-construction)
-11. [Best Practices](#11-best-practices)
-12. [Conclusion](#12-conclusion)
+3. [Introduction to Maven and `pom.xml`](#3-introduction-to-maven-and-pomxml)
+4. [Key Annotations in Spring Boot `Under Construction`](#4-key-annotations-in-spring-boot)
+5. [Configuring `application.yaml`](#5-configuring-applicationyaml)
+6. [Detailed Package Breakdown](#6-detailed-package-breakdown)
+    - [Entity Layer `Under Construction`](#entity-layer)
+    - [Repository Layer `Under Construction`](#repository-layer)
+    - [Service Layer `Under Construction`](#service-layer)
+    - [DTOs and MapStruct `Under Construction`](#dtos-and-mapstruct)
+    - [Controller Layer `Under Construction`](#controller-layer)
+7. [Helper Classes](#7-helper-classes)
+8. [Naming Conventions `Under Construction`](#8-naming-conventions)
+9. [Running the Application Without an IDE `Under Construction`](#9-running-the-application-without-an-ide)
+10. [Security `Under Construction`](#10-security-under-construction)
+11. [Testing `Under Construction`](#11-testing-under-construction)
+12. [Best Practices](#12-best-practices)
+13. [Conclusion](#13-conclusion)
 
 ## 1. Introduction
 
 ### What is Spring Boot?
-Spring Boot is an extension of the Spring framework that simplifies the development of Java applications. It provides 
-tools and conventions that allow developers to get started quickly without needing to manually configure and set up 
+Spring Boot is an extension of the Spring framework that simplifies the development of Java applications. It provides
+tools and conventions that allow developers to get started quickly without needing to manually configure and set up
 complex frameworks.
 
 ### Why Use Spring Boot?
@@ -39,9 +40,9 @@ complex frameworks.
 
 ## 2. Project Structure Overview
 
-Understanding the structure of a Spring Boot project is crucial for effective development. Below is the typical structure 
+Understanding the structure of a Spring Boot project is crucial for effective development. Below is the typical structure
 of a sample Spring Boot 3 project. Please note this is something I follow based on the knowledge I gained from other developers.
-Furthermore, some packages can be skipped in case based on your use case you do not need them. 
+Furthermore, some packages can be skipped in case based on your use case you do not need them.
 
 
 ```
@@ -76,285 +77,737 @@ Furthermore, some packages can be skipped in case based on your use case you do 
 
 
 
-## 3. Understanding `pom.xml`
+## 3. Introduction to Maven and `pom.xml`
 
-The `pom.xml` file is the heart of any Maven-based project. It defines the project structure, manages dependencies, 
-plugins, and dictates the build process. A well-configured `pom.xml` ensures that your project is easy to build, 
-maintain, and deploy.
+### What is Maven?
+Maven is a powerful build automation and project management tool that is widely used in Java projects. It helps manage
+project builds, dependencies, and configurations in a standardized way. Maven centralizes the project’s setup in a file
+called the **Project Object Model (POM)**, which is typically located in the `pom.xml` file at the root of your project.
 
-### Key Sections of `pom.xml`:
+### What is a POM?
+The **Project Object Model (POM)** is the core of a Maven project. It’s an XML file that defines the structure,
+dependencies, and build configuration of your project. When Maven runs, it reads the `pom.xml` file to determine how to
+build, test, and package your application.
 
-- **Project Coordinates**:
-    - **`groupId`**: Typically represents the organization or group responsible for the project (e.g., `com.ainigma100`).
-    - **`artifactId`**: Represents the name of the project or module. It’s common practice to use your domain name in reverse as the `groupId`, followed by a descriptive name for the `artifactId` (e.g., `com.ainigma100.customer-api`).
-    - **`version`**: Specifies the current version of the project. It helps in managing project updates and dependencies (e.g., `1.0.0-SNAPSHOT` for a version in development).
+### Key Concepts in the POM
 
-**Example**:
+#### Project Coordinates:
+- **`groupId`**: Identifies your project’s group, typically the company or organization (e.g., `com.ainigma100`). It is a unique identifier that distinguishes your project from others.
+- **`artifactId`**: The name of your project or module (e.g., `customer-api`). It represents the artifact, which is usually the output of the project, such as a JAR file.
+- **`version`**: The current version of your project (e.g., `0.0.1-SNAPSHOT`). It indicates the specific iteration of the project, helping in managing releases and dependencies.
+
+#### Dependencies:
+Dependencies define the external libraries your project needs to function. These are specified in the `<dependencies>`
+section of the `pom.xml` and are automatically downloaded and included by Maven.
+
+#### Plugins:
+Plugins extend the functionality of Maven and are used to perform various build-related tasks, such as compiling code,
+running tests, and packaging the application. They are specified in the `<build>` section of the `pom.xml`.
+
+
+### Example `pom.xml` file for Customer API
+
+<details>
+  <summary>View pom file</summary>
+
 ```xml
-<groupId>com.ainigma100</groupId>
-<artifactId>customer-api</artifactId>
-<version>1.0.0-SNAPSHOT</version>
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.3.2</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
+    <groupId>com.ainigma100</groupId>
+    <artifactId>customer-api</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>customer-api</name>
+    <description>customer-api</description>
+
+    <properties>
+        <java.version>21</java.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <springdoc-openapi-starter-webmvc-ui.version>2.6.0</springdoc-openapi-starter-webmvc-ui.version>
+        <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
+        <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${org.mapstruct.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${springdoc-openapi-starter-webmvc-ui.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${org.mapstruct.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok-mapstruct-binding</artifactId>
+                            <version>${lombok-mapstruct-binding.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+```
+
+</details>
+
+### Dependencies Included
+
+This `pom.xml` includes several important dependencies:
+
+- **Spring Boot Starter Web**: Provides the necessary components to build a web application, including an embedded Tomcat server.
+- **Spring Boot Starter Data JPA**: Simplifies database interactions by integrating Spring Data JPA for database operations.
+- **Spring Boot Starter Actuator**: Adds production-ready features such as monitoring and metrics.
+- **Spring Boot Starter Validation**: Facilitates data validation using Hibernate Validator. It allows you to use some annotations to validate an object.
+- **H2 Database**: A lightweight in-memory database often used for testing and development.
+- **Lombok**: Reduces boilerplate code by generating getters, setters, constructors, and other methods at compile time.
+- **MapStruct**: A code generator that simplifies the mapping between Java beans.
+- **SpringDoc OpenAPI**: Integrates Swagger/OpenAPI support into Spring Boot applications for API documentation.
+- **Spring Boot Starter Test**: Provides testing libraries like JUnit, Mockito, and Spring TestContext Framework for unit and integration testing.
+
+### Adding More Dependencies
+
+As your project evolves, you might need additional libraries or tools. You can add more dependencies by searching for
+them in the [Maven Central Repository](https://mvnrepository.com/) and including them in the `<dependencies>`
+section of your `pom.xml`.
+
+
+### Explanation of Plugin Configuration
+
+In the `<build>` section of the `pom.xml`, we configure the Maven Compiler Plugin with additional settings for Lombok and MapStruct:
+
+- **Lombok**: Since Lombok generates code during the compilation phase (e.g., constructors, getters, setters), it
+  requires an annotation processor. The plugin configuration ensures that Lombok's annotation processor is included,
+  allowing Lombok to function correctly during compilation.
+
+
+- **MapStruct**: MapStruct is a code generator that automatically creates mappers for converting between different
+  Java beans. Like Lombok, MapStruct requires an annotation processor to generate the necessary code during compilation.
+  The plugin configuration includes the MapStruct processor, ensuring that the mappings are generated correctly.
+
+
+- **Lombok-MapStruct Binding**: MapStruct and Lombok both operate during the annotation processing phase, but they
+  sometimes need to coordinate to avoid conflicts. The `lombok-mapstruct-binding` dependency ensures that Lombok's
+  generated code is compatible with MapStruct, allowing both tools to work together seamlessly. This binding is
+  configured in the `annotationProcessorPaths` section of the Maven Compiler Plugin, ensuring that the processors
+  are run in the correct order.
+
+By configuring these plugins, we ensure that Lombok, MapStruct, and their integration work seamlessly during the build process, reducing manual coding effort and improving efficiency.
+
+<br>
+
+
+## 4. Key Annotations in Spring Boot
+
+
+
+## 5. Configuring `application.yaml`
+The `application.yaml` file is an essential configuration file in a Spring Boot project. It allows you to manage your
+application's settings in a clear and structured manner. YAML is preferred over properties files in many cases because
+it is easier to read and supports hierarchical data.
+
+### Why `application.yaml`?
+When you create a new Spring Boot project, the default configuration file is named `application.properties`. However,
+many developers choose to use `application.yaml` instead, as it offers a more concise and readable format, especially
+when dealing with complex configurations.
+
+### General Configuration
+The main `application.yaml` file typically includes common settings that apply to all environments, such as server
+configuration, application name, and basic Spring settings.
+
+### Environment-Specific Configuration
+In addition to the main `application.yaml` file, you can create environment-specific YAML files, such as
+`application-dev.yaml` for development, `application-uat.yaml` for user acceptance testing, and `application-prod.yaml`
+for production. These files contains settings specific to each environment, allowing you to easily switch between
+configurations without changing your code.
+
+### Activating Profiles
+You can activate a specific profile in several ways:
+
+- **In `application.yaml`**: You can specify the active profile directly in the `application.yaml` file using the `spring.profiles.active` property. This is useful for setting a default profile that will be used unless another is specified at runtime.
+- **At Runtime**: You can also activate a profile at runtime by passing the `spring.profiles.active` property as a command-line argument or setting it as an environment variable.
+
+### Best Practices
+
+- **Keep It Simple**: Store common settings in the main `application.yaml` and use environment-specific files for configuration differences.
+- **Use Profiles**: Profiles help manage different environments like development, testing, and production by allowing you to specify environment-specific configurations.
+- **YAML Advantages**: The YAML format is preferred for its readability and ability to handle complex, hierarchical settings more gracefully than traditional properties files.
+
+
+### Example `application.yaml` and `application-dev.yaml` files for Customer API
+
+In this section, I provide two YAML configuration files to demonstrate some of the settings I use for a Spring Boot 
+project. These are just examples, and many other configurations are available depending on your project's needs. As I 
+continue to develop this project, I may add more configurations.
+
+#### application.yaml
+
+This file contains general settings that apply to all environments. Here’s a breakdown of the configurations used:
+
+- **`server.port`**: Specifies the port on which the application will run. In this case, it’s set to `8088`. If you do not specify the port, the app will start on a `default port` which is `8080`.
+- **`server.servlet.context-path`**: Defines the base URL path for the application. Here, it’s dynamically set to the artifact ID of the project.
+- **`server.shutdown.graceful`**: Enables graceful shutdown, ensuring that the application completes ongoing requests before shutting down.
+- **`spring.profiles.active`**: Indicates the active profile to be used. In this case, the development profile (`dev`) is active.
+- **`spring.application.name`**: Sets the application name, dynamically pulled from the project configuration.
+- **`spring.lifecycle.timeout-per-shutdown-phase`**: Configures the timeout for each shutdown phase, here set to `25 seconds`.
+- **`spring.output.ansi.enabled`**: Controls ANSI output in the console, set to `always` to ensure colored output.
+- **`springdoc.swagger-ui.path`**: Sets the path for accessing the Swagger UI, useful for API documentation.
+- **`springdoc.title`** and **`springdoc.version`**: Define the title and version of the API documentation, again dynamically set based on project properties.
+- **`openapi.output.file`**: Specify the file name of the swagger file that will be generated by `OpenApiConfig` class on start-up. It will be the documentation of the application.
+
+```yaml
+server:
+  port: 8088
+  servlet:
+    context-path: '/@project.artifactId@'
+  shutdown: graceful
+
+spring:
+  profiles:
+    active: dev # Specify the active profile
+
+  application:
+    name: '@project.name@'
+  lifecycle:
+    timeout-per-shutdown-phase: 25s
+
+  output:
+    ansi:
+      enabled: always
+
+springdoc:
+  swagger-ui:
+    path: /ui
+  title: 'Customer API'
+  version: '@springdoc-openapi-starter-webmvc-ui.version@'
+  
+openapi:
+  output:
+    file: 'openapi-@project.artifactId@.json'
 ```
 
 
-## 4. Configuring `application.yaml`
+#### application-dev.yaml
+This file contains settings specific to the development environment. Here's what each setting does:
 
-The `application.yaml` file is used to configure your Spring Boot application. It externalizes configuration, making your application easier to manage and adapt to different environments.
+- **`datasource.url`**: Configures the JDBC URL for the H2 database. In this example, the database is stored in a local file (`./data/customer-db`) with `AUTO_SERVER=true` to allow remote connections.
+- **`datasource.username` and `datasource.password`**: Set the database username and password. The default username (`sa`) is used with no password.
+- **`datasource.driver-class-name`**: Specifies the JDBC driver class for the H2 database.
+- **`jpa.show-sql`**: Enables logging of SQL statements generated by Hibernate.
+- **`jpa.properties.hibernate.format_sql`**: Formats SQL output to be more readable.
+- **`jpa.properties.hibernate.dialect`**: Specifies the Hibernate dialect to use, which is set to `H2Dialect` for compatibility with the H2 database.
+- **`jpa.generate-ddl`**: Automatically generates database schema (DDL) from JPA entities.
+- **`jpa.hibernate.ddl-auto`**: Controls the behavior of schema generation at runtime, with `update` allowing for incremental updates to the schema.
 
-### Example `application.yaml` File:
 
-- **Server Configuration**: Sets the port number and base URL path for the application.
-- **Spring Configuration**: Configures database connections, JPA settings, and Swagger UI.
-- **Flyway Configuration**: Manages database migrations.
-- **H2 Database Console**: Enables the H2 database console for development.
+### Notes:
+- These configurations are just examples based on what I use in this project. There are many other configurations you can apply depending on your project's needs.
+- As the project evolves, I may add more configurations to enhance functionality or address specific needs.
+- Feel free to explore additional configurations and adjust these examples to fit your project requirements.
 
-## 5. Detailed Package Breakdown
+**Feedback and Contributions**: If you have suggestions or improvements, please share them. Collaboration is key to refining this guide and making it a valuable resource for all developers.
 
-### Entity Layer
 
-- **Purpose**: The entity layer represents the database tables in the form of JPA entities. Each entity class typically maps to a single table in the database.
-- **Package**: `entity`
-- **Example Classes**:
-    - `Customer.java`: Represents the `customers` table.
-- **Key Annotations**:
-    - `@Entity`: Marks a class as a JPA entity.
-    - `@Table(name = "table_name")`: Specifies the name of the table in the database.
-    - `@Id`: Indicates the primary key of the entity.
-    - `@GeneratedValue(strategy = GenerationType.IDENTITY)`: Defines the strategy for primary key generation.
+```yaml
+datasource:
+  url: jdbc:h2:file:./data/notification-manager-db;AUTO_SERVER=true
+  username: sa
+  password:
+  driver-class-name: org.h2.Driver
+jpa:
+  show-sql: true
+  properties:
+    hibernate:
+      format_sql: true
+      dialect: org.hibernate.dialect.H2Dialect
+  generate-ddl: true
+  hibernate:
+    ddl-auto: update
+```
+
+
+<br>
+
+## 6. Detailed Package Breakdown (Under Construction)
+
+### Entity Layer (Under Construction)
+
+
+
+<br>
 
 ### Repository Layer
 
-- **Purpose**: The repository layer provides CRUD operations on the entities using Spring Data JPA. It abstracts the data access layer, allowing you to interact with the database without writing SQL queries.
+- **Purpose**: The repository layer handles CRUD operations for entities using Spring Data JPA, allowing you to
+  interact with the database without writing SQL.
 - **Package**: `repository`
-- **Example Classes**:
-    - `DepartmentRepository.java`: Handles CRUD operations for the `Department` entity.
-    - `EmployeeRepository.java`: Handles CRUD operations for the `Employee` entity.
-- **Key Annotations**:
-    - `@Repository`: Indicates that the class is a Spring Data repository.
-    - `extends JpaRepository<T, ID>`: Provides basic CRUD operations and query methods.
+- **Example Class**:
+    - `CustomerRepository.java`: Manages CRUD operations for the `Customer` entity.
+
+- **Key Concepts**:
+    - **`extends JpaRepository<Customer, Long>`**: By extending `JpaRepository`, Spring Boot automatically configures a
+      repository bean for you. This bean is a proxy implementation of `SimpleJpaRepository`, which provides all the
+      necessary CRUD operations and query methods for the `Customer` entity. No need for `@Repository` or `@Component`
+      annotations—Spring handles the configuration.
+
+### Query Methods Overview
+Spring Data JPA offers several ways to write queries in your repository interfaces, including:
+
+#### 1. Derived Query Methods
+You can create simple queries by following naming conventions.
+
+**Example**:
+```java
+List<Customer> findByLastName(String lastName);
+```
+
+<br>
+
+#### 2. Custom Queries with @Query
+For more complex queries, you can use the @Query annotation.
+
+**Example**:
+
+```java
+import org.springframework.data.repository.query.Param;
+
+@Query("SELECT c FROM Customer c WHERE c.email = :email")
+Customer findByEmail(@Param("email") String email);
+```
+
+<br>
+
+#### 3. Native Queries
+You can write native SQL queries using the @Query annotation.
+
+**Example**:
+
+```java
+import org.springframework.data.repository.query.Param;
+
+@Query(value = "SELECT * FROM customers WHERE status = :status", nativeQuery = true)
+List<Customer> findByStatus(@Param("status") String status);
+```
+
+<br>
+
+### When to Use Native Queries
+
+- **Advantages**: Native queries can be useful when you need to leverage database-specific features, optimize
+  performance, or execute complex SQL that might not be easily expressed in JPQL (Java Persistence Query Language).
+
+
+- **Disadvantages**: However, native queries can reduce the portability of your application across different database
+  systems since they are tied to a specific SQL dialect. They also bypass some of the safety checks and optimizations
+  provided by JPQL, such as automatic mapping of query results to entities.
+
+
+- **Best Practice**: Prefer using JPQL or derived query methods for most queries to maintain portability and leverage
+  JPA's features. Use native queries only when necessary for performance optimization or when dealing with complex
+  queries that JPQL cannot handle efficiently.
+
+
 
 ### Service Layer
 
-- **Purpose**: The service layer contains business logic, providing an abstraction layer between the controller and repository layers. Services are where most of the application's logic and rules are implemented.
-- **Package**: `service`
-    - **`impl` Subpackage**: Contains the implementations of the service interfaces.
-- **Example Classes**:
-    - `DepartmentService.java`: Interface defining business operations related to departments.
-    - `EmployeeService.java`: Interface defining business operations related to employees.
-    - `DepartmentServiceImpl.java`: Implements `DepartmentService`, containing the actual business logic.
-    - `EmployeeServiceImpl.java`: Implements `EmployeeService`, containing the actual business logic.
-- **Key Annotations**:
-    - `@Service`: Marks a class as a service component.
-    - `@Autowired`: Used to inject dependencies into the service.
 
 ### DTOs and MapStruct
 
-- **Purpose**: Data Transfer Objects (DTOs) are used to transfer data between the service and controller layers, encapsulating the data and preventing direct exposure of entity objects. MapStruct is a tool used to automatically map between DTOs and entities.
-- **Package**: `dto`
-- **Example Classes**:
-    - `DepartmentDTO.java`: DTO representing department data in API responses.
-    - `EmployeeDTO.java`: DTO representing employee data in API responses.
-- **Package**: `mapper`
-    - Contains mappers for converting between entities and DTOs.
-    - **Example Classes**:
-        - `DepartmentMapper.java`: Maps between `Department` and `DepartmentDTO`.
-        - `EmployeeMapper.java`: Maps between `Employee` and `EmployeeDTO`.
-- **Key Annotations**:
-    - `@Mapper`: Used by MapStruct to indicate that the interface will be used for mapping.
-    - `@Mapping`: Specifies custom mapping rules.
 
 ### Controller Layer
 
-- **Purpose**: The controller layer handles incoming HTTP requests and maps them to the appropriate service methods. Controllers are responsible for returning responses to the client.
-- **Package**: `controller`
-- **Example Classes**:
-    - `DepartmentController.java`: Handles requests related to departments (e.g., GET, POST, DELETE).
-    - `EmployeeController.java`: Handles requests related to employees (e.g., GET, POST, DELETE).
-- **Key Annotations**:
-    - `@RestController`: Marks a class as a RESTful web service controller.
-    - `@RequestMapping`: Maps HTTP requests to specific handler methods.
-    - `@GetMapping`, `@PostMapping`, `@PutMapping`, `@DeleteMapping`: Handle specific HTTP methods (GET, POST, PUT, DELETE).
-    - `@RequestBody`: Binds the HTTP request body to a DTO.
 
-## 6. Key Annotations in Spring Boot
+## 7. Helper Classes
 
-Spring Boot makes extensive use of annotations to define and manage the behavior of various components. Here’s a quick overview:
+In this section, I provide some helper classes that can be reused in Spring Boot applications. These classes are designed 
+to simplify common tasks such as logging, server configuration, and OpenAPI documentation generation.
 
-- **`@SpringBootApplication`**: Combines `@Configuration`, `@EnableAutoConfiguration`, and `@ComponentScan`. It’s typically placed on the main class to enable auto-configuration and component scanning.
-- **`@Entity`**: Used on classes that map to database tables.
-- **`@Repository`**: Indicates that the class is a Spring Data repository.
-- **`@Service`**: Marks a class as a service component.
-- **`@RestController`**: Combines `@Controller` and `@ResponseBody`, making it easier to build RESTful web services.
-- **`@Autowired`**: Used to inject dependencies into components, services, or repositories.
-- **`@RequestMapping`, `@GetMapping`, `@PostMapping`, `@PutMapping`, `@DeleteMapping`**: Map HTTP requests to specific controller methods.
-- **`@Mapper`**: Used by MapStruct to generate mappers for converting between entities and DTOs.
+### OpenApiConfig
 
-## 7. Naming Conventions
+This configuration class is responsible for generating OpenAPI documentation using SpringDoc. It fetches the OpenAPI 
+JSON from the application's endpoints and saves it as a formatted file.
+
+**Key Features**:
+
+- Automatically generates OpenAPI documentation in JSON format.
+- Saves the documentation to a specified file in the project root. The output file name is specified in the `application.yaml` file.
+- Handles both HTTP and HTTPS protocols based on the server configuration.
+
+<details>
+  <summary>View OpenApiConfig code</summary>
+
+```java
+@Slf4j
+@Configuration
+@OpenAPIDefinition(info = @Info(
+        title = "${springdoc.title}",
+        version = "${springdoc.version}",
+        description = "Documentation ${spring.application.name} v1.0"
+))
+public class OpenApiConfig {
+
+
+    private final Environment environment;
+
+    public OpenApiConfig(Environment environment) {
+        this.environment = environment;
+    }
+
+    @Value("${server.port:8080}")
+    private int serverPort;
+
+    @Value("${openapi.output.file}")
+    private String outputFileName;
+
+    private static final String SERVER_SSL_KEY_STORE = "server.ssl.key-store";
+    private static final String SERVER_SERVLET_CONTEXT_PATH = "server.servlet.context-path";
+
+    @Bean
+    public CommandLineRunner generateOpenApiJson() {
+        return args -> {
+            String protocol = Optional.ofNullable(environment.getProperty(SERVER_SSL_KEY_STORE)).map(key -> "https").orElse("http");
+            String host = getServerIP();
+            String contextPath = Optional.ofNullable(environment.getProperty(SERVER_SERVLET_CONTEXT_PATH)).orElse("");
+
+            // Define the API docs URL
+            String apiDocsUrl = String.format("%s://%s:%d%s/v3/api-docs", protocol, host, serverPort, contextPath);
+
+            log.info("Attempting to fetch OpenAPI docs from URL: {}", apiDocsUrl);
+
+            try {
+                // Create RestClient instance
+                RestClient restClient = RestClient.create();
+
+                // Fetch the OpenAPI JSON
+                String response = restClient.get()
+                        .uri(apiDocsUrl)
+                        .retrieve()
+                        .body(String.class);
+
+                // Format and save the JSON to a file
+                formatAndSaveToFile(response, outputFileName);
+
+                log.info("OpenAPI documentation generated successfully at {}", outputFileName);
+
+            } catch (Exception e) {
+                log.error("Failed to generate OpenAPI documentation from URL: {}", apiDocsUrl, e);
+            }
+        };
+    }
+
+    private String getServerIP() {
+        try {
+            return InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            log.error("Error resolving host address", e);
+            return "unknown";
+        }
+    }
+
+    private void formatAndSaveToFile(String content, String fileName) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            // Enable pretty-print
+            objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+
+            // Read the JSON content as a JsonNode
+            JsonNode jsonNode = objectMapper.readTree(content);
+
+            // Write the formatted JSON to a file
+            objectMapper.writeValue(new File(fileName), jsonNode);
+
+        } catch (IOException e) {
+            log.error("Error while saving JSON to file", e);
+        }
+    }
+}
+```
+</details>
+
+
+
+### LoggingFilter
+
+A servlet filter that logs incoming HTTP requests and outgoing responses. It excludes certain paths, such as those 
+related to Actuator and Swagger, from logging to reduce noise.
+
+**Key Features**:
+
+- Logs the client's IP address, request URL, and HTTP method.
+- Logs the response status after the request is processed.
+- Excludes paths related to Actuator, Swagger, and static resources from logging.
+
+<details>
+  <summary>View LoggingFilter code</summary>
+
+```java
+@Component
+@Slf4j
+public class LoggingFilter implements Filter {
+
+
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
+
+        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+        HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+
+        String clientIP = this.getClientIP(httpServletRequest);
+
+        if ( this.shouldLogRequest(httpServletRequest) ) {
+            log.info("Client IP: {}, Request URL: {}, Method: {}", clientIP, httpServletRequest.getRequestURL(), httpServletRequest.getMethod());
+        }
+
+        // pre methods call stamps
+        chain.doFilter(request, response);
+
+        // post method calls stamps
+        if ( this.shouldLogRequest(httpServletRequest) ) {
+            log.info("Response status: {}", httpServletResponse.getStatus());
+        }
+
+    }
+
+    private boolean shouldLogRequest(HttpServletRequest request) {
+
+        // (?i) enables case-insensitive matching, \b matched as whole words
+        // reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions
+        return !request.getServletPath().matches("(?i).*\\b(actuator|swagger|api-docs|favicon|ui)\\b.*");
+    }
+
+    private String getClientIP(HttpServletRequest request) {
+
+        String clientIP = request.getHeader("Client-IP");
+
+        if (clientIP == null || clientIP.isEmpty() || "unknown".equalsIgnoreCase(clientIP)) {
+            clientIP = request.getHeader("X-Forwarded-For");
+        }
+
+        if (clientIP == null || clientIP.isEmpty() || "unknown".equalsIgnoreCase(clientIP)) {
+            clientIP = request.getHeader("X-Real-IP");
+        }
+
+        if (clientIP == null || clientIP.isEmpty() || "unknown".equalsIgnoreCase(clientIP)) {
+            clientIP = request.getRemoteAddr();
+        }
+
+        return clientIP != null ? clientIP : "Unknown";
+    }
+
+}
+```
+
+</details>
+
+
+### FiltersConfig
+
+This configuration class registers the `LoggingFilter` as a Spring bean and sets its priority in the filter chain.
+
+**Key Features**:
+
+- Registers the `LoggingFilter` with a specified order of execution.
+- Ensures that the filter applies to all incoming requests.
+
+<details>
+  <summary>View FiltersConfig code</summary>
+
+```java
+@AllArgsConstructor
+@Configuration
+public class FiltersConfig {
+
+    private final LoggingFilter loggingFilter;
+
+    @Bean
+    public FilterRegistrationBean<LoggingFilter> loggingFilterBean() {
+
+        final FilterRegistrationBean<LoggingFilter> filterBean = new FilterRegistrationBean<>();
+        filterBean.setFilter(loggingFilter);
+        filterBean.addUrlPatterns("/*");
+        // Lower values have higher priority
+        filterBean.setOrder(Integer.MAX_VALUE-2);
+
+        return filterBean;
+    }
+
+}
+```
+
+</details>
+
+
+### ServerDetails
+
+This component logs important server details when the application starts, including the server's protocol, host, port, 
+context path, and active profiles. It also provides the URL for accessing the Swagger UI.
+
+**Key Features**:
+
+- Logs server details and Swagger UI access URL on application startup.
+- Supports both HTTP and HTTPS protocols.
+- Displays the active Spring profiles.
+
+<details>
+  <summary>View ServerDetails code</summary>
+
+```java
+@AllArgsConstructor
+@Component
+public class ServerDetails {
+
+    private static final Logger log = LoggerFactory.getLogger(ServerDetails.class);
+
+
+    private final Environment environment;
+    private static final String SERVER_SSL_KEY_STORE = "server.ssl.key-store";
+    private static final String SERVER_PORT = "server.port";
+    private static final String SERVER_SERVLET_CONTEXT_PATH = "server.servlet.context-path";
+    private static final String SPRINGDOC_SWAGGER_UI_PATH = "springdoc.swagger-ui.path";
+    private static final String DEFAULT_PROFILE = "default";
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void logServerDetails() {
+
+        String protocol = Optional.ofNullable(environment.getProperty(SERVER_SSL_KEY_STORE)).map(key -> "https").orElse("http");
+        String host = getServerIP();
+        String serverPort = Optional.ofNullable(environment.getProperty(SERVER_PORT)).orElse("8080");
+        String contextPath = Optional.ofNullable(environment.getProperty(SERVER_SERVLET_CONTEXT_PATH)).orElse("");
+        String[] activeProfiles = Optional.of(environment.getActiveProfiles()).orElse(new String[0]);
+        String activeProfile = (activeProfiles.length > 0) ? String.join(",", activeProfiles) : DEFAULT_PROFILE;
+        String swaggerUI = Optional.ofNullable(environment.getProperty(SPRINGDOC_SWAGGER_UI_PATH)).orElse("/swagger-ui/index.html");
+
+        log.info(
+                """
+                
+                
+                Access Swagger UI URL: {}://{}:{}{}{}
+                Active Profile: {}
+                """,
+                protocol, host, serverPort, contextPath, swaggerUI,
+                activeProfile
+        );
+    }
+
+    private String getServerIP() {
+        try {
+            return InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            log.error("Error resolving host address", e);
+            return "unknown";
+        }
+    }
+}
+```
+
+</details>
+
+
+
+## 8. Naming Conventions
 
 ### Package Naming
-- **Lowercase and Singular**: Package names should be in lowercase and singular (e.g., `com.ainigma100.departmentapi.controller`).
+- **Lowercase and Singular**: Package names should be in lowercase and singular (e.g., `com.ainigma100.customerapi.controller`).
 - **No Special Characters**: Avoid using special characters or underscores.
 
 ### Class Naming
-- **PascalCase**: Class names should follow PascalCase (e.g., `DepartmentService`).
+- **PascalCase**: Class names should follow PascalCase (e.g., `CustomerService`).
 - **Meaningful Names**: Choose descriptive names that clearly indicate the purpose of the class.
 
 ### Entity Naming
-- **Singular Form**: Entity classes should be named in the singular form (e.g., `Department`).
-- **Mapped to Plural Table Names**: Entities often map to plural table names (e.g., `departments`).
+- **Singular Form**: Entity classes should be named in the singular form (e.g., `Customer`).
+- **Mapped to Plural Table Names**: Entities often map to plural table names (e.g., `customers`).
 
 ### API Endpoint Naming
-- **Plural Nouns**: Use plural nouns for API endpoints to represent collections of resources (e.g., `/departments`).
-- **Lowercase with Hyphens**: Endpoint paths should be lowercase, with hyphens separating words (e.g., `/employee-reports`).
+- **Plural Nouns**: Use plural nouns for API endpoints to represent collections of resources (e.g., `/customers`).
+- **Lowercase with Hyphens**: Endpoint paths should be lowercase, with hyphens separating words (e.g., `/customer-reports`).
 
-## 8. Running the Application Without an IDE
+## 9. Running the Application Without an IDE
 
-If you don't have an IDE, you can still run the Spring Boot application using Maven from the command line.
-
-### Steps:
-
-1. **Navigate to the Project Directory**:
-    - Open your terminal or command prompt and navigate to the root directory of your Spring Boot project where the `pom.xml` file is located.
-
-2. **Build the Project**:
-    - Run the following command to build the project:
-      ```
-      mvn clean install
-      ```
-
-3. **Run the Application**:
-    - Once the build is successful, run the application using:
-      ```
-      mvn spring-boot:run
-      ```
-
-4. **Access the Application**:
-    - Open your web browser and go to `http://localhost:8080/` (or the port specified in your `application.yaml`).
-
-## 9. Security (Under Construction)
-
-### Purpose:
-- This section will cover how to secure your Spring Boot application using Spring Security.
-
-### Topics to be Covered:
-- Basic authentication
-- Role-based access control
-- Method-level security
-- JWT tokens
-
-**Note**: This section is under construction and will be developed further.
-
-## 10. Testing (Under Construction)
-
-### Purpose:
-- This section will discuss testing strategies and tools for Spring Boot applications.
-
-### Topics to be Covered:
-- Unit testing with JUnit and Mockito
-- Integration testing
-- Testcontainers for database testing
-
-**Note**: This section is under construction and will be developed further.
-
-## 11. Best Practices
-
-When developing Spring Boot applications, adhering to best practices ensures your code is clean, maintainable, and scalable. Below are some key practices to keep in mind:
-
-### 1. Use DTOs to Abstract Entity Data
-
-- **Purpose**: DTOs (Data Transfer Objects) are used to encapsulate data transferred between the client and server. By using DTOs, you prevent exposing your JPA entities directly to the client, which can mitigate security risks and decouple your API's data model from its internal domain model.
-- **Implementation**:
-    - Use tools like MapStruct or write custom mappers to convert between entities and DTOs.
-    - Ensure that your controllers interact with services using DTOs, not entities, to maintain a clear separation of concerns.
-
-### 2. Leverage Spring’s Dependency Injection
-
-- **Purpose**: Dependency Injection (DI) allows for the automatic management of your application’s dependencies, promoting loose coupling and easier testing.
-- **Best Practices**:
-    - **Use Constructor Injection**: Prefer constructor injection over field injection as it makes your classes easier to test, clearly indicates the dependencies of your class, and supports immutability.
-    - **Avoid Field Injection**: Field injection can lead to issues in unit testing and hides dependencies, making the code harder to understand and maintain.
-    - **Use `@Autowired`**: Spring’s `@Autowired` annotation can be used to inject dependencies, but constructor injection is more explicit and recommended.
-
-### 3. Handle Exceptions Globally
-
-- **Purpose**: Centralized exception handling allows you to manage errors consistently across your application, improving the user experience and simplifying error management.
-- **Implementation**:
-    - Use `@ControllerAdvice` to create a global exception handler that handles exceptions thrown across the application.
-    - Use `@ExceptionHandler` within `@ControllerAdvice` to specify custom handling logic for specific exception types.
-    - Return structured error responses using a consistent format, which can be encapsulated in a DTO like `APIResponse`.
-
-### 4. Organize Your Code
-
-- **Purpose**: A well-organized codebase makes the project easier to navigate, understand, and maintain, especially as it grows in complexity.
-- **Best Practices**:
-    - **Separate Concerns**: Maintain a clean and organized project structure by separating concerns into different layers (e.g., controllers, services, repositories).
-    - **Keep Methods Small**: Break down large methods into smaller, single-purpose methods to enhance readability and maintainability. Each method should do one thing and do it well.
-    - **Avoid Repetition**: Follow the DRY (Don't Repeat Yourself) principle by abstracting common logic into reusable methods or classes.
-
-### 5. Naming Conventions
-
-- **Purpose**: Consistent naming conventions improve the readability and maintainability of your code, making it easier for other developers (and your future self) to understand the purpose of classes, methods, and variables.
-- **Best Practices**:
-    - **Packages**: Use lowercase and singular names for packages (e.g., `com.ainigma100.departmentapi.controller`).
-    - **Classes**: Follow PascalCase for class names (e.g., `DepartmentService`), and ensure names are meaningful and descriptive.
-    - **Methods**: Use camelCase for method names (e.g., `getDepartmentById`) and keep method names descriptive to reflect their actions.
-    - **Endpoints**: Use lowercase and hyphen-separated words for REST API endpoint paths (e.g., `/api/v1/departments`), and use plural nouns for collections (e.g., `/departments`).
-
-### 6. Use Wrapper Objects for API Responses
-
-- **Purpose**: Wrapping API responses in a standardized object (like `APIResponse`) ensures consistent structure, improves readability, and makes it easier to include additional metadata (e.g., status, errors) along with the actual data.
-- **Implementation**:
-    - **Standardized Structure**: Define a generic response class that encapsulates the response data, status, and any errors. This approach provides a uniform response format across all endpoints.
-    - **Builder Pattern**: Use the Builder pattern to construct response objects, which enhances readability and flexibility by allowing you to add only the fields you need.
-    - **Consistency**: Return response objects in all your controller methods to ensure that clients receive a consistent response format, which simplifies client-side parsing and error handling.
-
-### 7. Break Down Complex Logic
-
-- **Purpose**: Breaking down complex logic into smaller, manageable pieces makes your code easier to understand, test, and maintain.
-- **Best Practices**:
-    - **Refactor Large Methods**: If a method is doing too much, refactor it into smaller methods that each handle a specific part of the logic. This improves readability, makes your code more modular, and simplifies testing.
-    - **Single Responsibility Principle (SRP)**: Ensure that each class and method has only one responsibility. This principle helps to make your code more focused, easier to maintain, and less prone to errors.
-    - **Avoid Deep Nesting**: Deeply nested code blocks can be hard to follow and maintain. Consider early exits (using return statements) and breaking nested blocks into separate methods to enhance clarity.
-
-### 8. Document Your Code
-
-- **Purpose**: Well-documented code helps new developers understand the application quickly and ensures that the purpose of classes and methods is clear.
-- **Best Practices**:
-    - **Use Javadoc**: Add Javadoc comments to your classes, methods, and important fields, explaining what they do, what parameters they take, and what they return. This documentation is especially useful for public APIs or libraries.
-    - **Inline Comments**: Use inline comments sparingly to explain complex logic or to provide context about why certain decisions were made. Comments should add value by explaining the "why" behind the code, not the "what."
-    - **Consistent Style**: Follow a consistent commenting style throughout your codebase. This includes using the same format for Javadoc and inline comments to maintain readability and professionalism.
-
-### 9. Version Control and CI/CD
-
-- **Purpose**: Implementing a robust version control and CI/CD (Continuous Integration/Continuous Deployment) pipeline ensures that your codebase is always in a deployable state and that changes are tracked, reviewed, and integrated systematically.
-- **Best Practices**:
-    - **Git**: Use Git for version control, and follow a branching strategy (e.g., GitFlow) to manage feature development, bug fixes, and releases. Commit often with meaningful commit messages to document the history of your project.
-    - **Code Reviews**: Incorporate code reviews into your development process to catch issues early, share knowledge across the team, and maintain code quality.
-    - **CI/CD Pipeline**: Set up a CI/CD pipeline using tools like Jenkins, GitHub Actions, GitLab CI, or CircleCI to automate the building, testing, and deployment of your application. This pipeline should include:
-        - **Automated Testing**: Ensure that all tests run automatically on every commit to catch issues early.
-        - **Code Quality Checks**: Integrate tools like SonarQube or Checkstyle to enforce coding standards and detect potential issues.
-        - **Deployment Automation**: Automate the deployment process to reduce manual errors and speed up delivery.
-
-### 10. Database Migrations with Liquibase or Flyway
-
-- **Purpose**: Database migration tools like Liquibase and Flyway help manage schema changes in a consistent and controlled manner. They are particularly useful in environments where the database schema evolves over time.
-- **When to Use**:
-    - **Use Case**: If your application requires frequent schema changes, or if you work in a team where multiple developers are modifying the database, using a migration tool is essential. It ensures that all changes are versioned, documented, and applied consistently across different environments (development, testing, production).
-    - **When Not Needed**: If your application uses a fixed schema that rarely changes, or if you're using a database with a predefined schema where you don't manage the tables (e.g., a third-party service), you might not need a migration tool. In such cases, focusing on data access rather than schema management is more appropriate.
-- **Best Practices**:
-    - **Version Control for Migrations**: Always check your migration scripts into version control alongside your application code. This ensures that schema changes are versioned with the corresponding application changes.
-    - **Automate Migrations**: Integrate your migration tool into your CI/CD pipeline to ensure that migrations are applied automatically during deployment, reducing the risk of human error.
-
-### 11. Conclusion
-
-By following these best practices, you can build Spring Boot applications that are maintainable, scalable, and easy to understand. These practices not only improve the quality of your code but also make it easier for others to contribute to your project, fostering a collaborative and productive development environment.
+## 10. Security
 
 
+## 11. Testing
 
-## 12. Conclusion
 
-This document aims to provide a foundational understanding of Spring Boot 3, particularly in the context of building a REST API. By following the guidelines and best practices outlined here, you can create a well-structured, maintainable, and scalable application.
+## 12. Best Practices
+
+
+## 13. Conclusion
+
+
 
 ### Feedback and Contributions
 
 Feedback and contributions are welcome! If you have suggestions, improvements, or additional insights, please feel free to share. Together, we can make this a valuable resource for anyone learning Spring Boot 3.
+

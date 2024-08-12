@@ -1,0 +1,27 @@
+server:
+  port: 8088
+  servlet:
+    context-path: '/@project.artifactId@'
+  shutdown: graceful
+
+spring:
+  profiles:
+    active: dev # Specify the active profile
+
+  application:
+    name: '@project.name@'
+  lifecycle:
+    timeout-per-shutdown-phase: 25s
+
+  output:
+    ansi:
+      enabled: always
+
+springdoc:
+  swagger-ui:
+    path: /ui
+  title: 'Customer API'
+  version: '@springdoc-openapi-starter-webmvc-ui.version@'
+openapi:
+  output:
+    file: 'openapi-@project.artifactId@.json'

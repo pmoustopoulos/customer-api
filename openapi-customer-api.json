@@ -1,0 +1,14 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "Customer API",
+    "description" : "Documentation customer-api v1.0",
+    "version" : "2.6.0"
+  },
+  "servers" : [ {
+    "url" : "http://192.168.1.17:8088/customer-api",
+    "description" : "Generated server url"
+  } ],
+  "paths" : { },
+  "components" : { }
+}

@@ -14,7 +14,7 @@ This document is designed to help new Spring Boot developers understand the basi
 5. [Naming Conventions](#8-naming-conventions)
 6. [Configuring `application.yaml`](#5-configuring-applicationyaml)
 7. [Detailed Package Breakdown](#7-detailed-package-breakdown)
-    - [Entity Layer `Under Construction`](#entity-layer)
+    - [Entity Layer](#entity-layer)
     - [Repository Layer](#repository-layer)
     - [Service Layer `Under Construction`](#service-layer)
     - [DTOs and MapStruct `Under Construction`](#dtos-and-mapstruct)
@@ -742,7 +742,7 @@ to a column named `first_name` by default.
 
 
 
-<br>
+<br><br>
 
 ### Repository Layer
 
@@ -757,6 +757,23 @@ to a column named `first_name` by default.
       repository bean for you. This bean is a proxy implementation of `SimpleJpaRepository`, which provides all the
       necessary CRUD operations and query methods for the `Customer` entity. No need for `@Repository` or `@Component`
       annotations—Spring handles the configuration.
+
+<details>
+  <summary>View CustomerRepository code</summary>
+
+```java
+package com.ainigma100.customerapi.repository;
+
+import com.ainigma100.customerapi.entity.Customer;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface CustomerRepository extends JpaRepository<Customer, Long> {
+}
+```
+
+</details>
+
+
 
 ### Query Methods Overview
 Spring Data JPA offers several ways to write queries in your repository interfaces, including:
@@ -786,7 +803,7 @@ Customer findByEmail(@Param("email") String email);
 <br>
 
 #### 3. Native Queries
-You can write native SQL queries using the @Query annotation.
+You can write native SQL queries using the @Query annotation and providing an extra parameter `nativeQuery = true`.
 
 **Example**:
 
@@ -814,16 +831,20 @@ List<Customer> findByStatus(@Param("status") String status);
   JPA's features. Use native queries only when necessary for performance optimization or when dealing with complex
   queries that JPQL cannot handle efficiently.
 
-
+<br><br>
 
 ### Service Layer
 
+<br><br>
 
 ### DTOs and MapStruct
 
+<br><br>
 
 ### Controller Layer
 
+
+<br><br>
 
 ## 8. Helper Classes
 

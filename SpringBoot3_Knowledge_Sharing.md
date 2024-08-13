@@ -11,15 +11,15 @@ This document is designed to help new Spring Boot developers understand the basi
 2. [Project Structure Overview](#2-project-structure-overview)
 3. [Introduction to Maven and `pom.xml`](#3-introduction-to-maven-and-pomxml)
 4. [Key Annotations in Spring Boot](#4-key-annotations-in-spring-boot)
-5. [Configuring `application.yaml`](#5-configuring-applicationyaml)
-6. [Detailed Package Breakdown](#6-detailed-package-breakdown)
+5. [Naming Conventions](#8-naming-conventions)
+6. [Configuring `application.yaml`](#5-configuring-applicationyaml)
+7. [Detailed Package Breakdown](#6-detailed-package-breakdown)
     - [Entity Layer `Under Construction`](#entity-layer)
     - [Repository Layer `Under Construction`](#repository-layer)
     - [Service Layer `Under Construction`](#service-layer)
     - [DTOs and MapStruct `Under Construction`](#dtos-and-mapstruct)
     - [Controller Layer `Under Construction`](#controller-layer)
-7. [Helper Classes](#7-helper-classes)
-8. [Naming Conventions `Under Construction`](#8-naming-conventions)
+8. [Helper Classes](#7-helper-classes)
 9. [Running the Application Without an IDE `Under Construction`](#9-running-the-application-without-an-ide)
 10. [Security `Under Construction`](#10-security-under-construction)
 11. [Testing `Under Construction`](#11-testing-under-construction)
@@ -391,7 +391,61 @@ There are many more annotations in Spring Boot that you might encounter as your 
 
 
 
-## 5. Configuring `application.yaml`
+## 5. Naming Conventions
+Consistent naming conventions in your codebase and API design make your project easier to navigate, maintain, and scale.
+Below are some guidelines for naming conventions in a Spring Boot project focused on a customer-related API.
+
+### Package Naming
+- **Lowercase and Singular**: Package names should be in lowercase and singular. This enhances readability and consistency.
+    - **Example**: `com.example.customerapi.controller`, `com.example.customerapi.service`
+- **No Special Characters**: Avoid using special characters or underscores in package names. Stick to simple, descriptive names.
+    - **Example**: `com.example.customerapi.repository` (not `com.example_customerapi.repository`)
+
+### Class Naming
+- **PascalCase**: Class names should follow PascalCase, where each word starts with an uppercase letter. This is a widely accepted convention in Java.
+    - **Example**: `CustomerService`, `CustomerController`, `CustomerRepository`
+- **Meaningful Names**: Choose descriptive names that clearly indicate the purpose of the class.
+    - **Example**: `CustomerNotificationService` instead of `NotificationHelper`
+
+### Entity Naming
+- **Singular Form**: Entity classes should be named in the singular form to represent a single instance of the entity.
+    - **Example**: `Customer`, `Address`, `Order`
+- **Mapped to Plural Table Names**: Entities often map to plural table names in the database.
+    - **Example**: `Customer` class maps to `customers` table, `Order` class maps to `orders` table
+
+### API Endpoint Naming
+- **Plural Nouns**: Use plural nouns for API endpoints to represent collections of resources.
+    - **Example**: `/customers`, `/orders`, `/addresses`
+
+
+- **Lowercase with Hyphens**: Endpoint paths should be lowercase, with hyphens separating words for readability.
+    - **Example**: `/customers/{customerId}/orders`, `/orders/{orderId}/items`, `/customers/{customerId}/addresses`
+
+
+- **Avoid Verbs in URIs**: Use nouns to represent resources. The HTTP method (GET, POST, PUT, DELETE) should define the action, not the URI.
+    - **Bad Examples**: `/getCustomers`, `/createOrder`, `/deleteCustomer`
+    - **Good Examples**: `/customers` (GET), `/orders` (POST), `/customers/{id}` (DELETE)
+
+
+- **Use Forward Slashes (/) for Hierarchy**: Forward slashes are used to indicate a hierarchical relationship between resources.
+    - **Example**: `/customers/{customerId}/orders`, `/customers/{customerId}/addresses`
+
+
+- **Do Not Use Trailing Slashes**: Avoid trailing slashes at the end of the URI.
+    - **Bad Example**: `/customers/`
+    - **Good Example**: `/customers`
+
+
+- **Use Query Parameters for Filtering**: When filtering collections, use query parameters instead of creating new endpoints.
+  In some cases you may see filtering and sorting information provided as a payload inside a request body.
+    - **Example**: `/customers?status=active`, `/orders?customerId=123&status=pending`
+
+
+
+
+
+
+## 6. Configuring `application.yaml`
 The `application.yaml` file is an essential configuration file in a Spring Boot project. It allows you to manage your
 application's settings in a clear and structured manner. YAML is preferred over properties files in many cases because
 it is easier to read and supports hierarchical data.
@@ -518,7 +572,7 @@ jpa:
 
 <br>
 
-## 6. Detailed Package Breakdown (Under Construction)
+## 7. Detailed Package Breakdown (Under Construction)
 
 ### Entity Layer (Under Construction)
 
@@ -607,7 +661,7 @@ List<Customer> findByStatus(@Param("status") String status);
 ### Controller Layer
 
 
-## 7. Helper Classes
+## 8. Helper Classes
 
 In this section, I provide some helper classes that can be reused in Spring Boot applications. These classes are designed 
 to simplify common tasks such as logging, server configuration, and OpenAPI documentation generation.
@@ -948,55 +1002,6 @@ public class ServerDetails {
 </details>
 
 
-
-## 8. Naming Conventions
-Consistent naming conventions in your codebase and API design make your project easier to navigate, maintain, and scale.
-Below are some guidelines for naming conventions in a Spring Boot project focused on a customer-related API.
-
-### Package Naming
-- **Lowercase and Singular**: Package names should be in lowercase and singular. This enhances readability and consistency.
-    - **Example**: `com.example.customerapi.controller`, `com.example.customerapi.service`
-- **No Special Characters**: Avoid using special characters or underscores in package names. Stick to simple, descriptive names.
-    - **Example**: `com.example.customerapi.repository` (not `com.example_customerapi.repository`)
-
-### Class Naming
-- **PascalCase**: Class names should follow PascalCase, where each word starts with an uppercase letter. This is a widely accepted convention in Java.
-    - **Example**: `CustomerService`, `CustomerController`, `CustomerRepository`
-- **Meaningful Names**: Choose descriptive names that clearly indicate the purpose of the class.
-    - **Example**: `CustomerNotificationService` instead of `NotificationHelper`
-
-### Entity Naming
-- **Singular Form**: Entity classes should be named in the singular form to represent a single instance of the entity.
-    - **Example**: `Customer`, `Address`, `Order`
-- **Mapped to Plural Table Names**: Entities often map to plural table names in the database.
-    - **Example**: `Customer` class maps to `customers` table, `Order` class maps to `orders` table
-
-### API Endpoint Naming
-- **Plural Nouns**: Use plural nouns for API endpoints to represent collections of resources.
-    - **Example**: `/customers`, `/orders`, `/addresses`
-
-
-- **Lowercase with Hyphens**: Endpoint paths should be lowercase, with hyphens separating words for readability.
-    - **Example**: `/customers/{customerId}/orders`, `/orders/{orderId}/items`, `/customers/{customerId}/addresses`
-
-
-- **Avoid Verbs in URIs**: Use nouns to represent resources. The HTTP method (GET, POST, PUT, DELETE) should define the action, not the URI.
-    - **Bad Examples**: `/getCustomers`, `/createOrder`, `/deleteCustomer`
-    - **Good Examples**: `/customers` (GET), `/orders` (POST), `/customers/{id}` (DELETE)
-
-
-- **Use Forward Slashes (/) for Hierarchy**: Forward slashes are used to indicate a hierarchical relationship between resources.
-    - **Example**: `/customers/{customerId}/orders`, `/customers/{customerId}/addresses`
-
-
-- **Do Not Use Trailing Slashes**: Avoid trailing slashes at the end of the URI.
-    - **Bad Example**: `/customers/`
-    - **Good Example**: `/customers`
-
-
-- **Use Query Parameters for Filtering**: When filtering collections, use query parameters instead of creating new endpoints.
-  In some cases you may see filtering and sorting information provided as a payload inside a request body.
-    - **Example**: `/customers?status=active`, `/orders?customerId=123&status=pending`
 
 
 ## 9. Running the Application Without an IDE

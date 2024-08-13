@@ -14,12 +14,12 @@ This document is designed to help new Spring Boot developers understand the basi
 5. [Naming Conventions](#8-naming-conventions)
 6. [Configuring `application.yaml`](#5-configuring-applicationyaml)
 7. [Detailed Package Breakdown](#7-detailed-package-breakdown)
-    - [Entity Layer](#entity-layer)
-    - [Repository Layer](#repository-layer)
-    - [Service Layer `Under Construction`](#service-layer)
-    - [DTOs and MapStruct](#dtos-and-mapstruct)
-    - [Controller Layer `Under Construction`](#controller-layer)
-    - [Exception Handling](#exception-handling)
+  - [Entity Layer](#entity-layer)
+  - [Repository Layer](#repository-layer)
+  - [Service Layer `Under Construction`](#service-layer)
+  - [DTOs and MapStruct](#dtos-and-mapstruct)
+  - [Controller Layer `Under Construction`](#controller-layer)
+  - [Exception Handling](#exception-handling)
 8. [Helper Classes](#7-helper-classes)
 9. [Running the Application Without an IDE `Under Construction`](#9-running-the-application-without-an-ide)
 10. [Security `Under Construction`](#10-security-under-construction)
@@ -115,106 +115,106 @@ running tests, and packaging the application. They are specified in the `<build>
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.3.2</version>
+    <relativePath/> <!-- lookup parent from repository -->
+  </parent>
+
+  <groupId>com.ainigma100</groupId>
+  <artifactId>customer-api</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>customer-api</name>
+  <description>customer-api</description>
+
+  <properties>
+    <java.version>21</java.version>
+    <maven.compiler.source>21</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
+    <springdoc-openapi-starter-webmvc-ui.version>2.6.0</springdoc-openapi-starter-webmvc-ui.version>
+    <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
+    <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-jpa</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-validation</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.mapstruct</groupId>
+      <artifactId>mapstruct</artifactId>
+      <version>${org.mapstruct.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springdoc</groupId>
+      <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+      <version>${springdoc-openapi-starter-webmvc-ui.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
         <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.2</version>
-        <relativePath/> <!-- lookup parent from repository -->
-    </parent>
-
-    <groupId>com.ainigma100</groupId>
-    <artifactId>customer-api</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>customer-api</name>
-    <description>customer-api</description>
-
-    <properties>
-        <java.version>21</java.version>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
-        <springdoc-openapi-starter-webmvc-ui.version>2.6.0</springdoc-openapi-starter-webmvc-ui.version>
-        <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
-        <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
-    </properties>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-validation</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct</artifactId>
-            <version>${org.mapstruct.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>${springdoc-openapi-starter-webmvc-ui.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven-compiler-plugin.version}</version>
-                <configuration>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.mapstruct</groupId>
-                            <artifactId>mapstruct-processor</artifactId>
-                            <version>${org.mapstruct.version}</version>
-                        </path>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </path>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok-mapstruct-binding</artifactId>
-                            <version>${lombok-mapstruct-binding.version}</version>
-                        </path>
-                    </annotationProcessorPaths>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven-compiler-plugin.version}</version>
+        <configuration>
+          <source>${maven.compiler.source}</source>
+          <target>${maven.compiler.target}</target>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.mapstruct</groupId>
+              <artifactId>mapstruct-processor</artifactId>
+              <version>${org.mapstruct.version}</version>
+            </path>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+            </path>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok-mapstruct-binding</artifactId>
+              <version>${lombok-mapstruct-binding.version}</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
 ```
 
@@ -268,84 +268,84 @@ By configuring these plugins, we ensure that Lombok, MapStruct, and their integr
 
 ## 4. Key Annotations in Spring Boot
 
-In this section, I will walk through the key annotations used across the various classes in the example project, explaining 
-their purpose and best practices. These annotations are essential for managing dependencies, handling HTTP requests, 
-mapping database entities, and more. It is important to note that there are many more annotations available in Spring Boot, 
-and I am only covering those that are used in this project. Additionally, when you write tests 
+In this section, I will walk through the key annotations used across the various classes in the example project, explaining
+their purpose and best practices. These annotations are essential for managing dependencies, handling HTTP requests,
+mapping database entities, and more. It is important to note that there are many more annotations available in Spring Boot,
+and I am only covering those that are used in this project. Additionally, when you write tests
 (unit tests, integration tests, etc.), you will use additional annotations specific to testing.
 
 ### 1. Commonly Used Annotations Across the Application
 
 These annotations are versatile and can be used in different layers of a Spring Boot application, depending on the need.
 
-- **`@Slf4j`**: Creates a `Logger` instance in the class, allowing for easy logging without manually defining a logger. 
-  This annotation can be used in any class where logging is required, such as service classes, controllers, repositories, 
+- **`@Slf4j`**: Creates a `Logger` instance in the class, allowing for easy logging without manually defining a logger.
+  This annotation can be used in any class where logging is required, such as service classes, controllers, repositories,
   and even configuration classes.
 
 
 - **`@AllArgsConstructor`, `@NoArgsConstructor`, and `@RequiredArgsConstructor`**:
 
-  - **`@AllArgsConstructor`**: Generates a constructor with parameters for all fields in the class. This is useful when 
+  - **`@AllArgsConstructor`**: Generates a constructor with parameters for all fields in the class. This is useful when
     you want to ensure all fields are initialized at the time of object creation.
-  
-  - **`@NoArgsConstructor`**: Generates a no-argument constructor, which is necessary for frameworks like JPA that 
+
+  - **`@NoArgsConstructor`**: Generates a no-argument constructor, which is necessary for frameworks like JPA that
     require a default constructor to instantiate entities.
-  
+
   - **`@RequiredArgsConstructor`**: Generates a constructor with parameters for all final fields and any fields that are
-    marked as `@NonNull`. This is useful when you want to ensure that mandatory fields are initialized while still 
+    marked as `@NonNull`. This is useful when you want to ensure that mandatory fields are initialized while still
     allowing flexibility in object creation.
 
 
 
-- **`@Data`**: Generates getters, setters, `equals()`, `hashCode()`, `toString()`, and other utility methods. While it 
-  is suitable for DTOs and simple data carrier classes, it is generally not recommended for JPA entities due to 
-  potential performance issues and complications with `equals()` and `hashCode()` methods. Instead, for JPA entities, 
+- **`@Data`**: Generates getters, setters, `equals()`, `hashCode()`, `toString()`, and other utility methods. While it
+  is suitable for DTOs and simple data carrier classes, it is generally not recommended for JPA entities due to
+  potential performance issues and complications with `equals()` and `hashCode()` methods. Instead, for JPA entities,
   it's better to use individual annotations like `@Getter`, `@Setter`, and `@ToString`.
 
 ### 2. Entity Class Annotations
 
-- **`@Entity`**: Marks the class as a JPA entity, meaning it is mapped to a database table. It is crucial for ORM 
+- **`@Entity`**: Marks the class as a JPA entity, meaning it is mapped to a database table. It is crucial for ORM
   (Object-Relational Mapping) in Spring Boot.
 
 
-- **`@Table(name = "customers")`**: Specifies the name of the table in the database that this entity maps to. Useful 
+- **`@Table(name = "customers")`**: Specifies the name of the table in the database that this entity maps to. Useful
   when the table name differs from the class name.
 
 
 - **`@Id`**: Denotes the primary key of the entity. It is a mandatory annotation for JPA entities.
 
 
-- **`@GeneratedValue(strategy = GenerationType.IDENTITY)`**: Specifies the primary key generation strategy. 
+- **`@GeneratedValue(strategy = GenerationType.IDENTITY)`**: Specifies the primary key generation strategy.
   `GenerationType.IDENTITY` indicates that the database will auto-generate the primary key.
 
 
-- **`@Column`**: Marks a field as a column in the database. It can include additional attributes like `nullable`, 
+- **`@Column`**: Marks a field as a column in the database. It can include additional attributes like `nullable`,
   `unique`, and `length` to define the column's characteristics.
 
 
-- **`@CreationTimestamp`** and **`@UpdateTimestamp`**: Automatically manage the creation and update timestamps of the 
+- **`@CreationTimestamp`** and **`@UpdateTimestamp`**: Automatically manage the creation and update timestamps of the
   entity, using the database's current timestamp.
 
 
 - **Lombok Annotations**:
-    - **`@Getter`** and **`@Setter`**: Generate getters and setters for all fields.
-    - **`@ToString`**: Generates a `toString()` method.
-    - **Note**: The `@Data` annotation is not recommended for JPA entities due to potential performance issues and 
-      complications with `equals()` and `hashCode()` methods.
+  - **`@Getter`** and **`@Setter`**: Generate getters and setters for all fields.
+  - **`@ToString`**: Generates a `toString()` method.
+  - **Note**: The `@Data` annotation is not recommended for JPA entities due to potential performance issues and
+    complications with `equals()` and `hashCode()` methods.
 
 
-- **Best Practice for Associations**: When working with entity relationships (`@OneToMany`, `@ManyToOne`, etc.), it is 
-  important to understand fetch strategies (`FetchType.LAZY` vs. `FetchType.EAGER`) and cascade options to manage how 
+- **Best Practice for Associations**: When working with entity relationships (`@OneToMany`, `@ManyToOne`, etc.), it is
+  important to understand fetch strategies (`FetchType.LAZY` vs. `FetchType.EAGER`) and cascade options to manage how
   related entities are loaded and persisted.
 
 
 ### 3. DTO Class Annotations
 
-- **`@Data`**: Generates all necessary methods like `equals()`, `hashCode()`, `toString()`, and getters/setters. 
+- **`@Data`**: Generates all necessary methods like `equals()`, `hashCode()`, `toString()`, and getters/setters.
   Suitable for DTOs, which are simple data carriers without complex logic.
 
 
-- **`@JsonInclude(JsonInclude.Include.NON_NULL)`**: Ensures that null fields are not included in the JSON output, 
+- **`@JsonInclude(JsonInclude.Include.NON_NULL)`**: Ensures that null fields are not included in the JSON output,
   resulting in cleaner API responses.
 
 
@@ -354,44 +354,44 @@ These annotations are versatile and can be used in different layers of a Spring 
 
 ### 4. Repository Class Annotations
 
-- **`@Query`**: Defines custom JPQL or native SQL queries within repository interfaces. Useful for complex queries not 
+- **`@Query`**: Defines custom JPQL or native SQL queries within repository interfaces. Useful for complex queries not
   handled by Spring Data JPA's method naming conventions.
 
 
 - **`@Param`**: Binds method parameters to named parameters in a query, improving readability and maintainability.
 
 
-- **`@Repository` (Not explicitly required)**: While you don't need to explicitly use this annotation if you extend 
-  `JpaRepository`, it is good to know that it marks a class as a repository and makes it eligible for exception 
+- **`@Repository` (Not explicitly required)**: While you don't need to explicitly use this annotation if you extend
+  `JpaRepository`, it is good to know that it marks a class as a repository and makes it eligible for exception
   translation into Spring's DataAccessException hierarchy. This annotation can also be used in custom repository implementations.
 
 
 ### 5. Service Class Annotations
 
-- **`@Service`**: Marks the class as a service, which is part of the service layer in the application. It is a 
+- **`@Service`**: Marks the class as a service, which is part of the service layer in the application. It is a
   specialization of `@Component`, indicating that the class contains business logic.
 
 
-- **`@Override`**: Indicates that a method is overriding a method in a superclass. It is a good practice to use this 
-  annotation to avoid errors, like incorrect method signatures. This annotation can be used in any class where method 
+- **`@Override`**: Indicates that a method is overriding a method in a superclass. It is a good practice to use this
+  annotation to avoid errors, like incorrect method signatures. This annotation can be used in any class where method
   overriding occurs, not just in services.
 
 
 ### 6. Controller Class Annotations
 
-- **`@RestController`**: Combines `@Controller` and `@ResponseBody`, indicating that the class handles HTTP requests and 
+- **`@RestController`**: Combines `@Controller` and `@ResponseBody`, indicating that the class handles HTTP requests and
   that the return value of each method is written directly to the HTTP response body, typically as JSON.
 
 
-- **`@RequestMapping("/api/v1/customers")`**: Maps HTTP requests to specific methods in the controller, providing a base 
+- **`@RequestMapping("/api/v1/customers")`**: Maps HTTP requests to specific methods in the controller, providing a base
   path for all endpoints within the controller.
 
 
-- **`@GetMapping`, `@PostMapping`, `@PutMapping`, `@DeleteMapping`**: Map HTTP GET, POST, PUT, and DELETE requests, 
+- **`@GetMapping`, `@PostMapping`, `@PutMapping`, `@DeleteMapping`**: Map HTTP GET, POST, PUT, and DELETE requests,
   respectively, to specific methods in the controller.
 
 
-- **`@Operation(summary = "Add a new customer")`**: Used in OpenAPI/Swagger documentation to describe the purpose of an 
+- **`@Operation(summary = "Add a new customer")`**: Used in OpenAPI/Swagger documentation to describe the purpose of an
   endpoint, aiding in generating accurate and useful API documentation.
 
 
@@ -404,40 +404,40 @@ These annotations are versatile and can be used in different layers of a Spring 
 - **`@PathVariable`**: Binds a method parameter to a URI template variable, allowing extraction of values from the URL.
 
 
-- **`@RequestParam`**: Binds a method parameter to a query parameter in the URL, useful for passing optional or required 
+- **`@RequestParam`**: Binds a method parameter to a query parameter in the URL, useful for passing optional or required
   parameters to an endpoint.
 
 
 ### 7. Additional Annotations
 
-- **`@Configuration`**: Indicates that the class contains Spring bean definitions and can replace traditional XML-based 
+- **`@Configuration`**: Indicates that the class contains Spring bean definitions and can replace traditional XML-based
   configuration. This can be used in any class responsible for defining beans or configuring aspects of the application.
 
 
-- **`@Value`**: Injects values from properties files into fields, typically used for configuration purposes. It can be 
+- **`@Value`**: Injects values from properties files into fields, typically used for configuration purposes. It can be
   used in any class where configuration values are needed.
 
 
-- **`@Bean`**: Marks a method as a bean producer in Spring's application context, with the method's return value being 
+- **`@Bean`**: Marks a method as a bean producer in Spring's application context, with the method's return value being
   registered as a bean and managed by Spring. This is typically used in configuration classes but can be used anywhere bean definitions are required.
 
 
-- **`@EventListener(ApplicationReadyEvent.class)`**: Listens for specific events in the Spring application lifecycle. 
-  For example, it is used in your `ServerDetails` class to execute code when the application is fully started and ready 
+- **`@EventListener(ApplicationReadyEvent.class)`**: Listens for specific events in the Spring application lifecycle.
+  For example, it is used in your `ServerDetails` class to execute code when the application is fully started and ready
   to service requests. This can be applied to any class where event-driven behavior is necessary.
 
 
-- **`@Mapper(componentModel = "spring")`**: Used in MapStruct to generate a Spring bean for the mapper, allowing it to 
-  be injected as a dependency where needed. This annotation is essential for integrating MapStruct mappers into your 
+- **`@Mapper(componentModel = "spring")`**: Used in MapStruct to generate a Spring bean for the mapper, allowing it to
+  be injected as a dependency where needed. This annotation is essential for integrating MapStruct mappers into your
   Spring Boot application.
 
 
 ### Additional Notes
 
 There are many more annotations in Spring Boot that you might encounter as your application grows or as you write tests
-(unit tests, integration tests, etc.). Each layer of the application (controller, service, repository, etc.) and each 
-use case (security, data validation, testing) has specific annotations that help to streamline development and improve 
-code quality. This section covers the key annotations used in this project, providing a solid foundation for 
+(unit tests, integration tests, etc.). Each layer of the application (controller, service, repository, etc.) and each
+use case (security, data validation, testing) has specific annotations that help to streamline development and improve
+code quality. This section covers the key annotations used in this project, providing a solid foundation for
 understanding how they work together in a Spring Boot application.
 
 
@@ -448,48 +448,48 @@ Below are some guidelines for naming conventions in a Spring Boot project focuse
 
 ### Package Naming
 - **Lowercase and Singular**: Package names should be in lowercase and singular. This enhances readability and consistency.
-    - **Example**: `com.example.customerapi.controller`, `com.example.customerapi.service`
+  - **Example**: `com.example.customerapi.controller`, `com.example.customerapi.service`
 - **No Special Characters**: Avoid using special characters or underscores in package names. Stick to simple, descriptive names.
-    - **Example**: `com.example.customerapi.repository` (not `com.example_customerapi.repository`)
+  - **Example**: `com.example.customerapi.repository` (not `com.example_customerapi.repository`)
 
 ### Class Naming
 - **PascalCase**: Class names should follow PascalCase, where each word starts with an uppercase letter. This is a widely accepted convention in Java.
-    - **Example**: `CustomerService`, `CustomerController`, `CustomerRepository`
+  - **Example**: `CustomerService`, `CustomerController`, `CustomerRepository`
 - **Meaningful Names**: Choose descriptive names that clearly indicate the purpose of the class.
-    - **Example**: `CustomerNotificationService` instead of `NotificationHelper`
+  - **Example**: `CustomerNotificationService` instead of `NotificationHelper`
 
 ### Entity Naming
 - **Singular Form**: Entity classes should be named in the singular form to represent a single instance of the entity.
-    - **Example**: `Customer`, `Address`, `Order`
+  - **Example**: `Customer`, `Address`, `Order`
 - **Mapped to Plural Table Names**: Entities often map to plural table names in the database.
-    - **Example**: `Customer` class maps to `customers` table, `Order` class maps to `orders` table
+  - **Example**: `Customer` class maps to `customers` table, `Order` class maps to `orders` table
 
 ### API Endpoint Naming
 - **Plural Nouns**: Use plural nouns for API endpoints to represent collections of resources.
-    - **Example**: `/customers`, `/orders`, `/addresses`
+  - **Example**: `/customers`, `/orders`, `/addresses`
 
 
 - **Lowercase with Hyphens**: Endpoint paths should be lowercase, with hyphens separating words for readability.
-    - **Example**: `/customers/{customerId}/orders`, `/orders/{orderId}/items`, `/customers/{customerId}/addresses`
+  - **Example**: `/customers/{customerId}/orders`, `/orders/{orderId}/items`, `/customers/{customerId}/addresses`
 
 
 - **Avoid Verbs in URIs**: Use nouns to represent resources. The HTTP method (GET, POST, PUT, DELETE) should define the action, not the URI.
-    - **Bad Examples**: `/getCustomers`, `/createOrder`, `/deleteCustomer`
-    - **Good Examples**: `/customers` (GET), `/orders` (POST), `/customers/{id}` (DELETE)
+  - **Bad Examples**: `/getCustomers`, `/createOrder`, `/deleteCustomer`
+  - **Good Examples**: `/customers` (GET), `/orders` (POST), `/customers/{id}` (DELETE)
 
 
 - **Use Forward Slashes (/) for Hierarchy**: Forward slashes are used to indicate a hierarchical relationship between resources.
-    - **Example**: `/customers/{customerId}/orders`, `/customers/{customerId}/addresses`
+  - **Example**: `/customers/{customerId}/orders`, `/customers/{customerId}/addresses`
 
 
 - **Do Not Use Trailing Slashes**: Avoid trailing slashes at the end of the URI.
-    - **Bad Example**: `/customers/`
-    - **Good Example**: `/customers`
+  - **Bad Example**: `/customers/`
+  - **Good Example**: `/customers`
 
 
 - **Use Query Parameters for Filtering**: When filtering collections, use query parameters instead of creating new endpoints.
   In some cases you may see filtering and sorting information provided as a payload inside a request body.
-    - **Example**: `/customers?status=active`, `/orders?customerId=123&status=pending`
+  - **Example**: `/customers?status=active`, `/orders?customerId=123&status=pending`
 
 
 
@@ -531,8 +531,8 @@ You can activate a specific profile in several ways:
 
 ### Example `application.yaml` and `application-dev.yaml` files for Customer API
 
-In this section, I provide two YAML configuration files to demonstrate some of the settings I use for a Spring Boot 
-project. These are just examples, and many other configurations are available depending on your project's needs. As I 
+In this section, I provide two YAML configuration files to demonstrate some of the settings I use for a Spring Boot
+project. These are just examples, and many other configurations are available depending on your project's needs. As I
 continue to develop this project, I may add more configurations.
 
 #### application.yaml
@@ -575,7 +575,7 @@ springdoc:
     path: /ui
   title: 'Customer API'
   version: '@springdoc-openapi-starter-webmvc-ui.version@'
-  
+
 openapi:
   output:
     file: 'openapi-@project.artifactId@.json'
@@ -627,19 +627,19 @@ jpa:
 
 ### Entity Layer
 
-- **Purpose**: The entity layer represents the database tables in the form of JPA entities. Each entity class typically 
+- **Purpose**: The entity layer represents the database tables in the form of JPA entities. Each entity class typically
   maps to a single table in the database.
 
 - **Package**: `entity`
 
 - **Example Classes**:
-    - `Customer.java`: Represents the `customers` table.
-  
+  - `Customer.java`: Represents the `customers` table.
+
 - **Key Annotations**:
-    - `@Entity`: Marks a class as a JPA entity.
-    - `@Table(name = "table_name")`: Specifies the name of the table in the database.
-    - `@Id`: Indicates the primary key of the entity.
-    - `@GeneratedValue(strategy = GenerationType.IDENTITY)`: Defines the strategy for primary key generation.
+  - `@Entity`: Marks a class as a JPA entity.
+  - `@Table(name = "table_name")`: Specifies the name of the table in the database.
+  - `@Id`: Indicates the primary key of the entity.
+  - `@GeneratedValue(strategy = GenerationType.IDENTITY)`: Defines the strategy for primary key generation.
 
 <details>
   <summary>View Customer code</summary>
@@ -666,45 +666,45 @@ import java.util.Objects;
 @Table(name = "customers")
 public class Customer {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(nullable = false)
-    private String firstName;
+  @Column(nullable = false)
+  private String firstName;
 
-    @Column(nullable = false)
-    private String lastName;
+  @Column(nullable = false)
+  private String lastName;
 
-    @Column(nullable = false, unique = true)
-    private String email;
+  @Column(nullable = false, unique = true)
+  private String email;
 
-    private String phoneNumber;
+  private String phoneNumber;
 
-    private LocalDate dateOfBirth;
+  private LocalDate dateOfBirth;
 
-    @CreationTimestamp
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdDate;
+  @CreationTimestamp
+  @Column(nullable = false, updatable = false)
+  private LocalDateTime createdDate;
 
-    @UpdateTimestamp
-    private LocalDateTime updatedDate;
+  @UpdateTimestamp
+  private LocalDateTime updatedDate;
 
-    @Override
-    public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        Class<?> oEffectiveClass = o instanceof HibernateProxy hibernateProxy ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy hibernateProxy ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass() : this.getClass();
-        if (thisEffectiveClass != oEffectiveClass) return false;
-        Customer customer = (Customer) o;
-        return getId() != null && Objects.equals(getId(), customer.getId());
-    }
+  @Override
+  public final boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null) return false;
+    Class<?> oEffectiveClass = o instanceof HibernateProxy hibernateProxy ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+    Class<?> thisEffectiveClass = this instanceof HibernateProxy hibernateProxy ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+    if (thisEffectiveClass != oEffectiveClass) return false;
+    Customer customer = (Customer) o;
+    return getId() != null && Objects.equals(getId(), customer.getId());
+  }
 
-    @Override
-    public final int hashCode() {
-        return this instanceof HibernateProxy hibernateProxy? hibernateProxy.getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
-    }
+  @Override
+  public final int hashCode() {
+    return this instanceof HibernateProxy hibernateProxy? hibernateProxy.getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+  }
 }
 ```
 
@@ -712,21 +712,21 @@ public class Customer {
 
 ### Why Not Use `@Data`?
 
-While `@Data` is a convenient annotation provided by Lombok that generates getters, setters, `toString()`, `equals()`, 
-and `hashCode()` methods, it is not recommended for use with JPA entities (I got this warning from JPA Buddy plugin). 
-Using `@Data` in JPA entities can lead to severe performance and memory consumption issues. Additionally, `@Data` 
-generates `equals()` and `hashCode()` methods that might not be suitable for entities, particularly in cases involving 
+While `@Data` is a convenient annotation provided by Lombok that generates getters, setters, `toString()`, `equals()`,
+and `hashCode()` methods, it is not recommended for use with JPA entities (I got this warning from JPA Buddy plugin).
+Using `@Data` in JPA entities can lead to severe performance and memory consumption issues. Additionally, `@Data`
+generates `equals()` and `hashCode()` methods that might not be suitable for entities, particularly in cases involving
 entity relationships and lazy loading.
 
 ### Importance of `equals()` and `hashCode()`
 
-- **`equals()`**: This method determines whether two instances are considered equal. For JPA entities, this typically 
-  means comparing the primary key (ID). Properly implementing `equals()` ensures that the entity behaves correctly when 
+- **`equals()`**: This method determines whether two instances are considered equal. For JPA entities, this typically
+  means comparing the primary key (ID). Properly implementing `equals()` ensures that the entity behaves correctly when
   compared in collections or when managed by the persistence context.
 
 
-- **`hashCode()`**: This method provides a hash code for the entity, which is essential for its use in hash-based 
-  collections like `HashSet` or `HashMap`. Properly implementing `hashCode()` ensures consistency and correctness when 
+- **`hashCode()`**: This method provides a hash code for the entity, which is essential for its use in hash-based
+  collections like `HashSet` or `HashMap`. Properly implementing `hashCode()` ensures consistency and correctness when
   the entity is stored or retrieved from such collections.
 
 For more details on why these methods are important and best practices for implementing them, you can find  
@@ -736,7 +736,7 @@ resources and discussions online.
 
 ### Additional Column Specification
 
-You can also specify the name of the column in the database using the `@Column(name = "column_name")` annotation. 
+You can also specify the name of the column in the database using the `@Column(name = "column_name")` annotation.
 This is useful when the field name in the entity class differs from the column name in the database table.
 
 **Example**:
@@ -746,8 +746,8 @@ This is useful when the field name in the entity class differs from the column n
 private String firstName;
 ```
 
-**Note**: If you do not specify the column name and the property is in camelCase, the column name will automatically be 
-converted to snake_case in most databases. For example, if your entity has a field named `firstName`, it will be mapped 
+**Note**: If you do not specify the column name and the property is in camelCase, the column name will automatically be
+converted to snake_case in most databases. For example, if your entity has a field named `firstName`, it will be mapped
 to a column named `first_name` by default.
 
 
@@ -760,13 +760,13 @@ to a column named `first_name` by default.
   interact with the database without writing SQL.
 - **Package**: `repository`
 - **Example Class**:
-    - `CustomerRepository.java`: Manages CRUD operations for the `Customer` entity.
+  - `CustomerRepository.java`: Manages CRUD operations for the `Customer` entity.
 
 - **Key Concepts**:
-    - **`extends JpaRepository<Customer, Long>`**: By extending `JpaRepository`, Spring Boot automatically configures a
-      repository bean for you. This bean is a proxy implementation of `SimpleJpaRepository`, which provides all the
-      necessary CRUD operations and query methods for the `Customer` entity. No need for `@Repository` or `@Component`
-      annotations—Spring handles the configuration.
+  - **`extends JpaRepository<Customer, Long>`**: By extending `JpaRepository`, Spring Boot automatically configures a
+    repository bean for you. This bean is a proxy implementation of `SimpleJpaRepository`, which provides all the
+    necessary CRUD operations and query methods for the `Customer` entity. No need for `@Repository` or `@Component`
+    annotations—Spring handles the configuration.
 
 <details>
   <summary>View CustomerRepository code</summary>
@@ -928,22 +928,22 @@ public interface CustomerMapper {
 
 ### Service Layer
 
-The service layer in a Spring Boot application contains the business logic of the application. It acts as an intermediary 
+The service layer in a Spring Boot application contains the business logic of the application. It acts as an intermediary
 between the controller layer (handling HTTP requests) and the repository layer (interacting with the database).
 
 #### Key Concepts:
 
-- **Interface and Implementation**: It's a good practice to define a service interface and then provide its implementation. 
-  This approach promotes loose coupling and makes your code more modular and easier to test. The interface defines the 
+- **Interface and Implementation**: It's a good practice to define a service interface and then provide its implementation.
+  This approach promotes loose coupling and makes your code more modular and easier to test. The interface defines the
   contract for the service, while the implementation class contains the actual business logic.
 
   **Example**:
-    - `CustomerService`: Interface that defines methods for customer-related operations.
-    - `CustomerServiceImpl`: Implementation class that provides the logic for methods like retrieving customers, updating customer details, etc.
+  - `CustomerService`: Interface that defines methods for customer-related operations.
+  - `CustomerServiceImpl`: Implementation class that provides the logic for methods like retrieving customers, updating customer details, etc.
 
 
-- **Returning DTOs**: The service layer should not return entities directly. Instead, it should return Data Transfer Objects (DTOs). 
-  DTOs are simple objects that carry data between layers. They are particularly useful for exposing only the necessary 
+- **Returning DTOs**: The service layer should not return entities directly. Instead, it should return Data Transfer Objects (DTOs).
+  DTOs are simple objects that carry data between layers. They are particularly useful for exposing only the necessary
   data to the client and for avoiding exposing the internal structure of your entities.
 
 
@@ -1004,15 +1004,15 @@ This structured approach ensures that your application is well-organized, with c
 
 ### Exception Handling
 
-In a Spring Boot application, it's important to handle exceptions in a way that provides meaningful feedback to the 
-client while maintaining a clean and maintainable codebase. In addition, you have to be sure not to expose sensitive data. 
-The `GlobalExceptionHandler` class in this project serves this purpose by centralizing exception handling and ensuring 
+In a Spring Boot application, it's important to handle exceptions in a way that provides meaningful feedback to the
+client while maintaining a clean and maintainable codebase. In addition, you have to be sure not to expose sensitive data.
+The `GlobalExceptionHandler` class in this project serves this purpose by centralizing exception handling and ensuring
 consistent error responses across the entire application.
 
 #### Global Exception Handler
 
-The `GlobalExceptionHandler` class, annotated with `@ControllerAdvice`, intercepts exceptions thrown by any controller 
-in the application. This class defines several `@ExceptionHandler` methods to handle specific types of exceptions, 
+The `GlobalExceptionHandler` class, annotated with `@ControllerAdvice`, intercepts exceptions thrown by any controller
+in the application. This class defines several `@ExceptionHandler` methods to handle specific types of exceptions,
 ensuring that the application responds with appropriate HTTP status codes and error messages.
 
 **Key Features of `GlobalExceptionHandler`:**
@@ -1043,8 +1043,8 @@ To ensure that error responses are consistent, the `APIResponse` class is used t
 
 This structure ensures that clients receive clear and consistent error messages, which can be easily parsed and handled.
 
-**Note**: This approach to exception handling improves the robustness of the application, making it more maintainable 
-and user-friendly. For more details on how to implement and extend this global exception handler, you can refer to 
+**Note**: This approach to exception handling improves the robustness of the application, making it more maintainable
+and user-friendly. For more details on how to implement and extend this global exception handler, you can refer to
 additional resources or documentation available online.
 
 
@@ -1206,12 +1206,12 @@ public class GlobalExceptionHandler {
 
 ## 8. Helper Classes
 
-In this section, I provide some helper classes that can be reused in Spring Boot applications. These classes are designed 
+In this section, I provide some helper classes that can be reused in Spring Boot applications. These classes are designed
 to simplify common tasks such as logging, server configuration, and OpenAPI documentation generation.
 
 ### OpenApiConfig
 
-This configuration class is responsible for generating OpenAPI documentation using SpringDoc. It fetches the OpenAPI 
+This configuration class is responsible for generating OpenAPI documentation using SpringDoc. It fetches the OpenAPI
 JSON from the application's endpoints and saves it as a formatted file.
 
 **Key Features**:
@@ -1255,80 +1255,80 @@ import java.util.Optional;
 public class OpenApiConfig {
 
 
-    private final Environment environment;
+  private final Environment environment;
 
-    public OpenApiConfig(Environment environment) {
-        this.environment = environment;
+  public OpenApiConfig(Environment environment) {
+    this.environment = environment;
+  }
+
+  @Value("${server.port:8080}")
+  private int serverPort;
+
+  @Value("${openapi.output.file}")
+  private String outputFileName;
+
+  private static final String SERVER_SSL_KEY_STORE = "server.ssl.key-store";
+  private static final String SERVER_SERVLET_CONTEXT_PATH = "server.servlet.context-path";
+
+  @Bean
+  public CommandLineRunner generateOpenApiJson() {
+    return args -> {
+      String protocol = Optional.ofNullable(environment.getProperty(SERVER_SSL_KEY_STORE)).map(key -> "https").orElse("http");
+      String host = getServerIP();
+      String contextPath = Optional.ofNullable(environment.getProperty(SERVER_SERVLET_CONTEXT_PATH)).orElse("");
+
+      // Define the API docs URL
+      String apiDocsUrl = String.format("%s://%s:%d%s/v3/api-docs", protocol, host, serverPort, contextPath);
+
+      log.info("Attempting to fetch OpenAPI docs from URL: {}", apiDocsUrl);
+
+      try {
+        // Create RestClient instance
+        RestClient restClient = RestClient.create();
+
+        // Fetch the OpenAPI JSON
+        String response = restClient.get()
+                .uri(apiDocsUrl)
+                .retrieve()
+                .body(String.class);
+
+        // Format and save the JSON to a file
+        formatAndSaveToFile(response, outputFileName);
+
+        log.info("OpenAPI documentation generated successfully at {}", outputFileName);
+
+      } catch (Exception e) {
+        log.error("Failed to generate OpenAPI documentation from URL: {}", apiDocsUrl, e);
+      }
+    };
+  }
+
+  private String getServerIP() {
+    try {
+      return InetAddress.getLocalHost().getHostAddress();
+    } catch (UnknownHostException e) {
+      log.error("Error resolving host address", e);
+      return "unknown";
     }
+  }
 
-    @Value("${server.port:8080}")
-    private int serverPort;
+  private void formatAndSaveToFile(String content, String fileName) {
+    try {
+      ObjectMapper objectMapper = new ObjectMapper();
 
-    @Value("${openapi.output.file}")
-    private String outputFileName;
+      // Enable pretty-print
+      objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 
-    private static final String SERVER_SSL_KEY_STORE = "server.ssl.key-store";
-    private static final String SERVER_SERVLET_CONTEXT_PATH = "server.servlet.context-path";
+      // Read the JSON content as a JsonNode
+      JsonNode jsonNode = objectMapper.readTree(content);
 
-    @Bean
-    public CommandLineRunner generateOpenApiJson() {
-        return args -> {
-            String protocol = Optional.ofNullable(environment.getProperty(SERVER_SSL_KEY_STORE)).map(key -> "https").orElse("http");
-            String host = getServerIP();
-            String contextPath = Optional.ofNullable(environment.getProperty(SERVER_SERVLET_CONTEXT_PATH)).orElse("");
+      // Write the formatted JSON to a file
+      objectMapper.writeValue(new File(fileName), jsonNode);
 
-            // Define the API docs URL
-            String apiDocsUrl = String.format("%s://%s:%d%s/v3/api-docs", protocol, host, serverPort, contextPath);
-
-            log.info("Attempting to fetch OpenAPI docs from URL: {}", apiDocsUrl);
-
-            try {
-                // Create RestClient instance
-                RestClient restClient = RestClient.create();
-
-                // Fetch the OpenAPI JSON
-                String response = restClient.get()
-                        .uri(apiDocsUrl)
-                        .retrieve()
-                        .body(String.class);
-
-                // Format and save the JSON to a file
-                formatAndSaveToFile(response, outputFileName);
-
-                log.info("OpenAPI documentation generated successfully at {}", outputFileName);
-
-            } catch (Exception e) {
-                log.error("Failed to generate OpenAPI documentation from URL: {}", apiDocsUrl, e);
-            }
-        };
+    } catch (IOException e) {
+      log.error("Error while saving JSON to file", e);
     }
-
-    private String getServerIP() {
-        try {
-            return InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            log.error("Error resolving host address", e);
-            return "unknown";
-        }
-    }
-
-    private void formatAndSaveToFile(String content, String fileName) {
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-
-            // Enable pretty-print
-            objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-
-            // Read the JSON content as a JsonNode
-            JsonNode jsonNode = objectMapper.readTree(content);
-
-            // Write the formatted JSON to a file
-            objectMapper.writeValue(new File(fileName), jsonNode);
-
-        } catch (IOException e) {
-            log.error("Error while saving JSON to file", e);
-        }
-    }
+  }
 }
 ```
 </details>
@@ -1337,7 +1337,7 @@ public class OpenApiConfig {
 
 ### LoggingFilter
 
-A servlet filter that logs incoming HTTP requests and outgoing responses. It excludes certain paths, such as those 
+A servlet filter that logs incoming HTTP requests and outgoing responses. It excludes certain paths, such as those
 related to Actuator and Swagger, from logging to reduce noise.
 
 **Key Features**:
@@ -1365,54 +1365,54 @@ import java.io.IOException;
 public class LoggingFilter implements Filter {
 
 
-    @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-            throws IOException, ServletException {
+  @Override
+  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+          throws IOException, ServletException {
 
-        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-        HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+    HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+    HttpServletResponse httpServletResponse = (HttpServletResponse) response;
 
-        String clientIP = this.getClientIP(httpServletRequest);
+    String clientIP = this.getClientIP(httpServletRequest);
 
-        if ( this.shouldLogRequest(httpServletRequest) ) {
-            log.info("Client IP: {}, Request URL: {}, Method: {}", clientIP, httpServletRequest.getRequestURL(), httpServletRequest.getMethod());
-        }
-
-        // pre methods call stamps
-        chain.doFilter(request, response);
-
-        // post method calls stamps
-        if ( this.shouldLogRequest(httpServletRequest) ) {
-            log.info("Response status: {}", httpServletResponse.getStatus());
-        }
-
+    if ( this.shouldLogRequest(httpServletRequest) ) {
+      log.info("Client IP: {}, Request URL: {}, Method: {}", clientIP, httpServletRequest.getRequestURL(), httpServletRequest.getMethod());
     }
 
-    private boolean shouldLogRequest(HttpServletRequest request) {
+    // pre methods call stamps
+    chain.doFilter(request, response);
 
-        // (?i) enables case-insensitive matching, \b matched as whole words
-        // reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions
-        return !request.getServletPath().matches("(?i).*\\b(actuator|swagger|api-docs|favicon|ui)\\b.*");
+    // post method calls stamps
+    if ( this.shouldLogRequest(httpServletRequest) ) {
+      log.info("Response status: {}", httpServletResponse.getStatus());
     }
 
-    private String getClientIP(HttpServletRequest request) {
+  }
 
-        String clientIP = request.getHeader("Client-IP");
+  private boolean shouldLogRequest(HttpServletRequest request) {
 
-        if (clientIP == null || clientIP.isEmpty() || "unknown".equalsIgnoreCase(clientIP)) {
-            clientIP = request.getHeader("X-Forwarded-For");
-        }
+    // (?i) enables case-insensitive matching, \b matched as whole words
+    // reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions
+    return !request.getServletPath().matches("(?i).*\\b(actuator|swagger|api-docs|favicon|ui)\\b.*");
+  }
 
-        if (clientIP == null || clientIP.isEmpty() || "unknown".equalsIgnoreCase(clientIP)) {
-            clientIP = request.getHeader("X-Real-IP");
-        }
+  private String getClientIP(HttpServletRequest request) {
 
-        if (clientIP == null || clientIP.isEmpty() || "unknown".equalsIgnoreCase(clientIP)) {
-            clientIP = request.getRemoteAddr();
-        }
+    String clientIP = request.getHeader("Client-IP");
 
-        return clientIP != null ? clientIP : "Unknown";
+    if (clientIP == null || clientIP.isEmpty() || "unknown".equalsIgnoreCase(clientIP)) {
+      clientIP = request.getHeader("X-Forwarded-For");
     }
+
+    if (clientIP == null || clientIP.isEmpty() || "unknown".equalsIgnoreCase(clientIP)) {
+      clientIP = request.getHeader("X-Real-IP");
+    }
+
+    if (clientIP == null || clientIP.isEmpty() || "unknown".equalsIgnoreCase(clientIP)) {
+      clientIP = request.getRemoteAddr();
+    }
+
+    return clientIP != null ? clientIP : "Unknown";
+  }
 
 }
 ```
@@ -1444,19 +1444,19 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class FiltersConfig {
 
-    private final LoggingFilter loggingFilter;
+  private final LoggingFilter loggingFilter;
 
-    @Bean
-    public FilterRegistrationBean<LoggingFilter> loggingFilterBean() {
+  @Bean
+  public FilterRegistrationBean<LoggingFilter> loggingFilterBean() {
 
-        final FilterRegistrationBean<LoggingFilter> filterBean = new FilterRegistrationBean<>();
-        filterBean.setFilter(loggingFilter);
-        filterBean.addUrlPatterns("/*");
-        // Lower values have higher priority
-        filterBean.setOrder(Integer.MAX_VALUE-2);
+    final FilterRegistrationBean<LoggingFilter> filterBean = new FilterRegistrationBean<>();
+    filterBean.setFilter(loggingFilter);
+    filterBean.addUrlPatterns("/*");
+    // Lower values have higher priority
+    filterBean.setOrder(Integer.MAX_VALUE-2);
 
-        return filterBean;
-    }
+    return filterBean;
+  }
 
 }
 
@@ -1467,7 +1467,7 @@ public class FiltersConfig {
 
 ### ServerDetails
 
-This component logs important server details when the application starts, including the server's protocol, host, port, 
+This component logs important server details when the application starts, including the server's protocol, host, port,
 context path, and active profiles. It also provides the URL for accessing the Swagger UI.
 
 **Key Features**:
@@ -1498,47 +1498,47 @@ import java.util.Optional;
 @Component
 public class ServerDetails {
 
-    private static final Logger log = LoggerFactory.getLogger(ServerDetails.class);
+  private static final Logger log = LoggerFactory.getLogger(ServerDetails.class);
 
 
-    private final Environment environment;
-    private static final String SERVER_SSL_KEY_STORE = "server.ssl.key-store";
-    private static final String SERVER_PORT = "server.port";
-    private static final String SERVER_SERVLET_CONTEXT_PATH = "server.servlet.context-path";
-    private static final String SPRINGDOC_SWAGGER_UI_PATH = "springdoc.swagger-ui.path";
-    private static final String DEFAULT_PROFILE = "default";
+  private final Environment environment;
+  private static final String SERVER_SSL_KEY_STORE = "server.ssl.key-store";
+  private static final String SERVER_PORT = "server.port";
+  private static final String SERVER_SERVLET_CONTEXT_PATH = "server.servlet.context-path";
+  private static final String SPRINGDOC_SWAGGER_UI_PATH = "springdoc.swagger-ui.path";
+  private static final String DEFAULT_PROFILE = "default";
 
-    @EventListener(ApplicationReadyEvent.class)
-    public void logServerDetails() {
+  @EventListener(ApplicationReadyEvent.class)
+  public void logServerDetails() {
 
-        String protocol = Optional.ofNullable(environment.getProperty(SERVER_SSL_KEY_STORE)).map(key -> "https").orElse("http");
-        String host = getServerIP();
-        String serverPort = Optional.ofNullable(environment.getProperty(SERVER_PORT)).orElse("8080");
-        String contextPath = Optional.ofNullable(environment.getProperty(SERVER_SERVLET_CONTEXT_PATH)).orElse("");
-        String[] activeProfiles = Optional.of(environment.getActiveProfiles()).orElse(new String[0]);
-        String activeProfile = (activeProfiles.length > 0) ? String.join(",", activeProfiles) : DEFAULT_PROFILE;
-        String swaggerUI = Optional.ofNullable(environment.getProperty(SPRINGDOC_SWAGGER_UI_PATH)).orElse("/swagger-ui/index.html");
+    String protocol = Optional.ofNullable(environment.getProperty(SERVER_SSL_KEY_STORE)).map(key -> "https").orElse("http");
+    String host = getServerIP();
+    String serverPort = Optional.ofNullable(environment.getProperty(SERVER_PORT)).orElse("8080");
+    String contextPath = Optional.ofNullable(environment.getProperty(SERVER_SERVLET_CONTEXT_PATH)).orElse("");
+    String[] activeProfiles = Optional.of(environment.getActiveProfiles()).orElse(new String[0]);
+    String activeProfile = (activeProfiles.length > 0) ? String.join(",", activeProfiles) : DEFAULT_PROFILE;
+    String swaggerUI = Optional.ofNullable(environment.getProperty(SPRINGDOC_SWAGGER_UI_PATH)).orElse("/swagger-ui/index.html");
 
-        log.info(
-                """
-                
-                
-                Access Swagger UI URL: {}://{}:{}{}{}
-                Active Profile: {}
-                """,
-                protocol, host, serverPort, contextPath, swaggerUI,
-                activeProfile
-        );
+    log.info(
+            """
+                    
+                    
+                    Access Swagger UI URL: {}://{}:{}{}{}
+                    Active Profile: {}
+                    """,
+            protocol, host, serverPort, contextPath, swaggerUI,
+            activeProfile
+    );
+  }
+
+  private String getServerIP() {
+    try {
+      return InetAddress.getLocalHost().getHostAddress();
+    } catch (UnknownHostException e) {
+      log.error("Error resolving host address", e);
+      return "unknown";
     }
-
-    private String getServerIP() {
-        try {
-            return InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            log.error("Error resolving host address", e);
-            return "unknown";
-        }
-    }
+  }
 }
 ```
 
@@ -1564,6 +1564,6 @@ public class ServerDetails {
 
 ### Feedback and Contributions
 
-Feedback and contributions are welcome! If you have suggestions, improvements, or additional insights, please feel free 
+Feedback and contributions are welcome! If you have suggestions, improvements, or additional insights, please feel free
 to share. Together, we can make this a valuable resource for anyone learning Spring Boot 3.
 

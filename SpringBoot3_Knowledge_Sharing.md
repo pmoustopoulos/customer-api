@@ -951,21 +951,52 @@ public class ServerDetails {
 
 ## 8. Naming Conventions
 
+Consistent naming conventions in your codebase and API design make your project easier to navigate, maintain, and scale. Below are some guidelines for naming conventions in a Spring Boot project focused on a customer-related API.
+
 ### Package Naming
-- **Lowercase and Singular**: Package names should be in lowercase and singular (e.g., `com.ainigma100.customerapi.controller`).
-- **No Special Characters**: Avoid using special characters or underscores.
+- **Lowercase and Singular**: Package names should be in lowercase and singular. This enhances readability and consistency.
+    - **Example**: `com.example.customerapi.controller`, `com.example.customerapi.service`
+- **No Special Characters**: Avoid using special characters or underscores in package names. Stick to simple, descriptive names.
+    - **Example**: `com.example.customerapi.repository` (not `com.example_customerapi.repository`)
 
 ### Class Naming
-- **PascalCase**: Class names should follow PascalCase (e.g., `CustomerService`).
+- **PascalCase**: Class names should follow PascalCase, where each word starts with an uppercase letter. This is a widely accepted convention in Java.
+    - **Example**: `CustomerService`, `CustomerController`, `CustomerRepository`
 - **Meaningful Names**: Choose descriptive names that clearly indicate the purpose of the class.
+    - **Example**: `CustomerNotificationService` instead of `NotificationHelper`
 
 ### Entity Naming
-- **Singular Form**: Entity classes should be named in the singular form (e.g., `Customer`).
-- **Mapped to Plural Table Names**: Entities often map to plural table names (e.g., `customers`).
+- **Singular Form**: Entity classes should be named in the singular form to represent a single instance of the entity.
+    - **Example**: `Customer`, `Address`, `Order`
+- **Mapped to Plural Table Names**: Entities often map to plural table names in the database.
+    - **Example**: `Customer` class maps to `customers` table, `Order` class maps to `orders` table
 
 ### API Endpoint Naming
-- **Plural Nouns**: Use plural nouns for API endpoints to represent collections of resources (e.g., `/customers`).
-- **Lowercase with Hyphens**: Endpoint paths should be lowercase, with hyphens separating words (e.g., `/customer-reports`).
+- **Plural Nouns**: Use plural nouns for API endpoints to represent collections of resources.
+    - **Example**: `/customers`, `/orders`, `/addresses`
+  
+
+- **Lowercase with Hyphens**: Endpoint paths should be lowercase, with hyphens separating words for readability.
+    - **Example**: `/customer-details`, `/order-history`, `/address-list`
+  
+
+- **Avoid Verbs in URIs**: Use nouns to represent resources. The HTTP method (GET, POST, PUT, DELETE) should define the action, not the URI.
+    - **Bad Examples**: `/getCustomers`, `/createOrder`, `/deleteCustomer`
+    - **Good Examples**: `/customers` (GET), `/orders` (POST), `/customers/{id}` (DELETE)
+
+
+- **Use Forward Slashes (/) for Hierarchy**: Forward slashes are used to indicate a hierarchical relationship between resources.
+    - **Example**: `/customers/{customerId}/orders`, `/customers/{customerId}/addresses`
+  
+
+- **Do Not Use Trailing Slashes**: Avoid trailing slashes at the end of the URI.
+    - **Bad Example**: `/customers/`
+    - **Good Example**: `/customers`
+  
+
+- **Use Query Parameters for Filtering**: When filtering collections, use query parameters instead of creating new endpoints.
+    - **Example**: `/customers?status=active`, `/orders?customerId=123&status=pending`
+
 
 ## 9. Running the Application Without an IDE
 

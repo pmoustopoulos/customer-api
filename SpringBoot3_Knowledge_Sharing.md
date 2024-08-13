@@ -30,11 +30,10 @@ Spring Boot 3.
     - [Controller Layer](#controller-layer)
     - [Exception Handling](#exception-handling)
 8. [Helper Classes](#7-helper-classes)
-9. [Running the Application Without an IDE `Under Construction`](#9-running-the-application-without-an-ide)
-10. [Security `Under Construction`](#10-security-under-construction)
-11. [Testing `Under Construction`](#11-testing-under-construction)
-12. [Best Practices](#12-best-practices)
-13. [Conclusion](#13-conclusion)
+9. [Security `Under Construction`](#10-security-under-construction)
+10. [Testing `Under Construction`](#11-testing-under-construction)
+11. [Best Practices](#12-best-practices)
+
 
 ## 1. Introduction
 
@@ -1837,15 +1836,175 @@ public class ServerDetails {
 
 </details>
 
-## 9. Running the Application Without an IDE
+<br><br>
 
-## 10. Security
+## 9. Security
 
-## 11. Testing
+<br><br>
 
-## 12. Best Practices
+## 10. Testing
 
-## 13. Conclusion
+<br><br>
+
+## 11. Best Practices
+
+**Disclaimer**: The practices outlined here reflect my personal approach based on what I have learned and observed from
+various resources. While I believe these practices can help in building clean, maintainable, and scalable Spring Boot
+applications, they are by no means the only way to approach development. I encourage you to explore other perspectives,
+adapt these practices to your needs, and continuously evolve your methods as new tools and techniques emerge.
+
+When developing Spring Boot applications, following best practices ensures your code is clean, maintainable, and
+scalable. Below are some key practices to keep in mind:
+
+### 1. Use DTOs to Abstract Entity Data
+
+- **Purpose**: DTOs (Data Transfer Objects) are used to encapsulate data transferred between the client and server. By
+  using DTOs, you prevent exposing your JPA entities directly to the client, which can mitigate security risks and
+  decouple your API's data model from its internal domain model.
+- **Implementation**:
+    - Use tools like MapStruct or write custom mappers to convert between entities and DTOs.
+    - Ensure that your controllers interact with services using DTOs, not entities, to maintain a clear separation of
+      concerns.
+
+### 2. Leverage Spring’s Dependency Injection
+
+- **Purpose**: Dependency Injection (DI) allows for the automatic management of your application’s dependencies,
+  promoting loose coupling and easier testing.
+- **Best Practices**:
+    - **Use Constructor Injection**: Prefer constructor injection over field injection as it makes your classes easier
+      to test, clearly indicates the dependencies of your class, and supports immutability.
+    - **Avoid Field Injection**: Field injection can lead to issues in unit testing and hides dependencies, making the
+      code harder to understand and maintain.
+    - **Use `@Autowired`**: Spring’s `@Autowired` annotation can be used to inject dependencies, but constructor
+      injection is more explicit and recommended.
+
+### 3. Handle Exceptions Globally
+
+- **Purpose**: Centralized exception handling allows you to manage errors consistently across your application,
+  improving the user experience and simplifying error management.
+- **Implementation**:
+    - Use `@ControllerAdvice` to create a global exception handler that handles exceptions thrown across the
+      application.
+    - Use `@ExceptionHandler` within `@ControllerAdvice` to specify custom handling logic for specific exception types.
+    - Return structured error responses using a consistent format, which can be encapsulated in a DTO like
+      `APIResponse`.
+
+### 4. Organize Your Code
+
+- **Purpose**: A well-organized codebase makes the project easier to navigate, understand, and maintain, especially as
+  it grows in complexity.
+- **Best Practices**:
+    - **Separate Concerns**: Maintain a clean and organized project structure by separating concerns into different
+      layers (e.g., controllers, services, repositories).
+    - **Keep Methods Small**: Break down large methods into smaller, single-purpose methods to enhance readability and
+      maintainability. Each method should do one thing and do it well.
+    - **Avoid Repetition**: Follow the DRY (Don't Repeat Yourself) principle by abstracting common logic into reusable
+      methods or classes.
+
+### 5. Naming Conventions
+
+- **Purpose**: Consistent naming conventions improve the readability and maintainability of your code, making it easier
+  for other developers (and your future self) to understand the purpose of classes, methods, and variables.
+- **Best Practices**:
+    - **Packages**: Use lowercase and singular names for packages (e.g., `com.ainigma100.customerapi.controller`).
+    - **Classes**: Follow PascalCase for class names (e.g., `CustomerService`), and ensure names are meaningful and
+      descriptive.
+    - **Methods**: Use camelCase for method names (e.g., `getCustomerById`) and keep method names descriptive to
+      reflect their actions.
+    - **Endpoints**: Use lowercase and hyphen-separated words for REST API endpoint paths (e.g., `/api/v1/customers`),
+      and use plural nouns for collections (e.g., `/customers`).
+
+### 6. Use Wrapper Objects for API Responses
+
+- **Purpose**: Wrapping API responses in a standardized object (like `APIResponse`) ensures consistent structure,
+  improves readability, and makes it easier to include additional metadata (e.g., status, errors) along with the actual
+  data.
+- **Implementation**:
+    - **Standardized Structure**: Define a generic response class that encapsulates the response data, status, and any
+      errors. This approach provides a uniform response format across all endpoints.
+    - **Builder Pattern**: Use the Builder pattern to construct response objects, which enhances readability and
+      flexibility by allowing you to add only the fields you need.
+    - **Consistency**: Return response objects in all your controller methods to ensure that clients receive a
+      consistent response format, which simplifies client-side parsing and error handling.
+
+### 7. Break Down Complex Logic
+
+- **Purpose**: Breaking down complex logic into smaller, manageable pieces makes your code easier to understand, test,
+  and maintain.
+- **Best Practices**:
+    - **Refactor Large Methods**: If a method is doing too much, refactor it into smaller methods that each handle a
+      specific part of the logic. This improves readability, makes your code more modular, and simplifies testing.
+    - **Single Responsibility Principle (SRP)**: Ensure that each class and method has only one responsibility. This
+      principle helps to make your code more focused, easier to maintain, and less prone to errors.
+    - **Avoid Deep Nesting**: Deeply nested code blocks can be hard to follow and maintain. Consider early exits (using
+      return statements) and breaking nested blocks into separate methods to enhance clarity.
+
+### 8. Document Your Code
+
+- **Purpose**: Well-documented code helps new developers understand the application quickly and ensures that the purpose
+  of classes and methods is clear.
+- **Best Practices**:
+    - **Use Swagger for API Documentation**: Instead of using only the traditional Javadoc comments, leverage Swagger
+      annotations to document your APIs. This approach provides interactive documentation that clients can use to
+      understand and test your services.
+    - **Descriptive Method and Property Names**: Ensure that your method and property names are self-explanatory, making
+      the code easier to read and understand without requiring extensive comments.
+    - **Generate and Share Swagger Documentation**: Utilize classes to generate Swagger documentation and export it as a
+      file. This allows you to share the API documentation easily with others, ensuring they have the necessary
+      information to interact with your services. You can reuse the classes I wrote on the current project
+    - **Inline Comments**: Use inline comments sparingly to explain complex logic or to provide context about why
+      certain decisions were made. Comments should add value by explaining the "why" behind the code, not the "what."
+      If your code is clear on what it does, it is not mandatory to add comments.
+
+
+### 9. Version Control and CI/CD
+
+- **Purpose**: Implementing a robust version control and CI/CD (Continuous Integration/Continuous Deployment) pipeline
+  ensures that your codebase is always in a deployable state and that changes are tracked, reviewed, and integrated
+  systematically.
+- **Best Practices**:
+    - **Git**: Use Git for version control, and follow a branching strategy (e.g., GitFlow) to manage feature
+      development, bug fixes, and releases. Commit often with meaningful commit messages to document the history of your
+      project.
+    - **Code Reviews**: Incorporate code reviews into your development process to catch issues early, share knowledge
+      across the team, and maintain code quality.
+    - **CI/CD Pipeline**: Set up a CI/CD pipeline using tools like Jenkins, GitHub Actions, GitLab CI, or CircleCI to
+      automate the building, testing, and deployment of your application. This pipeline should include:
+        - **Automated Testing**: Ensure that all tests run automatically on every commit to catch issues early.
+        - **Code Quality Checks**: Integrate tools like SonarQube or Checkstyle to enforce coding standards and detect
+          potential issues.
+        - **Deployment Automation**: Automate the deployment process to reduce manual errors and speed up delivery.
+
+### 10. Database Migrations with Liquibase or Flyway
+
+- **Purpose**: Database migration tools like Liquibase and Flyway help manage schema changes in a consistent and
+  controlled manner. They are particularly useful in environments where the database schema evolves over time.
+- **When to Use**:
+    - **Use Case**: If your application requires frequent schema changes, or if you work in a team where multiple
+      developers are modifying the database, using a migration tool is essential. It ensures that all changes are
+      versioned, documented, and applied consistently across different environments (development, testing, production).
+    - **When Not Needed**: If your application uses a fixed schema that rarely changes, or if you're using a database
+      with a predefined schema where you don't manage the tables (e.g., a third-party service), you might not need a
+      migration tool. In such cases, focusing on data access rather than schema management is more appropriate.
+- **Best Practices**:
+    - **Version Control for Migrations**: Always check your migration scripts into version control alongside your
+      application code. This ensures that schema changes are versioned with the corresponding application changes.
+    - **Automate Migrations**: Integrate your migration tool into your CI/CD pipeline to ensure that migrations are
+      applied automatically during deployment, reducing the risk of human error.
+
+### 11. Use Wrapper Classes for API Responses
+
+- **Consistency**: Using a wrapper class like `APIResponse<T>` ensures that all API responses follow a consistent
+  structure, which is easier to maintain and extend.
+- **Encapsulation**: By encapsulating the DTOs within a wrapper, you can easily add additional metadata like status
+  codes, error messages, or pagination details without altering the core response structure.
+- **Security**: Wrapping DTOs helps protect the internal structure of your entities and reduces the risk of exposing
+  sensitive data.
+
+This practice is not just about standardization but also about making your API responses more predictable and secure.
+
+<br><br>
+
 
 ### Feedback and Contributions
 

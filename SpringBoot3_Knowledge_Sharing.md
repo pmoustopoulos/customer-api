@@ -13,9 +13,9 @@ This document is designed to help new Spring Boot developers understand the basi
 4. [Key Annotations in Spring Boot](#4-key-annotations-in-spring-boot)
 5. [Naming Conventions](#8-naming-conventions)
 6. [Configuring `application.yaml`](#5-configuring-applicationyaml)
-7. [Detailed Package Breakdown](#6-detailed-package-breakdown)
+7. [Detailed Package Breakdown](#7-detailed-package-breakdown)
     - [Entity Layer `Under Construction`](#entity-layer)
-    - [Repository Layer `Under Construction`](#repository-layer)
+    - [Repository Layer](#repository-layer)
     - [Service Layer `Under Construction`](#service-layer)
     - [DTOs and MapStruct `Under Construction`](#dtos-and-mapstruct)
     - [Controller Layer `Under Construction`](#controller-layer)
@@ -613,9 +613,132 @@ jpa:
 
 <br>
 
-## 7. Detailed Package Breakdown (Under Construction)
+## 7. Detailed Package Breakdown
 
-### Entity Layer (Under Construction)
+### Entity Layer
+
+- **Purpose**: The entity layer represents the database tables in the form of JPA entities. Each entity class typically 
+  maps to a single table in the database.
+
+- **Package**: `entity`
+
+- **Example Classes**:
+    - `Customer.java`: Represents the `customers` table.
+  
+- **Key Annotations**:
+    - `@Entity`: Marks a class as a JPA entity.
+    - `@Table(name = "table_name")`: Specifies the name of the table in the database.
+    - `@Id`: Indicates the primary key of the entity.
+    - `@GeneratedValue(strategy = GenerationType.IDENTITY)`: Defines the strategy for primary key generation.
+
+<details>
+  <summary>View Customer code</summary>
+
+```java
+package com.ainigma100.customerapi.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.proxy.HibernateProxy;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Objects;
+
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Table(name = "customers")
+public class Customer {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String firstName;
+
+    @Column(nullable = false)
+    private String lastName;
+
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    private String phoneNumber;
+
+    private LocalDate dateOfBirth;
+
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdDate;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedDate;
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy hibernateProxy ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy hibernateProxy ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        Customer customer = (Customer) o;
+        return getId() != null && Objects.equals(getId(), customer.getId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy hibernateProxy? hibernateProxy.getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
+}
+```
+
+</details>
+
+### Why Not Use `@Data`?
+
+While `@Data` is a convenient annotation provided by Lombok that generates getters, setters, `toString()`, `equals()`, 
+and `hashCode()` methods, it is not recommended for use with JPA entities (I got this warning from JPA Buddy plugin). 
+Using `@Data` in JPA entities can lead to severe performance and memory consumption issues. Additionally, `@Data` 
+generates `equals()` and `hashCode()` methods that might not be suitable for entities, particularly in cases involving 
+entity relationships and lazy loading.
+
+### Importance of `equals()` and `hashCode()`
+
+- **`equals()`**: This method determines whether two instances are considered equal. For JPA entities, this typically 
+  means comparing the primary key (ID). Properly implementing `equals()` ensures that the entity behaves correctly when 
+  compared in collections or when managed by the persistence context.
+
+
+- **`hashCode()`**: This method provides a hash code for the entity, which is essential for its use in hash-based 
+  collections like `HashSet` or `HashMap`. Properly implementing `hashCode()` ensures consistency and correctness when 
+  the entity is stored or retrieved from such collections.
+
+For more details on why these methods are important and best practices for implementing them, you can find  
+resources and discussions online.
+
+
+
+### Additional Column Specification
+
+You can also specify the name of the column in the database using the `@Column(name = "column_name")` annotation. 
+This is useful when the field name in the entity class differs from the column name in the database table.
+
+**Example**:
+
+```java
+@Column(name = "first_name", nullable = false)
+private String firstName;
+```
+
+**Note**: If you do not specify the column name and the property is in camelCase, the column name will automatically be 
+converted to snake_case in most databases. For example, if your entity has a field named `firstName`, it will be mapped 
+to a column named `first_name` by default.
 
 
 

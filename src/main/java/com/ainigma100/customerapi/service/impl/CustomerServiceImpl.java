@@ -28,11 +28,11 @@ public class CustomerServiceImpl implements CustomerService {
             throw new ResourceAlreadyExistException("Customer", "email", customerDTO.getEmail());
         }
 
-        Customer recordToBeSaved = customerMapper.toCustomer(customerDTO);
+        Customer recordToBeSaved = customerMapper.customerDTOToCustomer(customerDTO);
 
         Customer savedRecord = customerRepository.save(recordToBeSaved);
 
-        return customerMapper.toCustomerDTO(savedRecord);
+        return customerMapper.customerToCustomerDTO(savedRecord);
     }
 
     @Override
@@ -41,7 +41,7 @@ public class CustomerServiceImpl implements CustomerService {
         Customer recordFromDB = customerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer", "id", id));
 
-        return customerMapper.toCustomerDTO(recordFromDB);
+        return customerMapper.customerToCustomerDTO(recordFromDB);
     }
 
     @Override
@@ -53,11 +53,11 @@ public class CustomerServiceImpl implements CustomerService {
         // just to be safe that the object does not have another id
         customerDTO.setId(recordFromDB.getId());
 
-        Customer recordToBeSaved = customerMapper.toCustomer(customerDTO);
+        Customer recordToBeSaved = customerMapper.customerDTOToCustomer(customerDTO);
 
         Customer savedRecord = customerRepository.save(recordToBeSaved);
 
-        return customerMapper.toCustomerDTO(savedRecord);
+        return customerMapper.customerToCustomerDTO(savedRecord);
     }
 
     @Override

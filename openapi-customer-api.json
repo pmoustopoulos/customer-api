@@ -10,9 +10,101 @@
     "description" : "Generated server url"
   } ],
   "paths" : {
+    "/api/v1/customers/{id}" : {
+      "get" : {
+        "tags" : [ "customer-controller" ],
+        "summary" : "Find customer by ID",
+        "description" : "Returns a single customer",
+        "operationId" : "getCustomerById",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/APIResponseCustomerDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "customer-controller" ],
+        "summary" : "Update an existing customer",
+        "operationId" : "updateCustomer",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CustomerRequestDTO"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/APIResponseCustomerDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "customer-controller" ],
+        "summary" : "Delete a customer by ID",
+        "operationId" : "deleteDepartment",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/APIResponseString"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/customers" : {
       "post" : {
         "tags" : [ "customer-controller" ],
+        "summary" : "Add a new customer",
         "operationId" : "createCustomer",
         "requestBody" : {
           "content" : {
@@ -118,6 +210,23 @@
             "type" : "string"
           },
           "errorMessage" : {
+            "type" : "string"
+          }
+        }
+      },
+      "APIResponseString" : {
+        "type" : "object",
+        "properties" : {
+          "status" : {
+            "type" : "string"
+          },
+          "errors" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ErrorDTO"
+            }
+          },
+          "results" : {
             "type" : "string"
           }
         }

@@ -2,7 +2,8 @@
 
 This document is designed to help new Spring Boot developers understand the basics of building applications using Spring
 Boot 3. It covers the structure of a sample project, explains the purpose of key annotations, and provides insights
-into best practices. **Note**: You have also to check the code example and not only this markdown file because some parts
+into best practices. **Note**: You have also to check the code example and not only this markdown file because some
+parts
 are not shown here (custom annotations, Utils class etc).
 
 **Disclaimer**: This guide reflects my personal opinion and approach, based on the knowledge I have gained through my
@@ -22,12 +23,12 @@ Spring Boot 3.
 5. [Naming Conventions](#8-naming-conventions)
 6. [Configuring `application.yaml`](#5-configuring-applicationyaml)
 7. [Detailed Package Breakdown](#7-detailed-package-breakdown)
-   - [Entity Layer](#entity-layer)
-   - [Repository Layer](#repository-layer)
-   - [Service Layer](#service-layer)
-   - [DTOs and MapStruct](#dtos-and-mapstruct)
-   - [Controller Layer `Under Construction`](#controller-layer)
-   - [Exception Handling](#exception-handling)
+    - [Entity Layer](#entity-layer)
+    - [Repository Layer](#repository-layer)
+    - [Service Layer](#service-layer)
+    - [DTOs and MapStruct](#dtos-and-mapstruct)
+    - [Controller Layer](#controller-layer)
+    - [Exception Handling](#exception-handling)
 8. [Helper Classes](#7-helper-classes)
 9. [Running the Application Without an IDE `Under Construction`](#9-running-the-application-without-an-ide)
 10. [Security `Under Construction`](#10-security-under-construction)
@@ -1120,7 +1121,7 @@ public class CustomerServiceImpl implements CustomerService {
 
 The controller layer in a Spring Boot application handles incoming HTTP requests and sends responses back to the client.
 It acts as the entry point for the client, interacting with the service layer to process business logic and return the
-appropriate data.
+appropriate data. **Note**: Do not add business logic in this class.
 
 #### Key Concepts:
 
@@ -1138,8 +1139,32 @@ appropriate data.
           pagination details, making your API responses more informative and easier to handle on the client side.
 
     - **Example**:
-        - `ResponseWrapper<CustomerDTO>`: A wrapper object that contains the `CustomerDTO` and additional metadata like
+        - `APIResponse<CustomerDTO>`: A wrapper object that contains the `CustomerDTO` and additional metadata like
           status and messages.
+
+    - **Wrapper Class for API Responses: `APIResponse<T>`**:
+        - The `APIResponse<T>` class is a generic wrapper that can be used across different controllers in your
+          application. It encapsulates the response data and adds useful metadata like status and error messages.
+        - **Key Attributes**:
+            - `status`: A string representing the status of the response (e.g., "SUCCESS" or "FAILED").
+            - `errors`: A list of `ErrorDTO` objects that contain error details when a request fails.
+            - `results`: The actual data (DTO) being returned by the API.
+
+        - **Example**:
+      ```java
+      @Data
+      @AllArgsConstructor
+      @NoArgsConstructor
+      @JsonInclude(JsonInclude.Include.NON_NULL)
+      @Builder
+      public class APIResponse<T> {
+      
+          private String status;
+          private List<ErrorDTO> errors;
+          private T results;
+      
+      }
+      ```
 
 This structured approach ensures that your application is well-organized, with clear separation of concerns between
 different layers. It also makes your API more robust, secure, and easier to maintain.
@@ -1149,7 +1174,116 @@ different layers. It also makes your API more robust, secure, and easier to main
   <summary>View CustomerController code</summary>
 
 ```java
+package com.ainigma100.customerapi.controller;
 
+
+import com.ainigma100.customerapi.dto.APIResponse;
+import com.ainigma100.customerapi.dto.CustomerDTO;
+import com.ainigma100.customerapi.dto.CustomerRequestDTO;
+import com.ainigma100.customerapi.enums.Status;
+import com.ainigma100.customerapi.mapper.CustomerMapper;
+import com.ainigma100.customerapi.service.CustomerService;
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RequiredArgsConstructor
+@RequestMapping("/api/v1/customers")
+@RestController
+public class CustomerController {
+
+    private final CustomerService customerService;
+    private final CustomerMapper customerMapper;
+
+
+    @Operation(summary = "Add a new customer")
+    @PostMapping
+    public ResponseEntity<APIResponse<CustomerDTO>> createCustomer(
+            @Valid @RequestBody CustomerRequestDTO customerRequestDTO) {
+
+        CustomerDTO customerDTO = customerMapper.customerRequestDTOToCustomerDTO(customerRequestDTO);
+
+        CustomerDTO result = customerService.createCustomer(customerDTO);
+
+        // Builder Design pattern
+        APIResponse<CustomerDTO> response = APIResponse
+                .<CustomerDTO>builder()
+                .status(Status.SUCCESS.getValue())
+                .results(result)
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+
+    @Operation(summary = "Find customer by ID",
+            description = "Returns a single customer")
+    @GetMapping("/{id}")
+    public ResponseEntity<APIResponse<CustomerDTO>> getCustomerById(@PathVariable("id") Long id) {
+
+        CustomerDTO result = customerService.getCustomerById(id);
+
+        // Builder Design pattern
+        APIResponse<CustomerDTO> responseDTO = APIResponse
+                .<CustomerDTO>builder()
+                .status(Status.SUCCESS.getValue())
+                .results(result)
+                .build();
+
+
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+
+    }
+
+
+    @Operation(summary = "Update an existing customer")
+    @PutMapping("/{id}")
+    public ResponseEntity<APIResponse<CustomerDTO>> updateCustomer(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody CustomerRequestDTO customerRequestDTO) {
+
+        CustomerDTO customerDTO = customerMapper.customerRequestDTOToCustomerDTO(customerRequestDTO);
+
+        CustomerDTO result = customerService.updateCustomer(id, customerDTO);
+
+        // Builder Design pattern
+        APIResponse<CustomerDTO> responseDTO = APIResponse
+                .<CustomerDTO>builder()
+                .status(Status.SUCCESS.getValue())
+                .results(result)
+                .build();
+
+
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+
+    }
+
+
+    @Operation(summary = "Delete a customer by ID")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<APIResponse<String>> deleteDepartment(@PathVariable("id") Long id) {
+
+        customerService.deleteCustomer(id);
+
+        String result = "Customer deleted successfully";
+
+        // Builder Design pattern
+        APIResponse<String> responseDTO = APIResponse
+                .<String>builder()
+                .status(Status.SUCCESS.getValue())
+                .results(result)
+                .build();
+
+
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+
+    }
+
+
+}
 ```
 
 </details>

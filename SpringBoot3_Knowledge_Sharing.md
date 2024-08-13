@@ -950,8 +950,8 @@ public class ServerDetails {
 
 
 ## 8. Naming Conventions
-
-Consistent naming conventions in your codebase and API design make your project easier to navigate, maintain, and scale. Below are some guidelines for naming conventions in a Spring Boot project focused on a customer-related API.
+Consistent naming conventions in your codebase and API design make your project easier to navigate, maintain, and scale.
+Below are some guidelines for naming conventions in a Spring Boot project focused on a customer-related API.
 
 ### Package Naming
 - **Lowercase and Singular**: Package names should be in lowercase and singular. This enhances readability and consistency.
@@ -974,11 +974,11 @@ Consistent naming conventions in your codebase and API design make your project 
 ### API Endpoint Naming
 - **Plural Nouns**: Use plural nouns for API endpoints to represent collections of resources.
     - **Example**: `/customers`, `/orders`, `/addresses`
-  
+
 
 - **Lowercase with Hyphens**: Endpoint paths should be lowercase, with hyphens separating words for readability.
-    - **Example**: `/customer-details`, `/order-history`, `/address-list`
-  
+    - **Example**: `/customers/{customerId}/orders`, `/orders/{orderId}/items`, `/customers/{customerId}/addresses`
+
 
 - **Avoid Verbs in URIs**: Use nouns to represent resources. The HTTP method (GET, POST, PUT, DELETE) should define the action, not the URI.
     - **Bad Examples**: `/getCustomers`, `/createOrder`, `/deleteCustomer`
@@ -987,14 +987,15 @@ Consistent naming conventions in your codebase and API design make your project 
 
 - **Use Forward Slashes (/) for Hierarchy**: Forward slashes are used to indicate a hierarchical relationship between resources.
     - **Example**: `/customers/{customerId}/orders`, `/customers/{customerId}/addresses`
-  
+
 
 - **Do Not Use Trailing Slashes**: Avoid trailing slashes at the end of the URI.
     - **Bad Example**: `/customers/`
     - **Good Example**: `/customers`
-  
+
 
 - **Use Query Parameters for Filtering**: When filtering collections, use query parameters instead of creating new endpoints.
+  In some cases you may see filtering and sorting information provided as a payload inside a request body.
     - **Example**: `/customers?status=active`, `/orders?customerId=123&status=pending`
 
 

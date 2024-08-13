@@ -842,16 +842,161 @@ List<Customer> findByStatus(@Param("status") String status);
 
 <br><br>
 
-### Service Layer
-
-<br><br>
-
 ### DTOs and MapStruct
 
+DTOs (Data Transfer Objects) are used to transfer data between the service layer and the controller layer. They are simple POJOs (Plain Old Java Objects) that contain only the necessary data and are often used to decouple the internal entity models from the external API contract.
+
+#### Key Concepts:
+
+- **DTO Usage**:
+  - DTOs ensure that only relevant information is exposed to the client. They help in shaping the data according to the needs of the client while hiding unnecessary internal details.
+  - DTOs can also include validation annotations, ensuring that the data received or sent is valid according to business rules.
+
+
+- **MapStruct for Mapping**:
+  - **Automatic Mapping**: MapStruct automatically maps fields with the same name between entity classes and DTOs. For fields with different names, you can use the `@Mapping` annotation.
+  - **Custom and Complex Mappings**: Allows custom mappings for complex scenarios, including nested objects and expression-based mappings.
+  - **Performance**: MapStruct is efficient, generating simple, plain Java code for mappings without using reflection, making it faster than many other frameworks.
+  - **Null Handling and Collection Mapping**: Offers control over how null values are handled and supports mapping between collections, such as lists of entities to lists of DTOs.
+  - **Flexible Integration**: Easily integrates with Spring or other dependency injection frameworks by customizing the component model.
+
+**Note**: You can find more information on MapStruct online.
+
+Below is an example of a DTO and a corresponding MapStruct mapper interface:
+
+
+<details>
+  <summary>View CustomerDTO code</summary>
+
+```java
+package com.ainigma100.customerapi.dto;
+
+import lombok.*;
+
+import java.time.LocalDate;
+
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
+public class CustomerDTO {
+
+  private Long id;
+  private String firstName;
+  private String lastName;
+  private String email;
+  private String phoneNumber;
+  private LocalDate dateOfBirth;
+
+}
+```
+
+</details>
+
+<details>
+  <summary>View CustomerMapper code</summary>
+
+```java
+package com.ainigma100.customerapi.mapper;
+
+import com.ainigma100.customerapi.dto.CustomerDTO;
+import com.ainigma100.customerapi.entity.Customer;
+import org.mapstruct.Mapper;
+
+import java.util.List;
+
+@Mapper(componentModel = "spring")
+public interface CustomerMapper {
+
+  Customer toCustomer(CustomerDTO customerDTO);
+
+  CustomerDTO toCustomerDTO(Customer customer);
+
+  List<Customer> toCustomerList(List<CustomerDTO> customerDTOList);
+
+  List<CustomerDTO> toCustomerDTOList(List<Customer> customerList);
+
+}
+```
+
+</details>
+
+
 <br><br>
+
+### Service Layer
+
+The service layer in a Spring Boot application contains the business logic of the application. It acts as an intermediary 
+between the controller layer (handling HTTP requests) and the repository layer (interacting with the database).
+
+#### Key Concepts:
+
+- **Interface and Implementation**: It's a good practice to define a service interface and then provide its implementation. 
+  This approach promotes loose coupling and makes your code more modular and easier to test. The interface defines the 
+  contract for the service, while the implementation class contains the actual business logic.
+
+  **Example**:
+    - `CustomerService`: Interface that defines methods for customer-related operations.
+    - `CustomerServiceImpl`: Implementation class that provides the logic for methods like retrieving customers, updating customer details, etc.
+
+
+- **Returning DTOs**: The service layer should not return entities directly. Instead, it should return Data Transfer Objects (DTOs). 
+  DTOs are simple objects that carry data between layers. They are particularly useful for exposing only the necessary 
+  data to the client and for avoiding exposing the internal structure of your entities.
+
+
+<details>
+  <summary>View CustomerService code</summary>
+
+```java
+package com.ainigma100.customerapi.repository;
+
+import com.ainigma100.customerapi.entity.Customer;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface CustomerRepository extends JpaRepository<Customer, Long> {
+}
+```
+
+</details>
+
+<details>
+  <summary>View CustomerServiceImpl code</summary>
+
+```java
+package com.ainigma100.customerapi.repository;
+
+import com.ainigma100.customerapi.entity.Customer;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface CustomerRepository extends JpaRepository<Customer, Long> {
+}
+```
+
+</details>
+
+
+<br><br>
+
 
 ### Controller Layer
 
+The controller layer in a Spring Boot application handles incoming HTTP requests and sends responses back to the client. It acts as the entry point for the client, interacting with the service layer to process business logic and return the appropriate data.
+
+#### Key Concepts:
+
+- **Using Wrapper Objects**:
+  - It's a best practice to return a wrapper object from the controller rather than returning entities directly. A wrapper object can contain a DTO, along with metadata such as status codes, messages, or other relevant information.
+  - **Advantages**:
+    - **Encapsulation**: The wrapper object encapsulates the DTO and provides a consistent response format, which can be useful for clients to process responses reliably.
+    - **Security**: By using DTOs inside wrapper objects, you avoid exposing the internal structure of your entities directly to the client. This helps in protecting sensitive information and reducing the risk of exposing unintended data.
+    - **Flexibility**: Wrapper objects allow you to include additional information, such as error messages or pagination details, making your API responses more informative and easier to handle on the client side.
+
+  - **Example**:
+    - `ResponseWrapper<CustomerDTO>`: A wrapper object that contains the `CustomerDTO` and additional metadata like status and messages.
+
+This structured approach ensures that your application is well-organized, with clear separation of concerns between different layers. It also makes your API more robust, secure, and easier to maintain.
 
 <br><br>
 

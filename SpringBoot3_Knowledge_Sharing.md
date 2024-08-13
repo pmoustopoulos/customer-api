@@ -282,9 +282,18 @@ These annotations are versatile and can be used in different layers of a Spring 
   and even configuration classes.
 
 
-- **`@AllArgsConstructor`** and **`@NoArgsConstructor`**: Generate constructors with parameters for all fields and 
-  no-argument constructors, respectively. These can be used in entity classes, DTOs, and any other classes where 
-  constructor injection or simple instantiation is needed.
+- **`@AllArgsConstructor`, `@NoArgsConstructor`, and `@RequiredArgsConstructor`**:
+
+  - **`@AllArgsConstructor`**: Generates a constructor with parameters for all fields in the class. This is useful when 
+    you want to ensure all fields are initialized at the time of object creation.
+  
+  - **`@NoArgsConstructor`**: Generates a no-argument constructor, which is necessary for frameworks like JPA that 
+    require a default constructor to instantiate entities.
+  
+  - **`@RequiredArgsConstructor`**: Generates a constructor with parameters for all final fields and any fields that are
+    marked as `@NonNull`. This is useful when you want to ensure that mandatory fields are initialized while still 
+    allowing flexibility in object creation.
+
 
 
 - **`@Data`**: Generates getters, setters, `equals()`, `hashCode()`, `toString()`, and other utility methods. While it 

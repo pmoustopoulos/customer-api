@@ -17,8 +17,9 @@ This document is designed to help new Spring Boot developers understand the basi
     - [Entity Layer](#entity-layer)
     - [Repository Layer](#repository-layer)
     - [Service Layer `Under Construction`](#service-layer)
-    - [DTOs and MapStruct `Under Construction`](#dtos-and-mapstruct)
+    - [DTOs and MapStruct](#dtos-and-mapstruct)
     - [Controller Layer `Under Construction`](#controller-layer)
+    - [Exception Handling](#exception-handling)
 8. [Helper Classes](#7-helper-classes)
 9. [Running the Application Without an IDE `Under Construction`](#9-running-the-application-without-an-ide)
 10. [Security `Under Construction`](#10-security-under-construction)
@@ -997,6 +998,209 @@ The controller layer in a Spring Boot application handles incoming HTTP requests
     - `ResponseWrapper<CustomerDTO>`: A wrapper object that contains the `CustomerDTO` and additional metadata like status and messages.
 
 This structured approach ensures that your application is well-organized, with clear separation of concerns between different layers. It also makes your API more robust, secure, and easier to maintain.
+
+
+<br><br>
+
+### Exception Handling
+
+In a Spring Boot application, it's important to handle exceptions in a way that provides meaningful feedback to the 
+client while maintaining a clean and maintainable codebase. In addition, you have to be sure not to expose sensitive data. 
+The `GlobalExceptionHandler` class in this project serves this purpose by centralizing exception handling and ensuring 
+consistent error responses across the entire application.
+
+#### Global Exception Handler
+
+The `GlobalExceptionHandler` class, annotated with `@ControllerAdvice`, intercepts exceptions thrown by any controller 
+in the application. This class defines several `@ExceptionHandler` methods to handle specific types of exceptions, 
+ensuring that the application responds with appropriate HTTP status codes and error messages.
+
+**Key Features of `GlobalExceptionHandler`:**
+
+- **Runtime Exceptions**: Handles general runtime exceptions, such as `NullPointerException` and `RuntimeException`, returning a 500 Internal Server Error response.
+- **Resource Not Found**: Manages `ResourceNotFoundException`, returning a 404 Not Found status with a relevant error message.
+- **Business Logic and Data Exceptions**: Handles custom exceptions like `ResourceAlreadyExistException`, and `DataAccessException`, providing a 400 Bad Request response.
+- **Validation Exceptions**: Manages exceptions related to validation, such as `MethodArgumentNotValidException` and `ConstraintViolationException`, returning detailed validation error messages.
+- **Malformed JSON**: Handles `HttpMessageNotReadableException` to catch and respond to improperly formatted JSON in requests.
+- **Method Not Supported**: Catches `HttpRequestMethodNotSupportedException`, responding with a 405 Method Not Allowed status.
+
+#### Custom Exceptions
+
+The application also defines several custom exceptions to manage specific error scenarios:
+
+- **`BusinessLogicException`**: Thrown when a business rule is violated.
+- **`ResourceAlreadyExistException`**: Used when an attempt is made to create a resource that already exists.
+- **`ResourceNotFoundException`**: Thrown when a requested resource is not found in the database.
+
+These custom exceptions extend `RuntimeException` and are annotated with `@ResponseStatus` to map them to specific HTTP status codes.
+
+#### Structured Error Responses
+
+To ensure that error responses are consistent, the `APIResponse` class is used to structure the response body. It includes:
+
+- **Status**: A string indicating the outcome of the request (e.g., "FAILED").
+- **Errors**: A list of `ErrorDTO` objects, each containing a `field` and an `errorMessage` to describe the issue.
+
+This structure ensures that clients receive clear and consistent error messages, which can be easily parsed and handled.
+
+**Note**: This approach to exception handling improves the robustness of the application, making it more maintainable 
+and user-friendly. For more details on how to implement and extend this global exception handler, you can refer to 
+additional resources or documentation available online.
+
+
+<details>
+  <summary>View GlobalExceptionHandler code</summary>
+
+```java
+package com.ainigma100.customerapi.exception;
+
+import com.ainigma100.customerapi.dto.APIResponse;
+import com.ainigma100.customerapi.dto.ErrorDTO;
+import com.ainigma100.customerapi.enums.Status;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingPathVariableException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+@Slf4j
+@ControllerAdvice
+public class GlobalExceptionHandler {
+
+
+  @ExceptionHandler({RuntimeException.class, NullPointerException.class})
+  public ResponseEntity<Object> handleRuntimeExceptions(RuntimeException exception) {
+
+    log.error(exception.getMessage());
+
+    APIResponse<ErrorDTO> response = new APIResponse<>();
+    response.setStatus(Status.FAILED.getValue());
+    response.setErrors(Collections.singletonList(new ErrorDTO("", "An internal server error occurred")));
+
+    return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+
+  @ExceptionHandler({ResourceNotFoundException.class})
+  public ResponseEntity<Object> handleResourceNotFoundExceptions(ResourceNotFoundException exception) {
+
+    log.error(exception.getMessage());
+
+    APIResponse<ErrorDTO> response = new APIResponse<>();
+    response.setStatus(Status.FAILED.getValue());
+    response.setErrors(Collections.singletonList(new ErrorDTO("", "The requested resource was not found")));
+
+    return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+  }
+
+
+  @ExceptionHandler({ResourceAlreadyExistException.class, DataAccessException.class})
+  public ResponseEntity<Object> handleOtherExceptions(Exception exception) {
+
+    log.error(exception.getMessage());
+
+    APIResponse<ErrorDTO> response = new APIResponse<>();
+    response.setStatus(Status.FAILED.getValue());
+    response.setErrors(Collections.singletonList(new ErrorDTO("", "An error occurred while processing your request")));
+
+    return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+  }
+
+
+  @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+  public ResponseEntity<Object> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException exception) {
+
+    log.error(exception.getMessage());
+
+    APIResponse<ErrorDTO> response = new APIResponse<>();
+    response.setStatus(Status.FAILED.getValue());
+    response.setErrors(Collections.singletonList(new ErrorDTO("", "The requested URL does not support this method")));
+
+    return new ResponseEntity<>(response, HttpStatus.METHOD_NOT_ALLOWED);
+  }
+
+
+  @ExceptionHandler({MethodArgumentNotValidException.class, MissingServletRequestParameterException.class, MissingPathVariableException.class})
+  public ResponseEntity<Object> handleValidationExceptions(Exception exception) {
+
+    APIResponse<ErrorDTO> response = new APIResponse<>();
+    response.setStatus(Status.FAILED.getValue());
+
+    List<ErrorDTO> errors = new ArrayList<>();
+    if (exception instanceof MethodArgumentNotValidException ex) {
+
+      ex.getBindingResult().getAllErrors().forEach(error -> {
+        String fieldName = ((FieldError) error).getField();
+        String errorMessage = error.getDefaultMessage();
+        errors.add(new ErrorDTO(fieldName, errorMessage));
+      });
+
+    } else if (exception instanceof MissingServletRequestParameterException ex) {
+
+      String parameterName = ex.getParameterName();
+      errors.add(new ErrorDTO("", "Required parameter is missing: " + parameterName));
+
+    } else if (exception instanceof MissingPathVariableException ex) {
+
+      String variableName = ex.getVariableName();
+      errors.add(new ErrorDTO("", "Missing path variable: " + variableName));
+    }
+
+    response.setErrors(errors);
+    return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+  }
+
+
+  @ExceptionHandler(HttpMessageNotReadableException.class)
+  public ResponseEntity<APIResponse<ErrorDTO>> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+
+    log.error("Malformed JSON request: {}", ex.getMessage());
+
+    APIResponse<ErrorDTO> response = new APIResponse<>();
+    response.setStatus(Status.FAILED.getValue());
+    response.setErrors(Collections.singletonList(new ErrorDTO("", "Malformed JSON request")));
+
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+  }
+
+
+  @ExceptionHandler(ConstraintViolationException.class)
+  public ResponseEntity<APIResponse<ErrorDTO>> handleConstraintViolationException(ConstraintViolationException ex) {
+
+    List<ErrorDTO> errors = new ArrayList<>();
+
+    for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
+      errors.add(new ErrorDTO(violation.getPropertyPath().toString(), violation.getMessage()));
+    }
+
+    APIResponse<ErrorDTO> response = new APIResponse<>();
+    response.setStatus(Status.FAILED.getValue());
+    response.setErrors(errors);
+
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+  }
+
+
+
+}
+```
+
+</details>
+
+
 
 <br><br>
 

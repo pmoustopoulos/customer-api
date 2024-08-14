@@ -30,10 +30,8 @@ Spring Boot 3.
     - [Controller Layer](#controller-layer)
     - [Exception Handling](#exception-handling)
 8. [Helper Classes](#7-helper-classes)
-9. [Security `Under Construction`](#10-security-under-construction)
-10. [Testing `Under Construction`](#11-testing-under-construction)
-11. [Best Practices](#12-best-practices)
-
+9. [Testing `Under Construction`](#11-testing-under-construction)
+10. [Best Practices](#12-best-practices)
 
 ## 1. Introduction
 
@@ -1838,15 +1836,194 @@ public class ServerDetails {
 
 <br><br>
 
-## 9. Security
+## 9. Testing
+
+Testing is essential to ensure your application works as expected. This section covers how to effectively test your
+Spring Boot application using Behavior Driven Development (BDD) and useful annotations for different testing scenarios.
+
+### Behavior Driven Development (BDD) Testing
+
+BDD focuses on writing tests that describe the system's behavior from the user's perspective. It helps improve
+collaboration between developers, testers, and stakeholders. In Java, you can use JUnit with Mockito to implement BDD.
+
+#### IntelliJ Live Template for BDD
+
+To make writing BDD tests easier in IntelliJ IDEA, you can create a live template that generates a basic structure for
+BDD tests. Here’s the template you can use:
+
+```xml
+
+<template name="bdd"
+          value="@org.junit.jupiter.api.Test&#10;void given$NAME$_when$NAME2$_then$NAME3$() {&#10;&#10;    // given - precondition or setup&#10;    org.mockito.BDDMockito.given().willReturn();&#10;    &#10;    // when - action or behaviour that we are going to test&#10;    &#10;    &#10;    // then - verify the output&#10;&#10;}"
+          description="Behaviour Driven Development (BDD) test template" toReformat="false" toShortenFQNames="true">
+    <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
+    <variable name="NAME2" expression="" defaultValue="" alwaysStopAt="true"/>
+    <variable name="NAME3" expression="" defaultValue="" alwaysStopAt="true"/>
+    <context>
+        <option name="JAVA_DECLARATION" value="true"/>
+    </context>
+</template>
+```
+
+With the above template, when you type `bdd` in your test class, IntelliJ IDEA will generate a skeleton for a BDD-style
+test, helping you follow the BDD principles consistently.
+
+In your Spring Boot project, BDD can be implemented as follows:
+
+1. **Given**: Set up the initial context or preconditions for the test.
+2. **When**: Perform the action or behavior that you want to test.
+3. **Then**: Verify the expected outcome or results.
+
+By structuring your tests this way, you ensure they are clear, concise, and focused on the behavior of the application
+from the user’s perspective.
+
+### 1. Testing the Repository Layer
+
+The repository layer is responsible for interacting with the database. When testing this layer, focus on ensuring that
+your custom query methods behave as expected. If you are only using the provided methods from `JpaRepository` without
+any custom queries, you do not need to test this layer.
+
+- **`@DataJpaTest`**: Configures an in-memory database, automatically rolling back transactions after each test. Ensure
+  that you have the H2 dependency in your project for this annotation to work correctly. This annotation also limits the
+  loaded beans to those required for JPA tests.
+
+- **`@Autowired`**: Used to inject the repository instance into your test class, allowing you to call repository methods
+  directly.
+
+- **`@BeforeEach`**: Indicates that the annotated method should be run before each test method in the class. This is
+  commonly used for setting up test data or initializing common objects used in multiple tests.
+
+- **`@Test`**: The most common annotation in JUnit, marking a method as a test method that will be executed when running
+  the test suite.
+
+<details>
+  <summary>View CustomerRepositoryTest code</summary>
+
+```java
+package com.ainigma100.customerapi.repository;
+
+import com.ainigma100.customerapi.entity.Customer;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+
+import java.time.LocalDate;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+
+/*
+ * @DataJpaTest will automatically configure in-memory database for testing
+ * and, it will not load annotated beans into the Application Context.
+ * It will only load the repository class. Tests annotated with @DataJpaTest
+ * are by default transactional and roll back at the end of each test.
+ */
+@DataJpaTest
+class CustomerRepositoryTest {
+
+  @Autowired
+  private CustomerRepository customerRepository;
+
+  private Customer customer;
+
+  /**
+   * This method will be executed before each and every test inside this class
+   */
+  @BeforeEach
+  void setUp() {
+
+    customer = new Customer();
+    customer.setFirstName("John");
+    customer.setLastName("Wick");
+    customer.setEmail("jwick@tester.com");
+    customer.setPhoneNumber("0123456789");
+    customer.setDateOfBirth(LocalDate.now().minusYears(18));
+
+  }
+
+  @Test
+  void givenValidEmail_whenFindByEmail_thenReturnCustomer() {
+
+    // given - precondition or setup
+    String email = "jwick@tester.com";
+    customerRepository.save(customer);
+
+    // when - action or behaviour that we are going to test
+    Customer customerFromDB = customerRepository.findByEmail(email);
+
+    // then - verify the output
+    assertNotNull(customerFromDB);
+    assertEquals(customer.getFirstName(), customerFromDB.getFirstName());
+    assertEquals(customer.getLastName(), customerFromDB.getLastName());
+    assertEquals(customer.getEmail(), customerFromDB.getEmail());
+    assertEquals(customer.getPhoneNumber(), customerFromDB.getPhoneNumber());
+    assertEquals(customer.getDateOfBirth(), customerFromDB.getDateOfBirth());
+  }
+
+  @Test
+  void givenInvalidEmail_whenFindByEmail_thenReturnNothing() {
+
+    // given - precondition or setup
+    String email = "abc@tester.com";
+    customerRepository.save(customer);
+
+    // when - action or behaviour that we are going to test
+    Customer customerFromDB = customerRepository.findByEmail(email);
+
+    // then - verify the output
+    assertNull(customerFromDB);
+  }
+
+  @Test
+  void givenNullEmail_whenFindByEmail_thenReturnNothing() {
+
+    // given - precondition or setup
+    String email = null;
+    customerRepository.save(customer);
+
+    // when - action or behaviour that we are going to test
+    Customer customerFromDB = customerRepository.findByEmail(email);
+
+    // then - verify the output
+    assertNull(customerFromDB);
+  }
+
+  @Test
+  void givenEmptyEmail_whenFindByEmail_thenReturnNothing() {
+
+    // given - precondition or setup
+    String email = "";
+    customerRepository.save(customer);
+
+    // when - action or behaviour that we are going to test
+    Customer customerFromDB = customerRepository.findByEmail(email);
+
+    // then - verify the output
+    assertNull(customerFromDB);
+  }
+
+
+}
+```
+
+</details>
+
 
 <br><br>
 
-## 10. Testing
+### 2. Testing the Service Layer
+
 
 <br><br>
 
-## 11. Best Practices
+### 3. Testing the Controller Layer
+
+
+
+<br><br>
+
+## 10. Best Practices
 
 **Disclaimer**: The practices outlined here reflect my personal approach based on what I have learned and observed from
 various resources. While I believe these practices can help in building clean, maintainable, and scalable Spring Boot
@@ -1956,7 +2133,6 @@ scalable. Below are some key practices to keep in mind:
       certain decisions were made. Comments should add value by explaining the "why" behind the code, not the "what."
       If your code is clear on what it does, it is not mandatory to add comments.
 
-
 ### 9. Version Control and CI/CD
 
 - **Purpose**: Implementing a robust version control and CI/CD (Continuous Integration/Continuous Deployment) pipeline
@@ -2004,7 +2180,6 @@ scalable. Below are some key practices to keep in mind:
 This practice is not just about standardization but also about making your API responses more predictable and secure.
 
 <br><br>
-
 
 ### Feedback and Contributions
 

@@ -1,13 +1,17 @@
 package com.ainigma100.customerapi.repository;
 
+import com.ainigma100.customerapi.dto.CustomerSearchCriteriaDTO;
 import com.ainigma100.customerapi.entity.Customer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import java.time.LocalDate;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -101,5 +105,47 @@ class CustomerRepositoryTest {
         assertNull(customerFromDB);
     }
 
+    @Test
+    void givenCustomerSearchCriteriaDTO_whenGetAllCustomersUsingPagination_thenReturnCustomerDTOPage() {
+
+        // given - precondition or setup
+        customerRepository.save(customer);
+
+        CustomerSearchCriteriaDTO searchCriteriaDTO = new CustomerSearchCriteriaDTO();
+        searchCriteriaDTO.setFirstName("John");
+
+        PageRequest pageRequest = PageRequest.of(0, 10);
+
+        // when - action or behaviour that we are going to test
+        Page<Customer> customerPage = customerRepository.getAllCustomersUsingPagination(searchCriteriaDTO, pageRequest);
+
+        // then - verify the output
+        assertThat(customerPage).isNotNull();
+        assertThat(customerPage.getContent()).hasSize(1);
+        assertThat(customerPage.getContent().get(0).getFirstName()).isEqualTo(customer.getFirstName());
+        assertThat(customerPage.getContent().get(0).getLastName()).isEqualTo(customer.getLastName());
+        assertThat(customerPage.getContent().get(0).getEmail()).isEqualTo(customer.getEmail());
+        assertThat(customerPage.getContent().get(0).getPhoneNumber()).isEqualTo(customer.getPhoneNumber());
+        assertThat(customerPage.getContent().get(0).getDateOfBirth()).isEqualTo(customer.getDateOfBirth());
+    }
+
+    @Test
+    void givenInvalidCustomerSearchCriteriaDTO_whenGetAllCustomersUsingPagination_thenReturnEmptyPage() {
+
+        // given - precondition or setup
+        customerRepository.save(customer);
+
+        CustomerSearchCriteriaDTO searchCriteriaDTO = new CustomerSearchCriteriaDTO();
+        searchCriteriaDTO.setFirstName("xxxxx");
+
+        PageRequest pageRequest = PageRequest.of(0, 10);
+
+        // when - action or behaviour that we are going to test
+        Page<Customer> customerPage = customerRepository.getAllCustomersUsingPagination(searchCriteriaDTO, pageRequest);
+
+        // then - verify the output
+        assertThat(customerPage.getContent()).isEmpty();
+
+    }
 
 }

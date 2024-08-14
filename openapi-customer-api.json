@@ -77,7 +77,7 @@
       "delete" : {
         "tags" : [ "customer-controller" ],
         "summary" : "Delete a customer by ID",
-        "operationId" : "deleteDepartment",
+        "operationId" : "deleteCustomer",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -123,6 +123,36 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/APIResponseCustomerDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/customers/search" : {
+      "post" : {
+        "tags" : [ "customer-controller" ],
+        "summary" : "Search customers with pagination",
+        "description" : "Returns a paginated list of customers based on the search criteria",
+        "operationId" : "getAllCustomersUsingPagination",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CustomerSearchCriteriaDTO"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/APIResponsePageCustomerDTO"
                 }
               }
             }
@@ -211,6 +241,171 @@
           },
           "errorMessage" : {
             "type" : "string"
+          }
+        }
+      },
+      "CustomerSearchCriteriaDTO" : {
+        "required" : [ "page", "size" ],
+        "type" : "object",
+        "properties" : {
+          "firstName" : {
+            "type" : "string"
+          },
+          "lastName" : {
+            "type" : "string"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "phoneNumber" : {
+            "type" : "string"
+          },
+          "dateOfBirth" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "page" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32",
+            "example" : 10
+          },
+          "sortList" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SortItem"
+            }
+          }
+        }
+      },
+      "SortItem" : {
+        "type" : "object",
+        "properties" : {
+          "field" : {
+            "type" : "string",
+            "example" : "id"
+          },
+          "direction" : {
+            "type" : "string",
+            "enum" : [ "ASC", "DESC" ]
+          }
+        }
+      },
+      "APIResponsePageCustomerDTO" : {
+        "type" : "object",
+        "properties" : {
+          "status" : {
+            "type" : "string"
+          },
+          "errors" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ErrorDTO"
+            }
+          },
+          "results" : {
+            "$ref" : "#/components/schemas/PageCustomerDTO"
+          }
+        }
+      },
+      "PageCustomerDTO" : {
+        "type" : "object",
+        "properties" : {
+          "totalElements" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "first" : {
+            "type" : "boolean"
+          },
+          "last" : {
+            "type" : "boolean"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "content" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CustomerDTO"
+            }
+          },
+          "number" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "sort" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SortObject"
+            }
+          },
+          "numberOfElements" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pageable" : {
+            "$ref" : "#/components/schemas/PageableObject"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "PageableObject" : {
+        "type" : "object",
+        "properties" : {
+          "offset" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "sort" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SortObject"
+            }
+          },
+          "paged" : {
+            "type" : "boolean"
+          },
+          "pageNumber" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pageSize" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "unpaged" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "SortObject" : {
+        "type" : "object",
+        "properties" : {
+          "direction" : {
+            "type" : "string"
+          },
+          "nullHandling" : {
+            "type" : "string"
+          },
+          "ascending" : {
+            "type" : "boolean"
+          },
+          "property" : {
+            "type" : "string"
+          },
+          "ignoreCase" : {
+            "type" : "boolean"
           }
         }
       },

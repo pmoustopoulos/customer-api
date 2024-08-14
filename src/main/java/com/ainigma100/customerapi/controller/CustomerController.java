@@ -4,12 +4,14 @@ package com.ainigma100.customerapi.controller;
 import com.ainigma100.customerapi.dto.APIResponse;
 import com.ainigma100.customerapi.dto.CustomerDTO;
 import com.ainigma100.customerapi.dto.CustomerRequestDTO;
+import com.ainigma100.customerapi.dto.CustomerSearchCriteriaDTO;
 import com.ainigma100.customerapi.enums.Status;
 import com.ainigma100.customerapi.mapper.CustomerMapper;
 import com.ainigma100.customerapi.service.CustomerService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -106,5 +108,23 @@ public class CustomerController {
 
     }
 
+
+    @Operation(summary = "Search customers with pagination",
+            description = "Returns a paginated list of customers based on the search criteria")
+    @PostMapping("/search")
+    public ResponseEntity<APIResponse<Page<CustomerDTO>>> getAllCustomersUsingPagination(
+            @Valid @RequestBody CustomerSearchCriteriaDTO customerSearchCriteriaDTO) {
+
+        Page<CustomerDTO> result = customerService.getAllCustomersUsingPagination(customerSearchCriteriaDTO);
+
+        // Builder Design pattern
+        APIResponse<Page<CustomerDTO>> responseDTO = APIResponse
+                .<Page<CustomerDTO>>builder()
+                .status(Status.SUCCESS.getValue())
+                .results(result)
+                .build();
+
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+    }
 
 }

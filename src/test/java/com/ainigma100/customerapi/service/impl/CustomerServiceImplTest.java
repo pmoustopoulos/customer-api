@@ -1,6 +1,7 @@
 package com.ainigma100.customerapi.service.impl;
 
 import com.ainigma100.customerapi.dto.CustomerDTO;
+import com.ainigma100.customerapi.dto.CustomerSearchCriteriaDTO;
 import com.ainigma100.customerapi.entity.Customer;
 import com.ainigma100.customerapi.exception.ResourceAlreadyExistException;
 import com.ainigma100.customerapi.exception.ResourceNotFoundException;
@@ -13,9 +14,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,6 +49,7 @@ class CustomerServiceImplTest {
 
     private Customer customer;
     private CustomerDTO customerDTO;
+    private CustomerSearchCriteriaDTO customerSearchCriteriaDTO;
 
     /**
      * This method will be executed before each and every test inside this class
@@ -67,6 +74,11 @@ class CustomerServiceImplTest {
         customerDTO.setEmail("jwick@tester.com");
         customerDTO.setPhoneNumber("0123456789");
         customerDTO.setDateOfBirth(LocalDate.now().minusYears(18));
+
+        customerSearchCriteriaDTO = new CustomerSearchCriteriaDTO();
+        customerSearchCriteriaDTO.setPage(0);
+        customerSearchCriteriaDTO.setSize(10);
+
     }
 
 
@@ -250,5 +262,34 @@ class CustomerServiceImplTest {
         verify(customerRepository, never()).delete(any(Customer.class));
 
     }
+
+
+    @Test
+    void givenCustomerSearchCriteriaDTO_whenGetAllCustomersUsingPagination_thenReturnCustomerDTOPage() {
+
+        // given - precondition or setup
+        List<Customer> customerList = Collections.singletonList(customer);
+        Page<Customer> customerPage = new PageImpl<>(customerList);
+        given(customerRepository.getAllCustomersUsingPagination(eq(customerSearchCriteriaDTO), any(Pageable.class)))
+                .willReturn(customerPage);
+
+        given(customerMapper.customerListToCustomerDTOList(customerPage.getContent()))
+                .willReturn(Collections.singletonList(customerDTO));
+
+        // when - action or behaviour that we are going to test
+        Page<CustomerDTO> result = customerService.getAllCustomersUsingPagination(customerSearchCriteriaDTO);
+
+        // then - verify the output
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().get(0).getFirstName()).isEqualTo(customer.getFirstName());
+        assertThat(result.getContent().get(0).getLastName()).isEqualTo(customer.getLastName());
+        assertThat(result.getContent().get(0).getEmail()).isEqualTo(customer.getEmail());
+        assertThat(result.getContent().get(0).getPhoneNumber()).isEqualTo(customer.getPhoneNumber());
+        assertThat(result.getContent().get(0).getDateOfBirth()).isEqualTo(customer.getDateOfBirth());
+
+        verify(customerRepository, times(1)).getAllCustomersUsingPagination(eq(customerSearchCriteriaDTO), any(Pageable.class));
+        verify(customerMapper, times(1)).customerListToCustomerDTOList(customerPage.getContent());
+    }
+
 
 }

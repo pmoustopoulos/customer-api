@@ -2,6 +2,7 @@ package com.ainigma100.customerapi.controller;
 
 import com.ainigma100.customerapi.dto.CustomerDTO;
 import com.ainigma100.customerapi.dto.CustomerRequestDTO;
+import com.ainigma100.customerapi.dto.CustomerSearchCriteriaDTO;
 import com.ainigma100.customerapi.enums.Status;
 import com.ainigma100.customerapi.mapper.CustomerMapper;
 import com.ainigma100.customerapi.service.CustomerService;
@@ -11,11 +12,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
@@ -48,6 +53,7 @@ class CustomerControllerTest {
 
     private CustomerRequestDTO customerRequestDTO;
     private CustomerDTO customerDTO;
+    private CustomerSearchCriteriaDTO customerSearchCriteriaDTO;
 
     @BeforeEach
     void setUp() {
@@ -67,6 +73,11 @@ class CustomerControllerTest {
         customerDTO.setEmail("jwick@tester.com");
         customerDTO.setPhoneNumber("0123456789");
         customerDTO.setDateOfBirth(LocalDate.now().minusYears(18));
+
+
+        customerSearchCriteriaDTO = new CustomerSearchCriteriaDTO();
+        customerSearchCriteriaDTO.setPage(0);
+        customerSearchCriteriaDTO.setSize(10);
 
     }
 
@@ -176,5 +187,33 @@ class CustomerControllerTest {
                 .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())));
     }
 
+
+    @Test
+    void givenCustomerSearchCriteriaDTO_whenGetAllCustomersUsingPagination_thenReturnCustomerDTOPage() throws Exception {
+
+        // given - precondition or setup
+        List<CustomerDTO> customerDTOList = Collections.singletonList(customerDTO);
+        Page<CustomerDTO> customerDTOPage = new PageImpl<>(customerDTOList);
+        given(customerService.getAllCustomersUsingPagination(any(CustomerSearchCriteriaDTO.class)))
+                .willReturn(customerDTOPage);
+
+        // when - action or behaviour that we are going to test
+        ResultActions response = mockMvc.perform(post("/api/v1/customers/search")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(customerSearchCriteriaDTO)));
+
+        // then - verify the output
+        response.andDo(print())
+                // verify the status code that is returned
+                .andExpect(status().isOk())
+                // verify the actual returned value and the expected value
+                // $ - root member of a JSON structure whether it is an object or array
+                .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())))
+                .andExpect(jsonPath("$.results.content.size()", is(customerDTOList.size())))
+                .andExpect(jsonPath("$.results.content[0].firstName", is(customerDTOList.get(0).getFirstName())))
+                .andExpect(jsonPath("$.results.content[0].lastName", is(customerDTOList.get(0).getLastName())))
+                .andExpect(jsonPath("$.results.content[0].email", is(customerDTOList.get(0).getEmail())))
+                .andExpect(jsonPath("$.results.content[0].phoneNumber", is(customerDTOList.get(0).getPhoneNumber())));
+    }
 
 }

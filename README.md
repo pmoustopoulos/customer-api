@@ -32,6 +32,7 @@ Spring Boot 3.
 8. [Helper Classes](#8-helper-classes)
 9. [Testing](#9-testing)
 10. [Best Practices](#10-best-practices)
+11. [Enhanced Pagination Example](#11-enhanced-pagination-example)
 
 ## 1. Introduction
 
@@ -2688,6 +2689,13 @@ scalable. Below are some key practices to keep in mind:
 This practice is not just about standardization but also about making your API responses more predictable and secure.
 
 <br><br>
+
+
+## 11. Enhanced Pagination Example
+In this section, I provide an improved pagination implementation that you can use to retrieve paginated results from your database. The example includes the usage of a custom `CustomerSearchCriteriaDTO`, a service method that handles pagination, and utility classes to assist with sorting and pagination.
+
+
+
 
 ### Feedback and Contributions
 

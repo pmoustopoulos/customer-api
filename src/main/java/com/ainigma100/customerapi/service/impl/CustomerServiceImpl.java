@@ -1,16 +1,24 @@
 package com.ainigma100.customerapi.service.impl;
 
 import com.ainigma100.customerapi.dto.CustomerDTO;
+import com.ainigma100.customerapi.dto.CustomerSearchCriteriaDTO;
 import com.ainigma100.customerapi.entity.Customer;
 import com.ainigma100.customerapi.exception.ResourceAlreadyExistException;
 import com.ainigma100.customerapi.exception.ResourceNotFoundException;
 import com.ainigma100.customerapi.mapper.CustomerMapper;
 import com.ainigma100.customerapi.repository.CustomerRepository;
 import com.ainigma100.customerapi.service.CustomerService;
+import com.ainigma100.customerapi.utils.SortItem;
+import com.ainigma100.customerapi.utils.Utils;
 import com.ainigma100.customerapi.utils.annotation.ExecutionTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -76,5 +84,24 @@ public class CustomerServiceImpl implements CustomerService {
                 .orElseThrow(() -> new ResourceNotFoundException("Customer", "id", id));
 
         customerRepository.delete(recordFromDB);
+    }
+
+    @Override
+    public Page<CustomerDTO> getAllCustomersUsingPagination(
+            CustomerSearchCriteriaDTO customerSearchCriteriaDTO) {
+
+        Integer page = customerSearchCriteriaDTO.getPage();
+        Integer size = customerSearchCriteriaDTO.getSize();
+        List<SortItem> sortList = customerSearchCriteriaDTO.getSortList();
+
+        // this pageable will be used for the pagination.
+        Pageable pageable = Utils.createPageableBasedOnPageAndSizeAndSorting(sortList, page, size);
+
+        Page<Customer> recordsFromDb = customerRepository.getAllCustomersUsingPagination(customerSearchCriteriaDTO, pageable);
+
+        List<CustomerDTO> result = customerMapper.customerListToCustomerDTOList(recordsFromDb.getContent());
+
+        return new PageImpl<>(result, pageable, recordsFromDb.getTotalElements());
+
     }
 }

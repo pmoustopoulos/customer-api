@@ -1922,86 +1922,86 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataJpaTest
 class CustomerRepositoryTest {
 
-  @Autowired
-  private CustomerRepository customerRepository;
+    @Autowired
+    private CustomerRepository customerRepository;
 
-  private Customer customer;
+    private Customer customer;
 
-  /**
-   * This method will be executed before each and every test inside this class
-   */
-  @BeforeEach
-  void setUp() {
+    /**
+     * This method will be executed before each and every test inside this class
+     */
+    @BeforeEach
+    void setUp() {
 
-    customer = new Customer();
-    customer.setFirstName("John");
-    customer.setLastName("Wick");
-    customer.setEmail("jwick@tester.com");
-    customer.setPhoneNumber("0123456789");
-    customer.setDateOfBirth(LocalDate.now().minusYears(18));
+        customer = new Customer();
+        customer.setFirstName("John");
+        customer.setLastName("Wick");
+        customer.setEmail("jwick@tester.com");
+        customer.setPhoneNumber("0123456789");
+        customer.setDateOfBirth(LocalDate.now().minusYears(18));
 
-  }
+    }
 
-  @Test
-  void givenValidEmail_whenFindByEmail_thenReturnCustomer() {
+    @Test
+    void givenValidEmail_whenFindByEmail_thenReturnCustomer() {
 
-    // given - precondition or setup
-    String email = "jwick@tester.com";
-    customerRepository.save(customer);
+        // given - precondition or setup
+        String email = "jwick@tester.com";
+        customerRepository.save(customer);
 
-    // when - action or behaviour that we are going to test
-    Customer customerFromDB = customerRepository.findByEmail(email);
+        // when - action or behaviour that we are going to test
+        Customer customerFromDB = customerRepository.findByEmail(email);
 
-    // then - verify the output
-    assertNotNull(customerFromDB);
-    assertEquals(customer.getFirstName(), customerFromDB.getFirstName());
-    assertEquals(customer.getLastName(), customerFromDB.getLastName());
-    assertEquals(customer.getEmail(), customerFromDB.getEmail());
-    assertEquals(customer.getPhoneNumber(), customerFromDB.getPhoneNumber());
-    assertEquals(customer.getDateOfBirth(), customerFromDB.getDateOfBirth());
-  }
+        // then - verify the output
+        assertNotNull(customerFromDB);
+        assertEquals(customer.getFirstName(), customerFromDB.getFirstName());
+        assertEquals(customer.getLastName(), customerFromDB.getLastName());
+        assertEquals(customer.getEmail(), customerFromDB.getEmail());
+        assertEquals(customer.getPhoneNumber(), customerFromDB.getPhoneNumber());
+        assertEquals(customer.getDateOfBirth(), customerFromDB.getDateOfBirth());
+    }
 
-  @Test
-  void givenInvalidEmail_whenFindByEmail_thenReturnNothing() {
+    @Test
+    void givenInvalidEmail_whenFindByEmail_thenReturnNothing() {
 
-    // given - precondition or setup
-    String email = "abc@tester.com";
-    customerRepository.save(customer);
+        // given - precondition or setup
+        String email = "abc@tester.com";
+        customerRepository.save(customer);
 
-    // when - action or behaviour that we are going to test
-    Customer customerFromDB = customerRepository.findByEmail(email);
+        // when - action or behaviour that we are going to test
+        Customer customerFromDB = customerRepository.findByEmail(email);
 
-    // then - verify the output
-    assertNull(customerFromDB);
-  }
+        // then - verify the output
+        assertNull(customerFromDB);
+    }
 
-  @Test
-  void givenNullEmail_whenFindByEmail_thenReturnNothing() {
+    @Test
+    void givenNullEmail_whenFindByEmail_thenReturnNothing() {
 
-    // given - precondition or setup
-    String email = null;
-    customerRepository.save(customer);
+        // given - precondition or setup
+        String email = null;
+        customerRepository.save(customer);
 
-    // when - action or behaviour that we are going to test
-    Customer customerFromDB = customerRepository.findByEmail(email);
+        // when - action or behaviour that we are going to test
+        Customer customerFromDB = customerRepository.findByEmail(email);
 
-    // then - verify the output
-    assertNull(customerFromDB);
-  }
+        // then - verify the output
+        assertNull(customerFromDB);
+    }
 
-  @Test
-  void givenEmptyEmail_whenFindByEmail_thenReturnNothing() {
+    @Test
+    void givenEmptyEmail_whenFindByEmail_thenReturnNothing() {
 
-    // given - precondition or setup
-    String email = "";
-    customerRepository.save(customer);
+        // given - precondition or setup
+        String email = "";
+        customerRepository.save(customer);
 
-    // when - action or behaviour that we are going to test
-    Customer customerFromDB = customerRepository.findByEmail(email);
+        // when - action or behaviour that we are going to test
+        Customer customerFromDB = customerRepository.findByEmail(email);
 
-    // then - verify the output
-    assertNull(customerFromDB);
-  }
+        // then - verify the output
+        assertNull(customerFromDB);
+    }
 
 
 }
@@ -2014,12 +2014,284 @@ class CustomerRepositoryTest {
 
 ### 2. Testing the Service Layer
 
+The service layer contains your business logic and interacts with the repository layer. Testing this layer typically
+involves mocking the repository to isolate the service logic.
+
+- **`@ExtendWith(MockitoExtension.class)`**: Enables Mockito annotations in your test class.
+- **`@InjectMocks`**: Injects the mock objects into the service class, allowing you to test the service logic
+  independently of the repository layer. This annotation creates an instance of the class under test and injects the
+  mock dependencies annotated with `@Mock` into it.
+- **`@Mock`**: Used to create mock instances of the repository or other dependencies.
+- **`@DisplayName`**: Allows you to provide a custom name for your test methods, making them more descriptive and
+  readable in test reports.
+
+<details>
+  <summary>View CustomerServiceImplTest code</summary>
+
+```java
+package com.ainigma100.customerapi.service.impl;
+
+import com.ainigma100.customerapi.dto.CustomerDTO;
+import com.ainigma100.customerapi.entity.Customer;
+import com.ainigma100.customerapi.exception.ResourceAlreadyExistException;
+import com.ainigma100.customerapi.exception.ResourceNotFoundException;
+import com.ainigma100.customerapi.mapper.CustomerMapper;
+import com.ainigma100.customerapi.repository.CustomerRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
+
+/*
+ * @ExtendWith(MockitoExtension.class) informs Mockito that we are using
+ * mockito annotations to mock the dependencies
+ */
+@ExtendWith(MockitoExtension.class)
+class CustomerServiceImplTest {
+
+    // @InjectMocks creates the mock object of the class and injects the mocks
+    // that are marked with the annotations @Mock into it.
+    @InjectMocks
+    private CustomerServiceImpl customerService;
+
+    @Mock
+    private CustomerRepository customerRepository;
+
+    @Mock
+    private CustomerMapper customerMapper;
+
+    private Customer customer;
+    private CustomerDTO customerDTO;
+
+    /**
+     * This method will be executed before each and every test inside this class
+     */
+    @BeforeEach
+    void setUp() {
+
+        customer = new Customer();
+        customer.setId(1L);
+        customer.setFirstName("John");
+        customer.setLastName("Wick");
+        customer.setEmail("jwick@tester.com");
+        customer.setPhoneNumber("0123456789");
+        customer.setDateOfBirth(LocalDate.now().minusYears(18));
+        customer.setCreatedDate(LocalDateTime.now());
+        customer.setUpdatedDate(LocalDateTime.now());
+
+        customerDTO = new CustomerDTO();
+        customerDTO.setId(1L);
+        customerDTO.setFirstName("John");
+        customerDTO.setLastName("Wick");
+        customerDTO.setEmail("jwick@tester.com");
+        customerDTO.setPhoneNumber("0123456789");
+        customerDTO.setDateOfBirth(LocalDate.now().minusYears(18));
+    }
+
+
+    @Test
+    @DisplayName("Test creating a new customer")
+    void givenCustomerDTO_whenCreateCustomer_thenReturnCustomerDTO() {
+
+        // given - precondition or setup
+        String email = customerDTO.getEmail();
+        given(customerRepository.findByEmail(email)).willReturn(null);
+        given(customerMapper.customerDTOToCustomer(customerDTO)).willReturn(customer);
+        given(customerRepository.save(customer)).willReturn(customer);
+        given(customerMapper.customerToCustomerDTO(customer)).willReturn(customerDTO);
+
+        // when - action or behaviour that we are going to test
+        CustomerDTO result = customerService.createCustomer(customerDTO);
+
+        // then - verify the output
+        assertThat(result).isNotNull();
+        assertThat(result.getFirstName()).isEqualTo(customerDTO.getFirstName());
+        assertThat(result.getLastName()).isEqualTo(customerDTO.getLastName());
+        assertThat(result.getEmail()).isEqualTo(customerDTO.getEmail());
+        assertThat(result.getPhoneNumber()).isEqualTo(customerDTO.getPhoneNumber());
+
+        verify(customerRepository, times(1)).findByEmail(email);
+        verify(customerMapper, times(1)).customerDTOToCustomer(customerDTO);
+        verify(customerRepository, times(1)).save(customer);
+        verify(customerMapper, times(1)).customerToCustomerDTO(customer);
+
+    }
+
+    @Test
+    @DisplayName("Test creating a customer with existing email throws ResourceAlreadyExistException")
+    void givenExistingEmail_whenCreateCustomer_thenThrowResourceAlreadyExistException() {
+
+        // given - precondition or setup
+        String email = customerDTO.getEmail();
+        given(customerRepository.findByEmail(email)).willReturn(customer);
+
+        // when/then - verify that the ResourceAlreadyExistException is thrown
+        assertThatThrownBy(() -> customerService.createCustomer(customerDTO))
+                .isInstanceOf(ResourceAlreadyExistException.class)
+                .hasMessageContaining("Resource Customer with email : '" + email + "' already exist");
+
+
+        verify(customerRepository, times(1)).findByEmail(customerDTO.getEmail());
+        verify(customerMapper, never()).customerDTOToCustomer(any(CustomerDTO.class));
+        verify(customerRepository, never()).save(any(Customer.class));
+        verify(customerMapper, never()).customerToCustomerDTO(any(Customer.class));
+
+    }
+
+    @Test
+    @DisplayName("Test retrieving a customer by ID")
+    void givenValidId_whenGetCustomerById_thenReturnCustomerDTO() {
+
+        // given - precondition or setup
+        Long id = 1L;
+        given(customerRepository.findById(id)).willReturn(Optional.of(customer));
+        given(customerMapper.customerToCustomerDTO(customer)).willReturn(customerDTO);
+
+        // when - action or behaviour that we are going to test
+        CustomerDTO result = customerService.getCustomerById(id);
+
+        // then - verify the output
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).isEqualTo(customerDTO.getId());
+        assertThat(result.getFirstName()).isEqualTo(customerDTO.getFirstName());
+        assertThat(result.getLastName()).isEqualTo(customerDTO.getLastName());
+        assertThat(result.getEmail()).isEqualTo(customerDTO.getEmail());
+        assertThat(result.getPhoneNumber()).isEqualTo(customerDTO.getPhoneNumber());
+
+        verify(customerRepository, times(1)).findById(id);
+        verify(customerMapper, times(1)).customerToCustomerDTO(customer);
+
+    }
+
+
+    @Test
+    @DisplayName("Test retrieving a customer by invalid ID throws ResourceNotFoundException")
+    void givenInvalidId_whenGetCustomerById_thenThrowResourceNotFoundException() {
+
+        // given - precondition or setup
+        Long id = 100L;
+        given(customerRepository.findById(id)).willReturn(Optional.empty());
+
+        // when/then - verify that the ResourceNotFoundException is thrown
+        assertThatThrownBy(() -> customerService.getCustomerById(id))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Customer with id : '" + id + "' not found");
+
+
+        verify(customerRepository, times(1)).findById(id);
+        verify(customerMapper, never()).customerToCustomerDTO(any(Customer.class));
+
+    }
+
+
+    @Test
+    @DisplayName("Test updating a customer by ID")
+    void givenValidIdAndCustomerDTO_whenUpdateCustomer_thenReturnUpdatedCustomerDTO() {
+
+        // given - precondition or setup
+        Long id = 1L;
+        given(customerRepository.findById(id)).willReturn(Optional.of(customer));
+        given(customerMapper.customerDTOToCustomer(customerDTO)).willReturn(customer);
+        given(customerRepository.save(customer)).willReturn(customer);
+        given(customerMapper.customerToCustomerDTO(customer)).willReturn(customerDTO);
+
+        // when - action or behaviour that we are going to test
+        CustomerDTO result = customerService.updateCustomer(id, customerDTO);
+
+        // then - verify the output
+        assertThat(result).isNotNull();
+        assertThat(result.getFirstName()).isEqualTo(customerDTO.getFirstName());
+        assertThat(result.getLastName()).isEqualTo(customerDTO.getLastName());
+        assertThat(result.getEmail()).isEqualTo(customerDTO.getEmail());
+        assertThat(result.getPhoneNumber()).isEqualTo(customerDTO.getPhoneNumber());
+
+        verify(customerRepository, times(1)).findById(id);
+        verify(customerMapper, times(1)).customerDTOToCustomer(customerDTO);
+        verify(customerRepository, times(1)).save(customer);
+        verify(customerMapper, times(1)).customerToCustomerDTO(customer);
+
+    }
+
+    @Test
+    @DisplayName("Test updating a customer by invalid ID throws ResourceNotFoundException")
+    void givenInvalidIdAndCustomerDTO_whenUpdateCustomer_thenThrowResourceNotFoundException() {
+
+        // given - precondition or setup
+        Long id = 100L;
+        given(customerRepository.findById(id)).willReturn(Optional.empty());
+
+        // when/then - verify that the ResourceNotFoundException is thrown
+        assertThatThrownBy(() -> customerService.updateCustomer(id, customerDTO))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Customer with id : '" + id + "' not found");
+
+
+        verify(customerRepository, times(1)).findById(id);
+        verify(customerMapper, never()).customerDTOToCustomer(any(CustomerDTO.class));
+        verify(customerRepository, never()).save(any(Customer.class));
+        verify(customerMapper, never()).customerToCustomerDTO(any(Customer.class));
+
+    }
+
+
+    @Test
+    @DisplayName("Test deleting a customer by ID")
+    void givenValidId_whenDeleteCustomer_thenDeleteCustomer() {
+
+        // given - precondition or setup
+        Long id = 1L;
+        given(customerRepository.findById(id)).willReturn(Optional.of(customer));
+        doNothing().when(customerRepository).delete(customer);
+
+        // when - action or behaviour that we are going to test
+        customerService.deleteCustomer(id);
+
+        // then - verify the output
+        verify(customerRepository, times(1)).findById(id);
+        verify(customerRepository, times(1)).delete(customer);
+
+    }
+
+    @Test
+    @DisplayName("Test deleting a customer by invalid ID throws ResourceNotFoundException")
+    void givenInvalidId_whenDeleteCustomer_thenThrowResourceNotFoundException() {
+
+        // given - precondition or setup
+        Long id = 1L;
+        given(customerRepository.findById(id)).willReturn(Optional.empty());
+
+        // when/then - verify that the ResourceNotFoundException is thrown
+        assertThatThrownBy(() -> customerService.deleteCustomer(id))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Customer with id : '" + id + "' not found");
+
+        verify(customerRepository, times(1)).findById(id);
+        verify(customerRepository, never()).delete(any(Customer.class));
+
+    }
+
+}
+```
+
+</details>
+
+
 
 <br><br>
 
 ### 3. Testing the Controller Layer
-
-
 
 <br><br>
 

@@ -1261,7 +1261,7 @@ public class CustomerController {
 
     @Operation(summary = "Delete a customer by ID")
     @DeleteMapping("/{id}")
-    public ResponseEntity<APIResponse<String>> deleteDepartment(@PathVariable("id") Long id) {
+    public ResponseEntity<APIResponse<String>> deleteCustomer(@PathVariable("id") Long id) {
 
         customerService.deleteCustomer(id);
 
@@ -2292,6 +2292,242 @@ class CustomerServiceImplTest {
 <br><br>
 
 ### 3. Testing the Controller Layer
+
+The controller layer is responsible for handling HTTP requests and returning appropriate responses. When testing this
+layer, the goal is to ensure that the controller behaves correctly in response to various inputs and interactions with
+its dependencies, such as services and mappers.
+
+- **`@WebMvcTest`**: This annotation is used to load only the components required for testing the controller layer. It
+  configures Spring’s testing support for MVC applications but does not load the full application context, making tests
+  faster and more focused.
+
+- **`@MockBean`**: This annotation is used to create and inject mock instances of the service layer or other
+  dependencies that the controller interacts with. Mocking these dependencies ensures that the test focuses solely on
+  the behavior of the controller without involving actual business logic or database interactions.
+
+- **`@Autowired`**: This annotation is used to inject the `MockMvc` and `ObjectMapper` beans into your test class.
+    - `MockMvc` is used to simulate HTTP requests and test the controller’s response without starting the server.
+    - `ObjectMapper` is used for serializing and deserializing JSON objects, making it easier to work with request and
+      response bodies in tests.
+
+### Key Points:
+
+1. **Mocking Service and Mapper**:
+    - Mock the service and mapper beans to isolate the controller’s logic. By controlling the outputs of the service and
+      mapper methods, you can focus your tests on the controller's behavior and ensure that it processes requests and
+      responses correctly.
+
+2. **Testing HTTP Methods**:
+    - Test different HTTP methods (e.g., GET, POST, PUT, DELETE) to ensure that the controller correctly processes
+      requests and returns the expected responses for each type of action.
+
+3. **Argument Matchers**:
+    - When setting up mock interactions, use `ArgumentMatchers` like `any(Class.class)` to generalize the input
+      parameters, especially when you do not care about the specific value. Alternatively, use specific matchers like
+      `eq()` when you want to ensure that the method is called with exact values. Choosing the right matcher depends on
+      your test scenario. Understanding when to use each will make your tests more reliable.
+
+4. **Validation of Responses**:
+    - Validate the status code, headers, and response body using methods like `andExpect()`. Ensure that the response
+      structure and content are what you expect. This step is crucial to verify that your API meets its contract.
+
+5. **Use of `ResultActions`**:
+   - Capture the result of the `MockMvc` request using `ResultActions`. This allows you to chain further verifications on
+     the response, ensuring that all aspects of the response are as expected.
+
+### Note:
+  - When writing controller tests, it’s important to decide whether to use `ArgumentMatchers` like `any()` for flexible
+  input matching or `eq()` for strict matching based on the context of your test scenario. For more details on using
+  argument matchers or `eq()` in Mockito, you can search online resources or refer to Mockito documentation.
+
+
+<details>
+  <summary>View CustomerControllerTest code</summary>
+
+```java
+package com.ainigma100.customerapi.controller;
+
+import com.ainigma100.customerapi.dto.CustomerDTO;
+import com.ainigma100.customerapi.dto.CustomerRequestDTO;
+import com.ainigma100.customerapi.enums.Status;
+import com.ainigma100.customerapi.mapper.CustomerMapper;
+import com.ainigma100.customerapi.service.CustomerService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+
+import java.time.LocalDate;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+
+/*
+ * @WebMvcTest annotation will load all the components required
+ * to test the Controller layer. It will not load the service or repository layer components
+ */
+@WebMvcTest(CustomerController.class)
+class CustomerControllerTest {
+
+  @Autowired
+  private ObjectMapper objectMapper;
+
+  @Autowired
+  private MockMvc mockMvc;
+
+  @MockBean
+  private CustomerService customerService;
+
+  @MockBean
+  private CustomerMapper customerMapper;
+
+  private CustomerRequestDTO customerRequestDTO;
+  private CustomerDTO customerDTO;
+
+  @BeforeEach
+  void setUp() {
+
+    customerRequestDTO = new CustomerRequestDTO();
+    customerRequestDTO.setFirstName("John");
+    customerRequestDTO.setLastName("Wick");
+    customerRequestDTO.setEmail("jwick@tester.com");
+    customerRequestDTO.setPhoneNumber("0123456789");
+    customerRequestDTO.setDateOfBirth(LocalDate.now().minusYears(18));
+
+
+    customerDTO = new CustomerDTO();
+    customerDTO.setId(1L);
+    customerDTO.setFirstName("John");
+    customerDTO.setLastName("Wick");
+    customerDTO.setEmail("jwick@tester.com");
+    customerDTO.setPhoneNumber("0123456789");
+    customerDTO.setDateOfBirth(LocalDate.now().minusYears(18));
+
+  }
+
+
+  @Test
+  void givenCustomerDTO_whenCreateCustomer_thenReturnCustomerDTO() throws Exception {
+
+    // given - precondition or setup
+    given(customerMapper.customerRequestDTOToCustomerDTO(any(CustomerRequestDTO.class)))
+            .willReturn(customerDTO);
+
+    given(customerService.createCustomer(any(CustomerDTO.class))).willReturn(customerDTO);
+
+    // when - action or behaviour that we are going to test
+    ResultActions response = mockMvc.perform(post("/api/v1/customers")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(customerRequestDTO)));
+
+    // then - verify the output
+    response.andDo(print())
+            // verify the status code that is returned
+            .andExpect(status().isCreated())
+            // verify the actual returned value and the expected value
+            // $ - root member of a JSON structure whether it is an object or array
+            .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())))
+            .andExpect(jsonPath("$.results.id", is(1)))
+            .andExpect(jsonPath("$.results.firstName", is("John")))
+            .andExpect(jsonPath("$.results.lastName", is("Wick")))
+            .andExpect(jsonPath("$.results.email", is("jwick@tester.com")))
+            .andExpect(jsonPath("$.results.phoneNumber", is("0123456789")))
+            .andExpect(jsonPath("$.results.dateOfBirth", is(LocalDate.now().minusYears(18).toString())));
+  }
+
+
+  @Test
+  void givenCustomerDTO_whenGetCustomerById_thenReturnCustomerDTO() throws Exception {
+
+    // given - precondition or setup
+    given(customerService.getCustomerById(any(Long.class))).willReturn(customerDTO);
+
+    // when - action or behaviour that we are going to test
+    ResultActions response = mockMvc.perform(get("/api/v1/customers/{id}", 1L)
+            .contentType(MediaType.APPLICATION_JSON));
+
+    // then - verify the output
+    response.andDo(print())
+            // verify the status code that is returned
+            .andExpect(status().isOk())
+            // verify the actual returned value and the expected value
+            // $ - root member of a JSON structure whether it is an object or array
+            .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())))
+            .andExpect(jsonPath("$.results.id", is(1)))
+            .andExpect(jsonPath("$.results.firstName", is("John")))
+            .andExpect(jsonPath("$.results.lastName", is("Wick")))
+            .andExpect(jsonPath("$.results.email", is("jwick@tester.com")))
+            .andExpect(jsonPath("$.results.phoneNumber", is("0123456789")))
+            .andExpect(jsonPath("$.results.dateOfBirth", is(LocalDate.now().minusYears(18).toString())));
+  }
+
+
+  @Test
+  void givenCustomerDTO_whenUpdateCustomer_thenReturnCustomerDTO() throws Exception {
+
+    // given - precondition or setup
+    given(customerMapper.customerRequestDTOToCustomerDTO(any(CustomerRequestDTO.class)))
+            .willReturn(customerDTO);
+
+    given(customerService.updateCustomer(any(Long.class), any(CustomerDTO.class))).willReturn(customerDTO);
+
+    // when - action or behaviour that we are going to test
+    ResultActions response = mockMvc.perform(put("/api/v1/customers/{id}", 1L)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(customerRequestDTO)));
+
+    // then - verify the output
+    response.andDo(print())
+            // verify the status code that is returned
+            .andExpect(status().isOk())
+            // verify the actual returned value and the expected value
+            // $ - root member of a JSON structure whether it is an object or array
+            .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())))
+            .andExpect(jsonPath("$.results.id", is(1)))
+            .andExpect(jsonPath("$.results.firstName", is("John")))
+            .andExpect(jsonPath("$.results.lastName", is("Wick")))
+            .andExpect(jsonPath("$.results.email", is("jwick@tester.com")))
+            .andExpect(jsonPath("$.results.phoneNumber", is("0123456789")))
+            .andExpect(jsonPath("$.results.dateOfBirth", is(LocalDate.now().minusYears(18).toString())));
+  }
+
+
+  @Test
+  void givenCustomerDTO_whenDeleteCustomer_thenReturnCustomerDTO() throws Exception {
+
+    // given - precondition or setup
+    willDoNothing().given(customerService).deleteCustomer(any(Long.class));
+
+    // when - action or behaviour that we are going to test
+    ResultActions response = mockMvc.perform(delete("/api/v1/customers/{id}", 1L)
+            .contentType(MediaType.APPLICATION_JSON));
+
+    // then - verify the output
+    response.andDo(print())
+            // verify the status code that is returned
+            .andExpect(status().isOk())
+            // verify the actual returned value and the expected value
+            // $ - root member of a JSON structure whether it is an object or array
+            .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())));
+  }
+
+
+}
+```
+
+</details>
 
 <br><br>
 

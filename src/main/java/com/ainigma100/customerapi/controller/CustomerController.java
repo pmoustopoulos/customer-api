@@ -88,7 +88,7 @@ public class CustomerController {
 
     @Operation(summary = "Delete a customer by ID")
     @DeleteMapping("/{id}")
-    public ResponseEntity<APIResponse<String>> deleteDepartment(@PathVariable("id") Long id) {
+    public ResponseEntity<APIResponse<String>> deleteCustomer(@PathVariable("id") Long id) {
 
         customerService.deleteCustomer(id);
 

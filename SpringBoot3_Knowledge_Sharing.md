@@ -20,8 +20,8 @@ Spring Boot 3.
 2. [Project Structure Overview](#2-project-structure-overview)
 3. [Introduction to Maven and `pom.xml`](#3-introduction-to-maven-and-pomxml)
 4. [Key Annotations in Spring Boot](#4-key-annotations-in-spring-boot)
-5. [Naming Conventions](#8-naming-conventions)
-6. [Configuring `application.yaml`](#5-configuring-applicationyaml)
+5. [Naming Conventions](#5-naming-conventions)
+6. [Configuring `application.yaml`](#6-configuring-applicationyaml)
 7. [Detailed Package Breakdown](#7-detailed-package-breakdown)
     - [Entity Layer](#entity-layer)
     - [Repository Layer](#repository-layer)
@@ -29,8 +29,8 @@ Spring Boot 3.
     - [DTOs and MapStruct](#dtos-and-mapstruct)
     - [Controller Layer](#controller-layer)
     - [Exception Handling](#exception-handling)
-8. [Helper Classes](#7-helper-classes)
-9. [Testing `Under Construction`](#11-testing-under-construction)
+8. [Helper Classes](#8-helper-classes)
+9. [Testing](#9-testing)
 10. [Best Practices](#12-best-practices)
 
 ## 1. Introduction

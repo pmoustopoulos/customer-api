@@ -31,7 +31,7 @@ Spring Boot 3.
     - [Exception Handling](#exception-handling)
 8. [Helper Classes](#8-helper-classes)
 9. [Testing](#9-testing)
-10. [Best Practices](#12-best-practices)
+10. [Best Practices](#10-best-practices)
 
 ## 1. Introduction
 

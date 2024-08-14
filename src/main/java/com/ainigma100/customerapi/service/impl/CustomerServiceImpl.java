@@ -7,6 +7,7 @@ import com.ainigma100.customerapi.exception.ResourceNotFoundException;
 import com.ainigma100.customerapi.mapper.CustomerMapper;
 import com.ainigma100.customerapi.repository.CustomerRepository;
 import com.ainigma100.customerapi.service.CustomerService;
+import com.ainigma100.customerapi.utils.annotation.ExecutionTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,8 @@ public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;
 
+
+    @ExecutionTime
     @Override
     public CustomerDTO createCustomer(CustomerDTO customerDTO) {
 
@@ -35,6 +38,8 @@ public class CustomerServiceImpl implements CustomerService {
         return customerMapper.customerToCustomerDTO(savedRecord);
     }
 
+
+    @ExecutionTime
     @Override
     public CustomerDTO getCustomerById(Long id) {
 
@@ -44,6 +49,8 @@ public class CustomerServiceImpl implements CustomerService {
         return customerMapper.customerToCustomerDTO(recordFromDB);
     }
 
+
+    @ExecutionTime
     @Override
     public CustomerDTO updateCustomer(Long id, CustomerDTO customerDTO) {
 
@@ -60,6 +67,8 @@ public class CustomerServiceImpl implements CustomerService {
         return customerMapper.customerToCustomerDTO(savedRecord);
     }
 
+
+    @ExecutionTime
     @Override
     public void deleteCustomer(Long id) {
 

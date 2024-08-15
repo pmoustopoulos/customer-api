@@ -33,6 +33,7 @@ Spring Boot 3.
 9. [Testing](#9-testing)
 10. [Best Practices](#10-best-practices)
 11. [Enhanced Pagination Example](#11-enhanced-pagination-example)
+12. [Feedback and Contributions](#12-feedback-and-contributions)
 
 ## 1. Introduction
 
@@ -2333,14 +2334,15 @@ its dependencies, such as services and mappers.
       structure and content are what you expect. This step is crucial to verify that your API meets its contract.
 
 5. **Use of `ResultActions`**:
-   - Capture the result of the `MockMvc` request using `ResultActions`. This allows you to chain further verifications on
-     the response, ensuring that all aspects of the response are as expected.
+    - Capture the result of the `MockMvc` request using `ResultActions`. This allows you to chain further verifications
+      on
+      the response, ensuring that all aspects of the response are as expected.
 
 ### Note:
-  - When writing controller tests, it’s important to decide whether to use `ArgumentMatchers` like `any()` for flexible
+
+- When writing controller tests, it’s important to decide whether to use `ArgumentMatchers` like `any()` for flexible
   input matching or `eq()` for strict matching based on the context of your test scenario. For more details on using
   argument matchers or `eq()` in Mockito, you can search online resources or refer to Mockito documentation.
-
 
 <details>
   <summary>View CustomerControllerTest code</summary>
@@ -2382,147 +2384,147 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(CustomerController.class)
 class CustomerControllerTest {
 
-  @Autowired
-  private ObjectMapper objectMapper;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-  @Autowired
-  private MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-  @MockBean
-  private CustomerService customerService;
+    @MockBean
+    private CustomerService customerService;
 
-  @MockBean
-  private CustomerMapper customerMapper;
+    @MockBean
+    private CustomerMapper customerMapper;
 
-  private CustomerRequestDTO customerRequestDTO;
-  private CustomerDTO customerDTO;
+    private CustomerRequestDTO customerRequestDTO;
+    private CustomerDTO customerDTO;
 
-  @BeforeEach
-  void setUp() {
+    @BeforeEach
+    void setUp() {
 
-    customerRequestDTO = new CustomerRequestDTO();
-    customerRequestDTO.setFirstName("John");
-    customerRequestDTO.setLastName("Wick");
-    customerRequestDTO.setEmail("jwick@tester.com");
-    customerRequestDTO.setPhoneNumber("0123456789");
-    customerRequestDTO.setDateOfBirth(LocalDate.now().minusYears(18));
-
-
-    customerDTO = new CustomerDTO();
-    customerDTO.setId(1L);
-    customerDTO.setFirstName("John");
-    customerDTO.setLastName("Wick");
-    customerDTO.setEmail("jwick@tester.com");
-    customerDTO.setPhoneNumber("0123456789");
-    customerDTO.setDateOfBirth(LocalDate.now().minusYears(18));
-
-  }
+        customerRequestDTO = new CustomerRequestDTO();
+        customerRequestDTO.setFirstName("John");
+        customerRequestDTO.setLastName("Wick");
+        customerRequestDTO.setEmail("jwick@tester.com");
+        customerRequestDTO.setPhoneNumber("0123456789");
+        customerRequestDTO.setDateOfBirth(LocalDate.now().minusYears(18));
 
 
-  @Test
-  void givenCustomerDTO_whenCreateCustomer_thenReturnCustomerDTO() throws Exception {
+        customerDTO = new CustomerDTO();
+        customerDTO.setId(1L);
+        customerDTO.setFirstName("John");
+        customerDTO.setLastName("Wick");
+        customerDTO.setEmail("jwick@tester.com");
+        customerDTO.setPhoneNumber("0123456789");
+        customerDTO.setDateOfBirth(LocalDate.now().minusYears(18));
 
-    // given - precondition or setup
-    given(customerMapper.customerRequestDTOToCustomerDTO(any(CustomerRequestDTO.class)))
-            .willReturn(customerDTO);
-
-    given(customerService.createCustomer(any(CustomerDTO.class))).willReturn(customerDTO);
-
-    // when - action or behaviour that we are going to test
-    ResultActions response = mockMvc.perform(post("/api/v1/customers")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(customerRequestDTO)));
-
-    // then - verify the output
-    response.andDo(print())
-            // verify the status code that is returned
-            .andExpect(status().isCreated())
-            // verify the actual returned value and the expected value
-            // $ - root member of a JSON structure whether it is an object or array
-            .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())))
-            .andExpect(jsonPath("$.results.id", is(1)))
-            .andExpect(jsonPath("$.results.firstName", is("John")))
-            .andExpect(jsonPath("$.results.lastName", is("Wick")))
-            .andExpect(jsonPath("$.results.email", is("jwick@tester.com")))
-            .andExpect(jsonPath("$.results.phoneNumber", is("0123456789")))
-            .andExpect(jsonPath("$.results.dateOfBirth", is(LocalDate.now().minusYears(18).toString())));
-  }
+    }
 
 
-  @Test
-  void givenCustomerDTO_whenGetCustomerById_thenReturnCustomerDTO() throws Exception {
+    @Test
+    void givenCustomerDTO_whenCreateCustomer_thenReturnCustomerDTO() throws Exception {
 
-    // given - precondition or setup
-    given(customerService.getCustomerById(any(Long.class))).willReturn(customerDTO);
+        // given - precondition or setup
+        given(customerMapper.customerRequestDTOToCustomerDTO(any(CustomerRequestDTO.class)))
+                .willReturn(customerDTO);
 
-    // when - action or behaviour that we are going to test
-    ResultActions response = mockMvc.perform(get("/api/v1/customers/{id}", 1L)
-            .contentType(MediaType.APPLICATION_JSON));
+        given(customerService.createCustomer(any(CustomerDTO.class))).willReturn(customerDTO);
 
-    // then - verify the output
-    response.andDo(print())
-            // verify the status code that is returned
-            .andExpect(status().isOk())
-            // verify the actual returned value and the expected value
-            // $ - root member of a JSON structure whether it is an object or array
-            .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())))
-            .andExpect(jsonPath("$.results.id", is(1)))
-            .andExpect(jsonPath("$.results.firstName", is("John")))
-            .andExpect(jsonPath("$.results.lastName", is("Wick")))
-            .andExpect(jsonPath("$.results.email", is("jwick@tester.com")))
-            .andExpect(jsonPath("$.results.phoneNumber", is("0123456789")))
-            .andExpect(jsonPath("$.results.dateOfBirth", is(LocalDate.now().minusYears(18).toString())));
-  }
+        // when - action or behaviour that we are going to test
+        ResultActions response = mockMvc.perform(post("/api/v1/customers")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(customerRequestDTO)));
 
-
-  @Test
-  void givenCustomerDTO_whenUpdateCustomer_thenReturnCustomerDTO() throws Exception {
-
-    // given - precondition or setup
-    given(customerMapper.customerRequestDTOToCustomerDTO(any(CustomerRequestDTO.class)))
-            .willReturn(customerDTO);
-
-    given(customerService.updateCustomer(any(Long.class), any(CustomerDTO.class))).willReturn(customerDTO);
-
-    // when - action or behaviour that we are going to test
-    ResultActions response = mockMvc.perform(put("/api/v1/customers/{id}", 1L)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(customerRequestDTO)));
-
-    // then - verify the output
-    response.andDo(print())
-            // verify the status code that is returned
-            .andExpect(status().isOk())
-            // verify the actual returned value and the expected value
-            // $ - root member of a JSON structure whether it is an object or array
-            .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())))
-            .andExpect(jsonPath("$.results.id", is(1)))
-            .andExpect(jsonPath("$.results.firstName", is("John")))
-            .andExpect(jsonPath("$.results.lastName", is("Wick")))
-            .andExpect(jsonPath("$.results.email", is("jwick@tester.com")))
-            .andExpect(jsonPath("$.results.phoneNumber", is("0123456789")))
-            .andExpect(jsonPath("$.results.dateOfBirth", is(LocalDate.now().minusYears(18).toString())));
-  }
+        // then - verify the output
+        response.andDo(print())
+                // verify the status code that is returned
+                .andExpect(status().isCreated())
+                // verify the actual returned value and the expected value
+                // $ - root member of a JSON structure whether it is an object or array
+                .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())))
+                .andExpect(jsonPath("$.results.id", is(1)))
+                .andExpect(jsonPath("$.results.firstName", is("John")))
+                .andExpect(jsonPath("$.results.lastName", is("Wick")))
+                .andExpect(jsonPath("$.results.email", is("jwick@tester.com")))
+                .andExpect(jsonPath("$.results.phoneNumber", is("0123456789")))
+                .andExpect(jsonPath("$.results.dateOfBirth", is(LocalDate.now().minusYears(18).toString())));
+    }
 
 
-  @Test
-  void givenCustomerDTO_whenDeleteCustomer_thenReturnCustomerDTO() throws Exception {
+    @Test
+    void givenCustomerDTO_whenGetCustomerById_thenReturnCustomerDTO() throws Exception {
 
-    // given - precondition or setup
-    willDoNothing().given(customerService).deleteCustomer(any(Long.class));
+        // given - precondition or setup
+        given(customerService.getCustomerById(any(Long.class))).willReturn(customerDTO);
 
-    // when - action or behaviour that we are going to test
-    ResultActions response = mockMvc.perform(delete("/api/v1/customers/{id}", 1L)
-            .contentType(MediaType.APPLICATION_JSON));
+        // when - action or behaviour that we are going to test
+        ResultActions response = mockMvc.perform(get("/api/v1/customers/{id}", 1L)
+                .contentType(MediaType.APPLICATION_JSON));
 
-    // then - verify the output
-    response.andDo(print())
-            // verify the status code that is returned
-            .andExpect(status().isOk())
-            // verify the actual returned value and the expected value
-            // $ - root member of a JSON structure whether it is an object or array
-            .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())));
-  }
+        // then - verify the output
+        response.andDo(print())
+                // verify the status code that is returned
+                .andExpect(status().isOk())
+                // verify the actual returned value and the expected value
+                // $ - root member of a JSON structure whether it is an object or array
+                .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())))
+                .andExpect(jsonPath("$.results.id", is(1)))
+                .andExpect(jsonPath("$.results.firstName", is("John")))
+                .andExpect(jsonPath("$.results.lastName", is("Wick")))
+                .andExpect(jsonPath("$.results.email", is("jwick@tester.com")))
+                .andExpect(jsonPath("$.results.phoneNumber", is("0123456789")))
+                .andExpect(jsonPath("$.results.dateOfBirth", is(LocalDate.now().minusYears(18).toString())));
+    }
+
+
+    @Test
+    void givenCustomerDTO_whenUpdateCustomer_thenReturnCustomerDTO() throws Exception {
+
+        // given - precondition or setup
+        given(customerMapper.customerRequestDTOToCustomerDTO(any(CustomerRequestDTO.class)))
+                .willReturn(customerDTO);
+
+        given(customerService.updateCustomer(any(Long.class), any(CustomerDTO.class))).willReturn(customerDTO);
+
+        // when - action or behaviour that we are going to test
+        ResultActions response = mockMvc.perform(put("/api/v1/customers/{id}", 1L)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(customerRequestDTO)));
+
+        // then - verify the output
+        response.andDo(print())
+                // verify the status code that is returned
+                .andExpect(status().isOk())
+                // verify the actual returned value and the expected value
+                // $ - root member of a JSON structure whether it is an object or array
+                .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())))
+                .andExpect(jsonPath("$.results.id", is(1)))
+                .andExpect(jsonPath("$.results.firstName", is("John")))
+                .andExpect(jsonPath("$.results.lastName", is("Wick")))
+                .andExpect(jsonPath("$.results.email", is("jwick@tester.com")))
+                .andExpect(jsonPath("$.results.phoneNumber", is("0123456789")))
+                .andExpect(jsonPath("$.results.dateOfBirth", is(LocalDate.now().minusYears(18).toString())));
+    }
+
+
+    @Test
+    void givenCustomerDTO_whenDeleteCustomer_thenReturnCustomerDTO() throws Exception {
+
+        // given - precondition or setup
+        willDoNothing().given(customerService).deleteCustomer(any(Long.class));
+
+        // when - action or behaviour that we are going to test
+        ResultActions response = mockMvc.perform(delete("/api/v1/customers/{id}", 1L)
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // then - verify the output
+        response.andDo(print())
+                // verify the status code that is returned
+                .andExpect(status().isOk())
+                // verify the actual returned value and the expected value
+                // $ - root member of a JSON structure whether it is an object or array
+                .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())));
+    }
 
 
 }
@@ -2690,14 +2692,288 @@ This practice is not just about standardization but also about making your API r
 
 <br><br>
 
-
 ## 11. Enhanced Pagination Example
-In this section, I provide an improved pagination implementation that you can use to retrieve paginated results from your database. The example includes the usage of a custom `CustomerSearchCriteriaDTO`, a service method that handles pagination, and utility classes to assist with sorting and pagination.
+
+Pagination is an essential feature when dealing with large datasets in any application. It helps in breaking down large
+amounts of data into manageable chunks, improving both performance and user experience. In this section, I will walk
+through an enhanced pagination implementation using Spring Boot that you can adapt for your own projects.
+
+This example will demonstrate how to retrieve paginated and sorted customer data from the database, leveraging custom
+search criteria.
+
+### CustomerSearchCriteriaDTO
+
+The `CustomerSearchCriteriaDTO` class is used to encapsulate the search criteria that the client sends to the server.
+This DTO not only includes pagination parameters like page and size but also allows for sorting and filtering based on
+various fields like firstName, lastName, email, etc.
+
+It’s important to note that all the search fields `firstName`, `lastName`, `email`, `phoneNumber`, and `dateOfBirth` are
+optional. You can use them to filter records based on the criteria you need. If no filtering is needed, you can simply
+pass the pagination and sorting details.
+
+<details>
+  <summary>View CustomerSearchCriteriaDTO code</summary>
+
+```java
+package com.ainigma100.customerapi.dto;
+
+import com.ainigma100.customerapi.utils.SortItem;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@Setter
+@Getter
+@RequiredArgsConstructor
+public class CustomerSearchCriteriaDTO {
+
+    private String firstName;
+    private String lastName;
+    private String email;
+    private String phoneNumber;
+    private LocalDate dateOfBirth;
+
+    @NotNull(message = "page cannot be null")
+    @PositiveOrZero(message = "page must be a zero or a positive number")
+    private Integer page;
+
+    @Schema(example = "10")
+    @NotNull(message = "size cannot be null")
+    @Positive(message = "size must be a positive number")
+    private Integer size;
+
+    private List<SortItem> sortList;
+
+}
+```
+
+</details>
 
 
 
+For example, you can send a request like this:
 
-### Feedback and Contributions
+```json
+{
+  "page": 0,
+  "size": 10,
+  "sortList": [
+    {
+      "field": "id",
+      "direction": "ASC"
+    }
+  ]
+}
+```
+
+Assuming you have this record in your database:
+
+```json
+{
+  "id": 2,
+  "firstName": "marco",
+  "lastName": "polo",
+  "email": "mpolo@gmail.com",
+  "phoneNumber": "1234567891",
+  "dateOfBirth": "2004-08-13"
+}
+```
+
+If you need to filter only by firstName, you can send a request like this:
+
+```json
+{
+  "firstName": "marco",
+  "page": 0,
+  "size": 10,
+  "sortList": [
+    {
+      "field": "id",
+      "direction": "ASC"
+    }
+  ]
+}
+```
+
+**Note**: You can experiment with different combinations of filters and pagination parameters based on your needs.
+
+### Repository Query for Pagination and Filtering
+
+The following query is responsible for handling pagination and filtering.
+
+```java
+
+@Query(value = """
+        select cus from Customer cus
+        where ( :#{#criteria.firstName} IS NULL OR LOWER(cus.firstName) LIKE LOWER( CONCAT(:#{#criteria.firstName}, '%') ) )
+        and ( :#{#criteria.lastName} IS NULL OR LOWER(cus.lastName) LIKE LOWER( CONCAT(:#{#criteria.lastName}, '%') ) )
+        and ( :#{#criteria.email} IS NULL OR LOWER(cus.email) LIKE LOWER( CONCAT('%', :#{#criteria.email}, '%') ) )
+        and ( :#{#criteria.phoneNumber} IS NULL OR LOWER(cus.phoneNumber) LIKE LOWER( CONCAT('%', :#{#criteria.phoneNumber}, '%') ) )
+        and ( :#{#criteria.dateOfBirth} IS NULL OR cus.dateOfBirth = :#{#criteria.dateOfBirth} )
+        """)
+Page<Customer> getAllCustomersUsingPagination(
+        @Param("criteria") CustomerSearchCriteriaDTO customerSearchCriteriaDTO,
+        Pageable pageable);
+```
+
+### Query Analysis
+
+This query is designed to help you filter customers based on various criteria that you provide through the
+`CustomerSearchCriteriaDTO`. Let's break down how it works:
+
+- **Dynamic Filtering**: The query checks each field (like `firstName`, `lastName`, `email`, etc.) to see if you've
+  provided a value. If you have, it will use that value to filter the results. If not, it will ignore that field. Here's
+  how each field works:
+
+    - **firstName**: If you provide a `firstName`, the query looks for customers whose names start with that value. The
+      search is not case-sensitive, so "john" and "John" would both be matched.
+
+    - **lastName**: Works the same as `firstName`, filtering based on the start of the last name.
+
+    - **email**: This one is a bit more flexible. The query will find any customer whose email contains the value you
+      provided, anywhere in the email address.
+
+    - **phoneNumber**: Similar to `email`, it finds matches where the phone number contains the value you provided.
+
+    - **dateOfBirth**: This is an exact match, so it will only return customers whose birthdate exactly matches what you
+      provided.
+
+- **Pagination**: The `Pageable` parameter makes sure the results are split into pages, so you don't get overwhelmed
+  with too much data at once. It also handles sorting the results for you.
+
+This approach makes the query highly flexible and efficient, applying filters only when necessary and supporting a wide
+range of search criteria combinations. By doing so, it ensures optimal performance and usability, especially when
+dealing with large datasets.
+
+### Utils Class
+
+To facilitate pagination and sorting, a utility class is often needed. Below is an example of a utility class that helps
+in creating pageable objects based on the SortItem list provided in the DTO.
+
+<details>
+  <summary>View Utils code</summary>
+
+```java
+package com.ainigma100.customerapi.utils;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Supplier;
+
+@Slf4j
+public class Utils {
+
+    // Private constructor to prevent instantiation
+    private Utils() {
+        throw new IllegalStateException("Utility class");
+    }
+
+
+    /**
+     * Retrieves a value from a Supplier or sets a default value if a NullPointerException occurs.
+     * Usage example:
+     *
+     * <pre>{@code
+     * // Example 1: Retrieve a list or provide an empty list if null
+     * List<Employee> employeeList = Utils.retrieveValueOrSetDefault(() -> someSupplierMethod(), new ArrayList<>());
+     *
+     * // Example 2: Retrieve an Employee object or provide a default object if null
+     * Employee emp = Utils.retrieveValueOrSetDefault(() -> anotherSupplierMethod(), new Employee());
+     * }</pre>
+     *
+     * @param supplier     the Supplier providing the value to retrieve
+     * @param defaultValue the default value to return if a NullPointerException occurs
+     * @return the retrieved value or the default value if a NullPointerException occurs
+     * @param <T>          the type of the value
+     */
+    public static <T> T retrieveValueOrSetDefault(Supplier<T> supplier, T defaultValue) {
+
+        try {
+            return supplier.get();
+
+        } catch (NullPointerException ex) {
+
+            log.error("Error while retrieveValueOrSetDefault {}", ex.getMessage());
+
+            return defaultValue;
+        }
+    }
+
+
+    public static Pageable createPageableBasedOnPageAndSizeAndSorting(List<SortItem> sortList, Integer page, Integer size) {
+
+        List<Sort.Order> orders = new ArrayList<>();
+
+        if (sortList != null) {
+            // iterate the SortList to see based on which attributes we are going to Order By the results.
+            for (SortItem sortValue : sortList) {
+                orders.add(new Sort.Order(sortValue.getDirection(), sortValue.getField()));
+            }
+        }
+
+
+        return PageRequest.of(
+                Optional.ofNullable(page).orElse(0),
+                Optional.ofNullable(size).orElse(10),
+                Sort.by(orders));
+    }
+
+}
+```
+
+</details>
+
+### SortItem
+
+The SortItem class encapsulates the sorting criteria, including the field to be sorted and the direction (ascending or
+descending).
+
+<details>
+  <summary>View SortItem code</summary>
+
+```java
+package com.ainigma100.customerapi.utils;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import org.springframework.data.domain.Sort;
+
+import java.io.Serializable;
+
+@Getter
+public class SortItem implements Serializable {
+
+
+    @Schema(example = "id") // set a default sorting property for swagger
+    private String field;
+    private Sort.Direction direction;
+
+}
+```
+
+</details>
+
+
+**Note**: You can check the implementation and the testing of this feature by reading the code.
+
+By implementing enhanced pagination, you ensure that your application can efficiently handle large datasets while
+providing users with a responsive experience. This approach is versatile and can be adapted to various other scenarios
+in your application.
+
+<br><br>
+
+## 12. Feedback and Contributions
 
 Feedback and contributions are welcome! If you have suggestions, improvements, or additional insights, please feel free
 to share. Together, we can make this a valuable resource for anyone learning Spring Boot 3.

@@ -2549,6 +2549,30 @@ and tested as a group. The main goal of integration testing is to verify the int
 to ensure that they work together as expected. In a Spring Boot application, this typically involves testing the full
 stack, including the controller, service, repository layers, and the actual database.
 
+### Using Docker with Testcontainers
+In this project, we use [Testcontainers](https://testcontainers.com/) to facilitate integration testing with a real PostgreSQL database running in a
+Docker container. This ensures that our tests run in an environment that closely mirrors production.
+
+#### Note
+
+To run these integration tests, Docker needs to be running on your machine. However, if Docker is not available or
+running, the tests will automatically be skipped. This is managed by the following annotation in the test class:
+
+```java
+@Testcontainers(disabledWithoutDocker = true)
+```
+
+**What This Means:**
+
+- **If Docker is running:** The integration tests will run as usual.
+- **If Docker is not running:** The tests won't run, so you won't get any errors related to Docker not being available.
+
+This setup ensures that you won't face issues with integration tests if you don’t have Docker running. It’s a way to
+avoid unnecessary errors and make sure you can keep working without interruptions, especially if you're new and still
+setting up your environment.
+
+If you need to run the integration tests, just make sure Docker is installed and running on your machine.
+
 <br><br>
 
 ## 10. Best Practices

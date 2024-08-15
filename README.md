@@ -1840,8 +1840,15 @@ public class ServerDetails {
 
 ## 9. Testing
 
-Testing is essential to ensure your application works as expected. This section covers how to effectively test your
-Spring Boot application using Behavior Driven Development (BDD) and useful annotations for different testing scenarios.
+Testing is essential to ensure your application works as expected. This section will cover how to effectively test your
+Spring Boot application using both unit testing and integration testing strategies, including Behavior Driven
+Development (BDD).
+
+### Unit Testing
+
+Unit testing is a method of testing individual units or components of the software in isolation. The main goal is to
+validate that each unit of the software performs as expected. A "unit" is typically the smallest piece of code that can
+be logically isolated, such as a function, method, or class.
 
 ### Behavior Driven Development (BDD) Testing
 
@@ -1879,7 +1886,7 @@ In your Spring Boot project, BDD can be implemented as follows:
 By structuring your tests this way, you ensure they are clear, concise, and focused on the behavior of the application
 from the user’s perspective.
 
-### 1. Testing the Repository Layer
+### Testing the Repository Layer
 
 The repository layer is responsible for interacting with the database. When testing this layer, focus on ensuring that
 your custom query methods behave as expected. If you are only using the provided methods from `JpaRepository` without
@@ -2014,7 +2021,7 @@ class CustomerRepositoryTest {
 
 <br><br>
 
-### 2. Testing the Service Layer
+### Testing the Service Layer
 
 The service layer contains your business logic and interacts with the repository layer. Testing this layer typically
 involves mocking the repository to isolate the service logic.
@@ -2293,7 +2300,7 @@ class CustomerServiceImplTest {
 
 <br><br>
 
-### 3. Testing the Controller Layer
+### Testing the Controller Layer
 
 The controller layer is responsible for handling HTTP requests and returning appropriate responses. When testing this
 layer, the goal is to ensure that the controller behaves correctly in response to various inputs and interactions with
@@ -2531,6 +2538,16 @@ class CustomerControllerTest {
 ```
 
 </details>
+
+
+<br><br>
+
+### Integration Testing
+
+Integration Testing is the phase in software testing where individual units or components of an application are combined
+and tested as a group. The main goal of integration testing is to verify the interactions between different modules and
+to ensure that they work together as expected. In a Spring Boot application, this typically involves testing the full
+stack, including the controller, service, repository layers, and the actual database.
 
 <br><br>
 

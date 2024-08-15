@@ -1,7 +1,7 @@
 # Spring Boot 3 Knowledge Sharing
 
 This document is designed to help new Spring Boot developers understand the basics of building applications using Spring
-Boot 3. It covers the structure of a sample project, explains the purpose of key annotations, and provides insights
+Boot 3. It covers the structure of a sample project [Customer API](https://github.com/pmoustopoulos/customer-api), explains the purpose of key annotations, and provides insights
 into best practices. **Note**: You have also to check the code example and not only this markdown file because some
 parts
 are not shown here (custom annotations, Utils class etc).

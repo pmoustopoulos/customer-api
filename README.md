@@ -2823,32 +2823,16 @@ Page<Customer> getAllCustomersUsingPagination(
 
 ### Query Analysis
 
-This query is designed to help you filter customers based on various criteria that you provide through the
-`CustomerSearchCriteriaDTO`. Let's break down how it works:
+The query allows you to filter customer data based on the criteria you provide. Here’s how it works:
 
-- **Dynamic Filtering**: The query checks each field (like `firstName`, `lastName`, `email`, etc.) to see if you've
-  provided a value. If you have, it will use that value to filter the results. If not, it will ignore that field. Here's
-  how each field works:
+- **Flexible Filters**: Each field, like `firstName` or `email`, can be used to filter results. If you don’t need a
+  specific filter, you can leave it out, and the query will ignore that field.
+- **Examples**:
+    - **Filtering by First Name**: If you provide a `firstName`, the query looks for customers whose names start with
+      that value.
+    - **Flexible Email Search**: The query can find customers even if you provide only part of their email address.
 
-    - **firstName**: If you provide a `firstName`, the query looks for customers whose names start with that value. The
-      search is not case-sensitive, so "john" and "John" would both be matched.
-
-    - **lastName**: Works the same as `firstName`, filtering based on the start of the last name.
-
-    - **email**: This one is a bit more flexible. The query will find any customer whose email contains the value you
-      provided, anywhere in the email address.
-
-    - **phoneNumber**: Similar to `email`, it finds matches where the phone number contains the value you provided.
-
-    - **dateOfBirth**: This is an exact match, so it will only return customers whose birthdate exactly matches what you
-      provided.
-
-- **Pagination**: The `Pageable` parameter makes sure the results are split into pages, so you don't get overwhelmed
-  with too much data at once. It also handles sorting the results for you.
-
-This approach makes the query highly flexible and efficient, applying filters only when necessary and supporting a wide
-range of search criteria combinations. By doing so, it ensures optimal performance and usability, especially when
-dealing with large datasets.
+This approach makes the query easy to use and flexible for different search needs.
 
 ### Utils Class
 

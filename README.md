@@ -20,20 +20,21 @@ Spring Boot 3.
 2. [Project Structure Overview](#2-project-structure-overview)
 3. [Introduction to Maven and `pom.xml`](#3-introduction-to-maven-and-pomxml)
 4. [Key Annotations in Spring Boot](#4-key-annotations-in-spring-boot)
-5. [Naming Conventions](#5-naming-conventions)
-6. [Configuring `application.yaml`](#6-configuring-applicationyaml)
-7. [Detailed Package Breakdown](#7-detailed-package-breakdown)
+5. [Design Patterns: RESTful API vs. MVC](#5-design-patterns-restful-api-vs-mvc)
+6. [Naming Conventions](#5-naming-conventions)
+7. [Configuring `application.yaml`](#6-configuring-applicationyaml)
+8. [Detailed Package Breakdown](#7-detailed-package-breakdown)
     - [Entity Layer](#entity-layer)
     - [Repository Layer](#repository-layer)
     - [Service Layer](#service-layer)
     - [DTOs and MapStruct](#dtos-and-mapstruct)
     - [Controller Layer](#controller-layer)
     - [Exception Handling](#exception-handling)
-8. [Helper Classes](#8-helper-classes)
-9. [Testing](#9-testing)
-10. [Best Practices](#10-best-practices)
-11. [Enhanced Pagination Example](#11-enhanced-pagination-example)
-12. [Feedback and Contributions](#12-feedback-and-contributions)
+9. [Helper Classes](#8-helper-classes)
+10. [Testing](#9-testing)
+11. [Best Practices](#10-best-practices)
+12. [Enhanced Pagination Example](#11-enhanced-pagination-example)
+13. [Feedback and Contributions](#12-feedback-and-contributions)
 
 ## 1. Introduction
 
@@ -464,7 +465,63 @@ use case (security, data validation, testing) has specific annotations that help
 code quality. This section covers the key annotations used in this project, providing a solid foundation for
 understanding how they work together in a Spring Boot application.
 
-## 5. Naming Conventions
+
+
+## 5. Design Patterns: RESTful API vs. MVC
+
+When building applications with Spring Boot, it's essential to understand the different design patterns that can be used to structure your application. The two most common patterns are **RESTful API** and **Model-View-Controller (MVC)**. Each serves a different purpose and is chosen based on the needs of the application.
+
+### 1. RESTful API (Service-Oriented Architecture)
+
+- **Pattern Name:** **RESTful API** or **Service-Oriented Architecture (SOA)**
+- **Annotation:** `@RestController`
+- **Purpose:** The RESTful API pattern is designed to expose data and services over HTTP. In this architecture, the server does not concern itself with the presentation layer (UI). Instead, it focuses on delivering data, usually in JSON or XML format, which is consumed by a client (like a frontend framework such as Angular, React, or Vue.js).
+- **Use Case:** This approach is ideal for applications where the frontend is developed separately from the backend. It allows for flexibility, as the frontend can be updated independently of the backend, and the same backend can serve multiple clients (web, mobile, etc.).
+
+### 2. Model-View-Controller (MVC)
+
+- **Pattern Name:** **Model-View-Controller (MVC)**
+- **Annotation:** `@Controller`
+- **Purpose:** The MVC pattern is a traditional approach where the server is responsible for both processing data and rendering the user interface. The `@Controller` annotation is used to handle HTTP requests and return views (typically HTML) that are rendered on the server side using templating engines like Thymeleaf.
+- **Use Case:** MVC is suitable for monolithic applications where the server-side code manages both the business logic and the presentation logic. It’s often used in applications where the frontend is tightly coupled with the backend, and there's less need for a separate API layer.
+
+### Differences Between RESTful API and MVC
+
+- **Separation of Concerns:**
+  - **RESTful API:** Decouples the backend from the frontend. The server provides data, while the client handles the presentation.
+  - **MVC:** The server manages both data processing and presentation, offering a tightly integrated solution.
+
+- **Flexibility:**
+  - **RESTful API:** Offers greater flexibility as the backend can serve multiple types of clients, and the frontend can be updated independently.
+  - **MVC:** Less flexible because the frontend and backend are tightly coupled, making it harder to update one without impacting the other.
+
+- **Scalability:**
+  - **RESTful API:** Easier to scale horizontally as the server's responsibilities are limited to providing data.
+  - **MVC:** Can be more challenging to scale because the server handles both the data and the presentation logic.
+
+- **Development Speed:**
+  - **RESTful API:** Faster for teams working on large applications with separate frontend and backend teams.
+  - **MVC:** Faster for small to medium-sized projects where one team handles both frontend and backend, and where integrating the two layers is straightforward.
+
+### Choosing the Right Pattern
+
+The choice between RESTful API and MVC depends on your project requirements:
+
+- **Use RESTful API** if:
+  - Your frontend is built with modern JavaScript frameworks.
+  - You need to serve multiple types of clients.
+  - You prefer a decoupled architecture that allows for more flexibility and easier maintenance.
+
+- **Use MVC** if:
+  - Your application is relatively simple, and the frontend is tightly coupled with the backend.
+  - You want to leverage server-side rendering for better SEO or faster initial page loads.
+  - You’re building a monolithic application where integrating UI and backend logic is straightforward and beneficial.
+
+
+
+
+
+## 6. Naming Conventions
 
 Consistent naming conventions in your codebase and API design make your project easier to navigate, maintain, and scale.
 Below are some guidelines for naming conventions in a Spring Boot project focused on a customer-related API.
@@ -524,7 +581,7 @@ Below are some guidelines for naming conventions in a Spring Boot project focuse
   In some cases you may see filtering and sorting information provided as a payload inside a request body.
     - **Example**: `/customers?status=active`, `/orders?customerId=123&status=pending`
 
-## 6. Configuring `application.yaml`
+## 7. Configuring `application.yaml`
 
 The `application.yaml` file is an essential configuration file in a Spring Boot project. It allows you to manage your
 application's settings in a clear and structured manner. YAML is preferred over properties files in many cases because
@@ -672,7 +729,7 @@ jpa:
 
 <br>
 
-## 7. Detailed Package Breakdown
+## 8. Detailed Package Breakdown
 
 ### Entity Layer
 
@@ -1497,7 +1554,7 @@ public class GlobalExceptionHandler {
 
 <br><br>
 
-## 8. Helper Classes
+## 9. Helper Classes
 
 In this section, I provide some helper classes that can be reused in Spring Boot applications. These classes are
 designed
@@ -1838,7 +1895,7 @@ public class ServerDetails {
 
 <br><br>
 
-## 9. Testing
+## 10. Testing
 
 Testing is essential to ensure your application works as expected. This section will cover how to effectively test your
 Spring Boot application using both unit testing and integration testing strategies, including Behavior Driven
@@ -2575,7 +2632,7 @@ If you need to run the integration tests, just make sure Docker is installed and
 
 <br><br>
 
-## 10. Best Practices
+## 11. Best Practices
 
 **Disclaimer**: The practices outlined here reflect my personal approach based on what I have learned and observed from
 various resources. While I believe these practices can help in building clean, maintainable, and scalable Spring Boot
@@ -2733,7 +2790,7 @@ This practice is not just about standardization but also about making your API r
 
 <br><br>
 
-## 11. Enhanced Pagination Example
+## 12. Enhanced Pagination Example
 
 Pagination is an essential feature when dealing with large datasets in any application. It helps in breaking down large
 amounts of data into manageable chunks, improving both performance and user experience. In this section, I will walk
@@ -2998,7 +3055,7 @@ in your application.
 
 <br><br>
 
-## 12. Feedback and Contributions
+## 13. Feedback and Contributions
 
 Feedback and contributions are welcome! If you have suggestions, improvements, or additional insights, please feel free
 to share. Together, we can make this a valuable resource for anyone learning Spring Boot 3.

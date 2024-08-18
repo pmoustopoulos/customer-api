@@ -1,7 +1,8 @@
 # Spring Boot 3 Knowledge Sharing
 
 This document is designed to help new Spring Boot developers understand the basics of building applications using Spring
-Boot 3. It covers the structure of a sample project [Customer API](https://github.com/pmoustopoulos/customer-api), explains the purpose of key annotations, and provides insights
+Boot 3. It covers the structure of a sample project [Customer API](https://github.com/pmoustopoulos/customer-api),
+explains the purpose of key annotations, and provides insights
 into best practices. **Note**: You have also to check the code example and not only this markdown file because some
 parts
 are not shown here (custom annotations, Utils class etc).
@@ -465,61 +466,69 @@ use case (security, data validation, testing) has specific annotations that help
 code quality. This section covers the key annotations used in this project, providing a solid foundation for
 understanding how they work together in a Spring Boot application.
 
-
-
 ## 5. Design Patterns: RESTful API vs. MVC
 
-When building applications with Spring Boot, it's essential to understand the different design patterns that can be used to structure your application. The two most common patterns are **RESTful API** and **Model-View-Controller (MVC)**. Each serves a different purpose and is chosen based on the needs of the application.
+When building applications with Spring Boot, it's essential to understand the different design patterns that can be used
+to structure your application. The two most common patterns are **RESTful API** and **Model-View-Controller (MVC)**.
+Each serves a different purpose and is chosen based on the needs of the application.
 
 ### 1. RESTful API (Service-Oriented Architecture)
 
 - **Pattern Name:** **RESTful API** or **Service-Oriented Architecture (SOA)**
 - **Annotation:** `@RestController`
-- **Purpose:** The RESTful API pattern is designed to expose data and services over HTTP. In this architecture, the server does not concern itself with the presentation layer (UI). Instead, it focuses on delivering data, usually in JSON or XML format, which is consumed by a client (like a frontend framework such as Angular, React, or Vue.js).
-- **Use Case:** This approach is ideal for applications where the frontend is developed separately from the backend. It allows for flexibility, as the frontend can be updated independently of the backend, and the same backend can serve multiple clients (web, mobile, etc.).
+- **Purpose:** The RESTful API pattern is designed to expose data and services over HTTP. In this architecture, the
+  server does not concern itself with the presentation layer (UI). Instead, it focuses on delivering data, usually in
+  JSON or XML format, which is consumed by a client (like a frontend framework such as Angular, React, or Vue.js).
+- **Use Case:** This approach is ideal for applications where the frontend is developed separately from the backend. It
+  allows for flexibility, as the frontend can be updated independently of the backend, and the same backend can serve
+  multiple clients (web, mobile, etc.).
 
 ### 2. Model-View-Controller (MVC)
 
 - **Pattern Name:** **Model-View-Controller (MVC)**
 - **Annotation:** `@Controller`
-- **Purpose:** The MVC pattern is a traditional approach where the server is responsible for both processing data and rendering the user interface. The `@Controller` annotation is used to handle HTTP requests and return views (typically HTML) that are rendered on the server side using templating engines like Thymeleaf.
-- **Use Case:** MVC is suitable for monolithic applications where the server-side code manages both the business logic and the presentation logic. It’s often used in applications where the frontend is tightly coupled with the backend, and there's less need for a separate API layer.
+- **Purpose:** The MVC pattern is a traditional approach where the server is responsible for both processing data and
+  rendering the user interface. The `@Controller` annotation is used to handle HTTP requests and return views (typically
+  HTML) that are rendered on the server side using templating engines like Thymeleaf.
+- **Use Case:** MVC is suitable for monolithic applications where the server-side code manages both the business logic
+  and the presentation logic. It’s often used in applications where the frontend is tightly coupled with the backend,
+  and there's less need for a separate API layer.
 
 ### Differences Between RESTful API and MVC
 
 - **Separation of Concerns:**
-  - **RESTful API:** Decouples the backend from the frontend. The server provides data, while the client handles the presentation.
-  - **MVC:** The server manages both data processing and presentation, offering a tightly integrated solution.
+    - **RESTful API:** Decouples the backend from the frontend. The server provides data, while the client handles the
+      presentation.
+    - **MVC:** The server manages both data processing and presentation, offering a tightly integrated solution.
 
 - **Flexibility:**
-  - **RESTful API:** Offers greater flexibility as the backend can serve multiple types of clients, and the frontend can be updated independently.
-  - **MVC:** Less flexible because the frontend and backend are tightly coupled, making it harder to update one without impacting the other.
+    - **RESTful API:** Offers greater flexibility as the backend can serve multiple types of clients, and the frontend
+      can be updated independently.
+    - **MVC:** Less flexible because the frontend and backend are tightly coupled, making it harder to update one
+      without impacting the other.
 
 - **Scalability:**
-  - **RESTful API:** Easier to scale horizontally as the server's responsibilities are limited to providing data.
-  - **MVC:** Can be more challenging to scale because the server handles both the data and the presentation logic.
+    - **RESTful API:** Easier to scale horizontally as the server's responsibilities are limited to providing data.
+    - **MVC:** Can be more challenging to scale because the server handles both the data and the presentation logic.
 
 - **Development Speed:**
-  - **RESTful API:** Faster for teams working on large applications with separate frontend and backend teams.
-  - **MVC:** Faster for small to medium-sized projects where one team handles both frontend and backend, and where integrating the two layers is straightforward.
+    - **RESTful API:** Faster for teams working on large applications with separate frontend and backend teams.
+    - **MVC:** Faster for small to medium-sized projects where one team handles both frontend and backend, and where
+      integrating the two layers is straightforward.
 
 ### Choosing the Right Pattern
 
 The choice between RESTful API and MVC depends on your project requirements:
 
 - **Use RESTful API** if:
-  - Your frontend is built with modern JavaScript frameworks.
-  - You need to serve multiple types of clients.
-  - You prefer a decoupled architecture that allows for more flexibility and easier maintenance.
+    - Your frontend is built with modern JavaScript frameworks.
+    - You need to serve multiple types of clients.
+    - You prefer a decoupled architecture that allows for more flexibility and easier maintenance.
 
 - **Use MVC** if:
-  - Your application is relatively simple, and the frontend is tightly coupled with the backend.
-  - You want to leverage server-side rendering for better SEO or faster initial page loads.
-  - You’re building a monolithic application where integrating UI and backend logic is straightforward and beneficial.
-
-
-
-
+    - Your application is relatively simple, and the frontend is tightly coupled with the backend.
+    - You want to leverage server-side rendering for better SEO or faster initial page loads.
+    - You’re building a monolithic application where integrating UI and backend logic is straightforward and beneficial.
 
 ## 6. Naming Conventions
 
@@ -2607,7 +2616,9 @@ to ensure that they work together as expected. In a Spring Boot application, thi
 stack, including the controller, service, repository layers, and the actual database.
 
 ### Using Docker with Testcontainers
-In this project, we use [Testcontainers](https://testcontainers.com/) to facilitate integration testing with a real PostgreSQL database running in a
+
+In this project, we use [Testcontainers](https://testcontainers.com/) to facilitate integration testing with a real
+PostgreSQL database running in a
 Docker container. This ensures that our tests run in an environment that closely mirrors production.
 
 #### Note

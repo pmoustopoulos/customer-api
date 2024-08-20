@@ -21,21 +21,22 @@ Spring Boot 3.
 2. [Project Structure Overview](#2-project-structure-overview)
 3. [Introduction to Maven and `pom.xml`](#3-introduction-to-maven-and-pomxml)
 4. [Key Annotations in Spring Boot](#4-key-annotations-in-spring-boot)
-5. [Design Patterns: RESTful API vs. MVC](#5-design-patterns-restful-api-vs-mvc)
-6. [Naming Conventions](#5-naming-conventions)
-7. [Configuring `application.yaml`](#6-configuring-applicationyaml)
-8. [Detailed Package Breakdown](#7-detailed-package-breakdown)
+5. [Dependency Injection in Spring Boot](#5-dependency-injection-in-spring-boot)
+6. [Design Patterns: RESTful API vs. MVC](#6-design-patterns-restful-api-vs-mvc)
+7. [Naming Conventions](#7-naming-conventions)
+8. [Configuring `application.yaml`](#8-configuring-applicationyaml)
+9. [Detailed Package Breakdown](#9-detailed-package-breakdown)
     - [Entity Layer](#entity-layer)
     - [Repository Layer](#repository-layer)
     - [Service Layer](#service-layer)
     - [DTOs and MapStruct](#dtos-and-mapstruct)
     - [Controller Layer](#controller-layer)
     - [Exception Handling](#exception-handling)
-9. [Helper Classes](#8-helper-classes)
-10. [Testing](#9-testing)
-11. [Best Practices](#10-best-practices)
-12. [Enhanced Pagination Example](#11-enhanced-pagination-example)
-13. [Feedback and Contributions](#12-feedback-and-contributions)
+10. [Helper Classes](#10-helper-classes)
+11. [Testing](#11-testing)
+12. [Best Practices](#12-best-practices)
+13. [Enhanced Pagination Example](#13-enhanced-pagination-example)
+14. [Feedback and Contributions](#14-feedback-and-contributions)
 
 ## 1. Introduction
 
@@ -466,7 +467,99 @@ use case (security, data validation, testing) has specific annotations that help
 code quality. This section covers the key annotations used in this project, providing a solid foundation for
 understanding how they work together in a Spring Boot application.
 
-## 5. Design Patterns: RESTful API vs. MVC
+
+<br><br>
+
+## 5. Dependency Injection in Spring Boot
+
+Dependency Injection (DI) is a core concept in Spring that allows your classes to be loosely coupled. This means that
+instead of your classes creating their dependencies, Spring will provide the dependencies they need. This makes your
+code easier to manage, test, and maintain.
+
+### Why Use Dependency Injection?
+
+- **Simplifies Code**: You don’t need to create objects manually.
+- **Easier Testing**: You can easily swap out dependencies with mock objects during testing.
+- **Loose Coupling**: Your classes depend on abstractions (interfaces) rather than concrete implementations.
+
+### Constructor Injection
+
+Constructor injection is the preferred way to inject dependencies in Spring Boot. This means that you pass the
+dependencies into a class through its constructor. This makes your classes more straightforward and ensures all
+necessary dependencies are available when the object is created.
+
+Here’s how it looks:
+
+```java
+@Service
+public class CustomerService {
+
+    private final CustomerRepository customerRepository;
+
+    // Constructor Injection
+    public CustomerService(CustomerRepository customerRepository) {
+        this.customerRepository = customerRepository;
+    }
+}
+```
+
+In the example above, CustomerService depends on CustomerRepository. Spring automatically provides CustomerRepository
+when creating a CustomerService instance.
+
+### Using Lombok to Simplify Constructor Injection
+
+In this project, I am using Lombok annotations to reduce boilerplate code. With Lombok, you can avoid writing
+constructors manually by using the @RequiredArgsConstructor annotation. This automatically creates a constructor for all
+final fields and autowires the dependencies.
+
+```java
+
+@Service
+@RequiredArgsConstructor
+public class CustomerService {
+
+    private final CustomerRepository customerRepository;
+
+    // Lombok automatically creates the constructor for you!
+}
+```
+
+### The @Autowired Annotation
+
+The `@Autowired` annotation tells Spring to automatically inject the required dependencies. In constructor injection, if
+you have only one constructor, Spring will automatically inject dependencies without needing @Autowired.
+
+#### Without using Lombok annotation
+
+If you are not using Lombok, you can still use constructor injection like this:
+
+```java
+
+@Service
+public class CustomerService {
+
+    private final CustomerRepository customerRepository;
+
+    @Autowired  // Optional with a single constructor
+    public CustomerService(CustomerRepository customerRepository) {
+        this.customerRepository = customerRepository;
+    }
+}
+```
+
+### Why Constructor Injection is Better
+
+- **Clearer Dependencies**: It’s obvious which dependencies your class needs.
+- **Immutable Fields**: Dependencies can be marked as `final`, ensuring they aren’t changed after they’re set.
+- **Easier to Test**: You can easily provide mock dependencies when testing.
+
+**Note:** Please search online for more details and try to understand this topic because it is important.
+
+
+
+<br><br>
+
+## 6. Design Patterns: RESTful API vs. MVC
 
 When building applications with Spring Boot, it's essential to understand the different design patterns that can be used
 to structure your application. The two most common patterns are **RESTful API** and **Model-View-Controller (MVC)**.
@@ -530,7 +623,7 @@ The choice between RESTful API and MVC depends on your project requirements:
     - You want to leverage server-side rendering for better SEO or faster initial page loads.
     - You’re building a monolithic application where integrating UI and backend logic is straightforward and beneficial.
 
-## 6. Naming Conventions
+## 7. Naming Conventions
 
 Consistent naming conventions in your codebase and API design make your project easier to navigate, maintain, and scale.
 Below are some guidelines for naming conventions in a Spring Boot project focused on a customer-related API.
@@ -590,7 +683,7 @@ Below are some guidelines for naming conventions in a Spring Boot project focuse
   In some cases you may see filtering and sorting information provided as a payload inside a request body.
     - **Example**: `/customers?status=active`, `/orders?customerId=123&status=pending`
 
-## 7. Configuring `application.yaml`
+## 8. Configuring `application.yaml`
 
 The `application.yaml` file is an essential configuration file in a Spring Boot project. It allows you to manage your
 application's settings in a clear and structured manner. YAML is preferred over properties files in many cases because
@@ -738,7 +831,7 @@ jpa:
 
 <br>
 
-## 8. Detailed Package Breakdown
+## 9. Detailed Package Breakdown
 
 ### Entity Layer
 
@@ -1563,7 +1656,7 @@ public class GlobalExceptionHandler {
 
 <br><br>
 
-## 9. Helper Classes
+## 10. Helper Classes
 
 In this section, I provide some helper classes that can be reused in Spring Boot applications. These classes are
 designed
@@ -1904,7 +1997,7 @@ public class ServerDetails {
 
 <br><br>
 
-## 10. Testing
+## 11. Testing
 
 Testing is essential to ensure your application works as expected. This section will cover how to effectively test your
 Spring Boot application using both unit testing and integration testing strategies, including Behavior Driven
@@ -2643,7 +2736,7 @@ If you need to run the integration tests, just make sure Docker is installed and
 
 <br><br>
 
-## 11. Best Practices
+## 12. Best Practices
 
 **Disclaimer**: The practices outlined here reflect my personal approach based on what I have learned and observed from
 various resources. While I believe these practices can help in building clean, maintainable, and scalable Spring Boot
@@ -2801,7 +2894,7 @@ This practice is not just about standardization but also about making your API r
 
 <br><br>
 
-## 12. Enhanced Pagination Example
+## 13. Enhanced Pagination Example
 
 Pagination is an essential feature when dealing with large datasets in any application. It helps in breaking down large
 amounts of data into manageable chunks, improving both performance and user experience. In this section, I will walk
@@ -3066,7 +3159,7 @@ in your application.
 
 <br><br>
 
-## 13. Feedback and Contributions
+## 14. Feedback and Contributions
 
 Feedback and contributions are welcome! If you have suggestions, improvements, or additional insights, please feel free
 to share. Together, we can make this a valuable resource for anyone learning Spring Boot 3.

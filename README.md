@@ -293,180 +293,97 @@ process, reducing manual coding effort and improving efficiency.
 
 ## 4. Key Annotations in Spring Boot
 
-In this section, I will walk through the key annotations used across the various classes in the example project,
-explaining
-their purpose and best practices. These annotations are essential for managing dependencies, handling HTTP requests,
-mapping database entities, and more. It is important to note that there are many more annotations available in Spring
-Boot,
-and I am only covering those that are used in this project. Additionally, when you write tests
-(unit tests, integration tests, etc.), you will use additional annotations specific to testing.
+In this section, we’ll walk through the key annotations used across the various classes in the example project,
+explaining their purpose and best practices. These annotations are essential for managing dependencies, handling HTTP
+requests, mapping database entities, and more. Note that we will cover annotations specific to Spring Boot separately
+from those provided by Lombok.
 
-### 1. Commonly Used Annotations Across the Application
+### 1. Spring Boot Annotations
 
-These annotations are versatile and can be used in different layers of a Spring Boot application, depending on the need.
+These annotations are core to Spring Boot and are used throughout the application to define its structure and behavior.
 
-- **`@Slf4j`**: Creates a `Logger` instance in the class, allowing for easy logging without manually defining a logger.
-  This annotation can be used in any class where logging is required, such as service classes, controllers,
-  repositories,
-  and even configuration classes.
+#### 1.1 Dependency Injection and Component Scanning
 
+- **`@Autowired`**: This annotation is used for automatic dependency injection. It can be applied to constructors,
+  methods, fields, and even parameters to inject dependencies wherever they are needed, not just in service classes.
+  When used on a constructor, it can be omitted if the class has only one constructor.
 
-- **`@AllArgsConstructor`, `@NoArgsConstructor`, and `@RequiredArgsConstructor`**:
+- **`@Component`**, **`@Service`**, **`@Repository`**, **`@RestController`**: These annotations are specializations of
+  `@Component` and are used to define Spring beans. They indicate that a class is a Spring-managed component and can be
+  automatically detected during component scanning. `@RestController` is a specialization of `@Controller` used for
+  handling web requests and returning data directly as a response (usually JSON), combining the behavior of
+  `@Controller` and `@ResponseBody`.
 
-    - **`@AllArgsConstructor`**: Generates a constructor with parameters for all fields in the class. This is useful
-      when
-      you want to ensure all fields are initialized at the time of object creation.
+#### 1.2 Entity Class Annotations
 
-    - **`@NoArgsConstructor`**: Generates a no-argument constructor, which is necessary for frameworks like JPA that
-      require a default constructor to instantiate entities.
-
-    - **`@RequiredArgsConstructor`**: Generates a constructor with parameters for all final fields and any fields that
-      are
-      marked as `@NonNull`. This is useful when you want to ensure that mandatory fields are initialized while still
-      allowing flexibility in object creation.
-
-
-- **`@Data`**: Generates getters, setters, `equals()`, `hashCode()`, `toString()`, and other utility methods. While it
-  is suitable for DTOs and simple data carrier classes, it is generally not recommended for JPA entities due to
-  potential performance issues and complications with `equals()` and `hashCode()` methods. Instead, for JPA entities,
-  it's better to use individual annotations like `@Getter`, `@Setter`, and `@ToString`.
-
-### 2. Entity Class Annotations
-
-- **`@Entity`**: Marks the class as a JPA entity, meaning it is mapped to a database table. It is crucial for ORM
-  (Object-Relational Mapping) in Spring Boot.
-
-
-- **`@Table(name = "customers")`**: Specifies the name of the table in the database that this entity maps to. Useful
-  when the table name differs from the class name.
-
-
-- **`@Id`**: Denotes the primary key of the entity. It is a mandatory annotation for JPA entities.
-
-
+- **`@Entity`**: Marks the class as a JPA entity, meaning it is mapped to a database table.
+- **`@Table(name = "customers")`**: Specifies the table name in the database that this entity maps to.
+- **`@Id`**: Denotes the primary key of the entity.
 - **`@GeneratedValue(strategy = GenerationType.IDENTITY)`**: Specifies the primary key generation strategy.
-  `GenerationType.IDENTITY` indicates that the database will auto-generate the primary key.
-
-
-- **`@Column`**: Marks a field as a column in the database. It can include additional attributes like `nullable`,
-  `unique`, and `length` to define the column's characteristics.
-
-
+- **`@Column`**: Marks a field as a column in the database. It can include attributes like `nullable`, `unique`, and
+  `length`.
 - **`@CreationTimestamp`** and **`@UpdateTimestamp`**: Automatically manage the creation and update timestamps of the
-  entity, using the database's current timestamp.
+  entity.
 
+#### 1.3 Controller Class Annotations
 
-- **Lombok Annotations**:
-    - **`@Getter`** and **`@Setter`**: Generate getters and setters for all fields.
-    - **`@ToString`**: Generates a `toString()` method.
-    - **Note**: The `@Data` annotation is not recommended for JPA entities due to potential performance issues and
-      complications with `equals()` and `hashCode()` methods.
-
-
-- **Best Practice for Associations**: When working with entity relationships (`@OneToMany`, `@ManyToOne`, etc.), it is
-  important to understand fetch strategies (`FetchType.LAZY` vs. `FetchType.EAGER`) and cascade options to manage how
-  related entities are loaded and persisted.
-
-### 3. DTO Class Annotations
-
-- **`@Data`**: Generates all necessary methods like `equals()`, `hashCode()`, `toString()`, and getters/setters.
-  Suitable for DTOs, which are simple data carriers without complex logic.
-
-
-- **`@JsonInclude(JsonInclude.Include.NON_NULL)`**: Ensures that null fields are not included in the JSON output,
-  resulting in cleaner API responses.
-
-
-- **`@Builder`**: Implements the builder pattern, making it easy to create immutable DTO objects with only the required
-  fields set.
-
-### 4. Repository Class Annotations
-
-- **`@Query`**: Defines custom JPQL or native SQL queries within repository interfaces. Useful for complex queries not
-  handled by Spring Data JPA's method naming conventions.
-
-
-- **`@Param`**: Binds method parameters to named parameters in a query, improving readability and maintainability.
-
-
-- **`@Repository` (Not explicitly required)**: While you don't need to explicitly use this annotation if you extend
-  `JpaRepository`, it is good to know that it marks a class as a repository and makes it eligible for exception
-  translation into Spring's DataAccessException hierarchy. This annotation can also be used in custom repository
-  implementations.
-
-### 5. Service Class Annotations
-
-- **`@Service`**: Marks the class as a service, which is part of the service layer in the application. It is a
-  specialization of `@Component`, indicating that the class contains business logic.
-
-
-- **`@Override`**: Indicates that a method is overriding a method in a superclass. It is a good practice to use this
-  annotation to avoid errors, like incorrect method signatures. This annotation can be used in any class where method
-  overriding occurs, not just in services.
-
-### 6. Controller Class Annotations
-
-- **`@RestController`**: Combines `@Controller` and `@ResponseBody`, indicating that the class handles HTTP requests and
-  that the return value of each method is written directly to the HTTP response body, typically as JSON.
-
+- **`@RestController`**: Combines `@Controller` and `@ResponseBody`, used to handle HTTP requests and return responses
+  directly, usually as JSON. It is the preferred annotation for RESTful web services.
 
 - **`@RequestMapping("/api/v1/customers")`**: Maps HTTP requests to specific methods in the controller, providing a base
   path for all endpoints within the controller.
 
-
-- **`@GetMapping`, `@PostMapping`, `@PutMapping`, `@DeleteMapping`**: Map HTTP GET, POST, PUT, and DELETE requests,
-  respectively, to specific methods in the controller.
-
-
-- **`@Operation(summary = "Add a new customer")`**: Used in OpenAPI/Swagger documentation to describe the purpose of an
-  endpoint, aiding in generating accurate and useful API documentation.
-
+- **`@GetMapping`, `@PostMapping`, `@PutMapping`, `@DeleteMapping`**: These annotations map HTTP GET, POST, PUT, and
+  DELETE requests to specific methods in the controller, respectively.
 
 - **`@Valid`**: Used to trigger validation of the request body or path variables based on constraints defined in the
   DTO.
 
-
 - **`@RequestBody`**: Maps the HTTP request body to a Java object, commonly used in POST and PUT methods.
 
-
 - **`@PathVariable`**: Binds a method parameter to a URI template variable, allowing extraction of values from the URL.
-
 
 - **`@RequestParam`**: Binds a method parameter to a query parameter in the URL, useful for passing optional or required
   parameters to an endpoint.
 
-### 7. Additional Annotations
+#### 1.4 Configuration and Bean Management
 
-- **`@Configuration`**: Indicates that the class contains Spring bean definitions and can replace traditional XML-based
-  configuration. This can be used in any class responsible for defining beans or configuring aspects of the application.
+- **`@Configuration`**: Indicates that the class contains Spring bean definitions and configuration settings.
+- **`@Bean`**: Marks a method as a bean producer in Spring’s application context. This method’s return value is
+  registered as a Spring bean.
 
+#### 1.5. Event Handling
 
-- **`@Value`**: Injects values from properties files into fields, typically used for configuration purposes. It can be
-  used in any class where configuration values are needed.
+- **`@EventListener`**: This annotation is used to mark a method as an event listener, which listens for specific events
+  within the Spring application lifecycle. For example, `@EventListener(ApplicationReadyEvent.class)` triggers when the
+  application is ready to service requests.
 
+### 2. Lombok Annotations
 
-- **`@Bean`**: Marks a method as a bean producer in Spring's application context, with the method's return value being
-  registered as a bean and managed by Spring. This is typically used in configuration classes but can be used anywhere
-  bean definitions are required.
+Lombok is a Java library that helps reduce boilerplate code by automatically generating common code like constructors,
+getters, setters, etc. It is not part of Spring Boot but is often used alongside it for convenience.
 
+- **`@Slf4j`**: Creates a `Logger` instance in the class, allowing for easy logging without manually defining a logger.
 
-- **`@EventListener(ApplicationReadyEvent.class)`**: Listens for specific events in the Spring application lifecycle.
-  For example, it is used in your `ServerDetails` class to execute code when the application is fully started and ready
-  to service requests. This can be applied to any class where event-driven behavior is necessary.
+- **`@AllArgsConstructor`, `@NoArgsConstructor`, and `@RequiredArgsConstructor`**:
+    - **`@AllArgsConstructor`**: Generates a constructor with parameters for all fields in the class.
+    - **`@NoArgsConstructor`**: Generates a no-argument constructor.
+    - **`@RequiredArgsConstructor`**: Generates a constructor for all final fields and any fields marked as `@NonNull`.
 
+- **`@Data`**: Generates getters, setters, `equals()`, `hashCode()`, `toString()`, and other utility methods. While it
+  is suitable for DTOs and simple data carrier classes, it is generally not recommended for JPA entities due to
+  potential performance issues and complications with `equals()` and `hashCode()` methods.
 
-- **`@Mapper(componentModel = "spring")`**: Used in MapStruct to generate a Spring bean for the mapper, allowing it to
-  be injected as a dependency where needed. This annotation is essential for integrating MapStruct mappers into your
-  Spring Boot application.
+- **`@Builder`**: Implements the builder pattern, making it easy to create immutable objects with only the required
+  fields set.
 
 ### Additional Notes
 
-There are many more annotations in Spring Boot that you might encounter as your application grows or as you write tests
-(unit tests, integration tests, etc.). Each layer of the application (controller, service, repository, etc.) and each
-use case (security, data validation, testing) has specific annotations that help to streamline development and improve
-code quality. This section covers the key annotations used in this project, providing a solid foundation for
+There are many more annotations in Spring Boot that you might encounter as your application grows or as you write
+tests (unit tests, integration tests, etc.). Each layer of the application (controller, service, repository, etc.) and
+each use case (security, data validation, testing) has specific annotations that help to streamline development and
+improve code quality. This section covers the key annotations used in this project, providing a solid foundation for
 understanding how they work together in a Spring Boot application.
-
 
 <br><br>
 
@@ -491,6 +408,7 @@ necessary dependencies are available when the object is created.
 Here’s how it looks:
 
 ```java
+
 @Service
 public class CustomerService {
 

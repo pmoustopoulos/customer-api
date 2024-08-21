@@ -30,11 +30,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({RuntimeException.class, NullPointerException.class})
     public ResponseEntity<Object> handleRuntimeExceptions(RuntimeException exception) {
 
-        log.error(exception.getMessage());
-
         APIResponse<ErrorDTO> response = new APIResponse<>();
         response.setStatus(Status.FAILED.getValue());
         response.setErrors(Collections.singletonList(new ErrorDTO("", "An internal server error occurred")));
+
+        log.error("RuntimeException or NullPointerException occurred {}", exception.getMessage());
 
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -43,11 +43,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({ResourceNotFoundException.class})
     public ResponseEntity<Object> handleResourceNotFoundExceptions(ResourceNotFoundException exception) {
 
-        log.error(exception.getMessage());
-
         APIResponse<ErrorDTO> response = new APIResponse<>();
         response.setStatus(Status.FAILED.getValue());
         response.setErrors(Collections.singletonList(new ErrorDTO("", "The requested resource was not found")));
+
+        log.error("ResourceNotFoundException occurred {}", exception.getMessage());
 
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
@@ -56,11 +56,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({ResourceAlreadyExistException.class, DataAccessException.class})
     public ResponseEntity<Object> handleOtherExceptions(Exception exception) {
 
-        log.error(exception.getMessage());
-
         APIResponse<ErrorDTO> response = new APIResponse<>();
         response.setStatus(Status.FAILED.getValue());
         response.setErrors(Collections.singletonList(new ErrorDTO("", "An error occurred while processing your request")));
+
+        log.error("ResourceAlreadyExistException or DataAccessException occurred {}", exception.getMessage());
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
@@ -69,11 +69,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<Object> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException exception) {
 
-        log.error(exception.getMessage());
-
         APIResponse<ErrorDTO> response = new APIResponse<>();
         response.setStatus(Status.FAILED.getValue());
         response.setErrors(Collections.singletonList(new ErrorDTO("", "The requested URL does not support this method")));
+
+        log.error("HttpRequestMethodNotSupportedException occurred {}", exception.getMessage());
 
         return new ResponseEntity<>(response, HttpStatus.METHOD_NOT_ALLOWED);
     }
@@ -105,6 +105,8 @@ public class GlobalExceptionHandler {
             errors.add(new ErrorDTO("", "Missing path variable: " + variableName));
         }
 
+        log.error("Validation errors: {}", errors);
+
         response.setErrors(errors);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
@@ -113,11 +115,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<APIResponse<ErrorDTO>> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
 
-        log.error("Malformed JSON request: {}", ex.getMessage());
-
         APIResponse<ErrorDTO> response = new APIResponse<>();
         response.setStatus(Status.FAILED.getValue());
         response.setErrors(Collections.singletonList(new ErrorDTO("", "Malformed JSON request")));
+
+        log.error("Malformed JSON request: {}", ex.getMessage());
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
@@ -135,6 +137,8 @@ public class GlobalExceptionHandler {
         APIResponse<ErrorDTO> response = new APIResponse<>();
         response.setStatus(Status.FAILED.getValue());
         response.setErrors(errors);
+
+        log.error("Constraint violation errors: {}", errors);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }

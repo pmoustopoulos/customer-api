@@ -2805,6 +2805,22 @@ scalable. Below are some key practices to keep in mind:
     - **Automate Migrations**: Integrate your migration tool into your CI/CD pipeline to ensure that migrations are
       applied automatically during deployment, reducing the risk of human error.
 
+### 11. Static Code Analysis with SonarQube
+
+- **Purpose**: SonarQube helps improve code quality by automatically detecting issues like bugs, security
+  vulnerabilities, and code smells.
+
+- **Best Practices**:
+    - **Integrate into CI/CD**: Add SonarQube to your CI/CD pipeline so that your code is checked for quality every time
+      you commit or create a pull request.
+    - **Set Quality Gates**: Define thresholds for things like code coverage and bugs in SonarQube to ensure your code
+      meets quality standards before it’s merged.
+    - **Act on Reports**: Regularly review SonarQube reports and fix any issues it finds, focusing on critical problems
+      first.
+    - **Team Awareness**: Make sure your team understands how to use SonarQube reports to improve their code.
+    - **Manage Technical Debt**: Use SonarQube to track and reduce technical debt by identifying areas that need
+      refactoring.
+
 <br><br>
 
 ## 13. Enhanced Pagination Example

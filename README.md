@@ -2723,8 +2723,8 @@ scalable. Below are some key practices to keep in mind:
     - **Packages**: Use lowercase and singular names for packages (e.g., `com.ainigma100.customerapi.controller`).
     - **Classes**: Follow PascalCase for class names (e.g., `CustomerService`), and ensure names are meaningful and
       descriptive.
-    - **Methods**: Use camelCase for method names (e.g., `getCustomerById`) and keep method names descriptive to
-      reflect their actions.
+    - **Methods**: Use camelCase for method names (e.g., `getCustomerById`) and keep method names descriptive to reflect
+      their actions.
     - **Endpoints**: Use lowercase and hyphen-separated words for REST API endpoint paths (e.g., `/api/v1/customers`),
       and use plural nouns for collections (e.g., `/customers`).
 
@@ -2765,10 +2765,10 @@ scalable. Below are some key practices to keep in mind:
       the code easier to read and understand without requiring extensive comments.
     - **Generate and Share Swagger Documentation**: Utilize classes to generate Swagger documentation and export it as a
       file. This allows you to share the API documentation easily with others, ensuring they have the necessary
-      information to interact with your services. You can reuse the classes I wrote on the current project
+      information to interact with your services. You can reuse the classes I wrote in the current project.
     - **Inline Comments**: Use inline comments sparingly to explain complex logic or to provide context about why
-      certain decisions were made. Comments should add value by explaining the "why" behind the code, not the "what."
-      If your code is clear on what it does, it is not mandatory to add comments.
+      certain decisions were made. Comments should add value by explaining the "why" behind the code, not the "what." If
+      your code is clear on what it does, it is not mandatory to add comments.
 
 ### 9. Version Control and CI/CD
 
@@ -2804,17 +2804,6 @@ scalable. Below are some key practices to keep in mind:
       application code. This ensures that schema changes are versioned with the corresponding application changes.
     - **Automate Migrations**: Integrate your migration tool into your CI/CD pipeline to ensure that migrations are
       applied automatically during deployment, reducing the risk of human error.
-
-### 11. Use Wrapper Classes for API Responses
-
-- **Consistency**: Using a wrapper class like `APIResponse<T>` ensures that all API responses follow a consistent
-  structure, which is easier to maintain and extend.
-- **Encapsulation**: By encapsulating the DTOs within a wrapper, you can easily add additional metadata like status
-  codes, error messages, or pagination details without altering the core response structure.
-- **Security**: Wrapping DTOs helps protect the internal structure of your entities and reduces the risk of exposing
-  sensitive data.
-
-This practice is not just about standardization but also about making your API responses more predictable and secure.
 
 <br><br>
 

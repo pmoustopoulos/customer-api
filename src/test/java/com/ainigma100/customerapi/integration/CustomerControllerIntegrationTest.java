@@ -1,5 +1,6 @@
 package com.ainigma100.customerapi.integration;
 
+import com.ainigma100.customerapi.dto.CustomerEmailUpdateDTO;
 import com.ainigma100.customerapi.dto.CustomerRequestDTO;
 import com.ainigma100.customerapi.dto.CustomerSearchCriteriaDTO;
 import com.ainigma100.customerapi.entity.Customer;
@@ -107,7 +108,7 @@ class CustomerControllerIntegrationTest extends AbstractContainerBaseTest {
         customerRepository.save(customer);
 
         // when - action or behaviour that we are going to test
-        ResultActions response = mockMvc.perform(get("/api/v1/customers/{id}", 1L)
+        ResultActions response = mockMvc.perform(get("/api/v1/customers/{id}", customer.getId())
                 .contentType(MediaType.APPLICATION_JSON));
 
         // then - verify the output
@@ -165,6 +166,43 @@ class CustomerControllerIntegrationTest extends AbstractContainerBaseTest {
                 .andExpect(jsonPath("$.results.email", is(customerRequestDTO.getEmail())))
                 .andExpect(jsonPath("$.results.phoneNumber", is(customerRequestDTO.getPhoneNumber())))
                 .andExpect(jsonPath("$.results.dateOfBirth", is(customerRequestDTO.getDateOfBirth().toString())));
+    }
+
+    @Test
+    void givenCustomerEmailUpdateDTO_whenUpdateCustomerEmail_thenReturnCustomerDTO() throws Exception {
+
+        // given - precondition or setup
+        Customer customer = new Customer();
+        customer.setFirstName("John");
+        customer.setLastName("Wick");
+        customer.setEmail("jwick@tester.com");
+        customer.setPhoneNumber("0123456789");
+        customer.setDateOfBirth(LocalDate.now().minusYears(18));
+
+        customerRepository.save(customer);
+
+        CustomerEmailUpdateDTO customerEmailUpdateDTO = new CustomerEmailUpdateDTO();
+        customerEmailUpdateDTO.setEmail("loco@gmail.com");
+
+
+        // when - action or behaviour that we are going to test
+        ResultActions response = mockMvc.perform(patch("/api/v1/customers/{id}/email", 1L)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(customerEmailUpdateDTO)));
+
+        // then - verify the output
+        response.andDo(print())
+                // verify the status code that is returned
+                .andExpect(status().isOk())
+                // verify the actual returned value and the expected value
+                // $ - root member of a JSON structure whether it is an object or array
+                .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())))
+                .andExpect(jsonPath("$.results.id", is(1)))
+                .andExpect(jsonPath("$.results.firstName", is("John")))
+                .andExpect(jsonPath("$.results.lastName", is("Wick")))
+                .andExpect(jsonPath("$.results.email", is("loco@gmail.com")))
+                .andExpect(jsonPath("$.results.phoneNumber", is("0123456789")))
+                .andExpect(jsonPath("$.results.dateOfBirth", is(LocalDate.now().minusYears(18).toString())));
     }
 
 

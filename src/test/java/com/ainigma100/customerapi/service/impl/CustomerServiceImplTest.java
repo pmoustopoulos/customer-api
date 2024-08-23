@@ -1,6 +1,7 @@
 package com.ainigma100.customerapi.service.impl;
 
 import com.ainigma100.customerapi.dto.CustomerDTO;
+import com.ainigma100.customerapi.dto.CustomerEmailUpdateDTO;
 import com.ainigma100.customerapi.dto.CustomerSearchCriteriaDTO;
 import com.ainigma100.customerapi.entity.Customer;
 import com.ainigma100.customerapi.exception.ResourceAlreadyExistException;
@@ -221,6 +222,60 @@ class CustomerServiceImplTest {
 
         verify(customerRepository, times(1)).findById(id);
         verify(customerMapper, never()).customerDTOToCustomer(any(CustomerDTO.class));
+        verify(customerRepository, never()).save(any(Customer.class));
+        verify(customerMapper, never()).customerToCustomerDTO(any(Customer.class));
+
+    }
+
+
+    @Test
+    @DisplayName("Test updating a customer's email by ID")
+    void givenValidIdAndCustomerEmailUpdateDTO_whenUpdateCustomerEmail_thenReturnCustomerDTO() {
+
+        // given - precondition or setup
+        Long id = 1L;
+        CustomerEmailUpdateDTO customerEmailUpdateDTO = new CustomerEmailUpdateDTO();
+        customerEmailUpdateDTO.setEmail("loco@gmail.com");
+        customer.setEmail(customerEmailUpdateDTO.getEmail());
+        given(customerRepository.findById(id)).willReturn(Optional.of(customer));
+        given(customerRepository.save(customer)).willReturn(customer);
+        given(customerMapper.customerToCustomerDTO(customer)).willReturn(customerDTO);
+
+        // when - action or behaviour that we are going to test
+        CustomerDTO result = customerService.updateCustomerEmail(id, customerEmailUpdateDTO);
+
+        // then - verify the output
+        assertThat(result).isNotNull();
+        assertThat(result.getFirstName()).isEqualTo(customerDTO.getFirstName());
+        assertThat(result.getLastName()).isEqualTo(customerDTO.getLastName());
+        assertThat(result.getEmail()).isEqualTo(customerDTO.getEmail());
+        assertThat(result.getPhoneNumber()).isEqualTo(customerDTO.getPhoneNumber());
+
+        verify(customerRepository, times(1)).findById(id);
+        verify(customerRepository, times(1)).save(customer);
+        verify(customerMapper, times(1)).customerToCustomerDTO(customer);
+
+    }
+
+    @Test
+    @DisplayName("Test updating a customer's email by invalid ID throws ResourceNotFoundException")
+    void givenInvalidIdAndCustomerEmailUpdateDTO_whenUpdateCustomerEmail_thenThrowResourceNotFoundException() {
+
+        // given - precondition or setup
+        Long id = 100L;
+        CustomerEmailUpdateDTO customerEmailUpdateDTO = new CustomerEmailUpdateDTO();
+        customerEmailUpdateDTO.setEmail("loco@gmail.com");
+        customer.setEmail(customerEmailUpdateDTO.getEmail());
+
+        given(customerRepository.findById(id)).willReturn(Optional.empty());
+
+        // when/then - verify that the ResourceNotFoundException is thrown
+        assertThatThrownBy(() -> customerService.updateCustomerEmail(id, customerEmailUpdateDTO))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Customer with id : '" + id + "' not found");
+
+
+        verify(customerRepository, times(1)).findById(id);
         verify(customerRepository, never()).save(any(Customer.class));
         verify(customerMapper, never()).customerToCustomerDTO(any(Customer.class));
 

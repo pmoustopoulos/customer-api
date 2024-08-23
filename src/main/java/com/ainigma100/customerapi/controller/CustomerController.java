@@ -1,10 +1,7 @@
 package com.ainigma100.customerapi.controller;
 
 
-import com.ainigma100.customerapi.dto.APIResponse;
-import com.ainigma100.customerapi.dto.CustomerDTO;
-import com.ainigma100.customerapi.dto.CustomerRequestDTO;
-import com.ainigma100.customerapi.dto.CustomerSearchCriteriaDTO;
+import com.ainigma100.customerapi.dto.*;
 import com.ainigma100.customerapi.enums.Status;
 import com.ainigma100.customerapi.mapper.CustomerMapper;
 import com.ainigma100.customerapi.service.CustomerService;
@@ -85,6 +82,24 @@ public class CustomerController {
 
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 
+    }
+
+    @Operation(summary = "Partially update a customer's email")
+    @PatchMapping("/{id}/email")
+    public ResponseEntity<APIResponse<CustomerDTO>> updateCustomerEmail(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody CustomerEmailUpdateDTO emailUpdateDTO) {
+
+        CustomerDTO result = customerService.updateCustomerEmail(id, emailUpdateDTO);
+
+        // Builder Design pattern
+        APIResponse<CustomerDTO> response = APIResponse
+                .<CustomerDTO>builder()
+                .status(Status.SUCCESS.getValue())
+                .results(result)
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 

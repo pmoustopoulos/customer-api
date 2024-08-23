@@ -6,7 +6,7 @@
     "version" : "2.6.0"
   },
   "servers" : [ {
-    "url" : "http://192.168.1.17:8088/customer-api",
+    "url" : "http://192.168.1.4:8088/customer-api",
     "description" : "Generated server url"
   } ],
   "paths" : {
@@ -153,6 +153,44 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/APIResponsePageCustomerDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/customers/{id}/email" : {
+      "patch" : {
+        "tags" : [ "customer-controller" ],
+        "summary" : "Partially update a customer's email",
+        "operationId" : "updateCustomerEmail",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CustomerEmailUpdateDTO"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/APIResponseCustomerDTO"
                 }
               }
             }
@@ -373,6 +411,9 @@
               "$ref" : "#/components/schemas/SortObject"
             }
           },
+          "unpaged" : {
+            "type" : "boolean"
+          },
           "paged" : {
             "type" : "boolean"
           },
@@ -383,9 +424,6 @@
           "pageSize" : {
             "type" : "integer",
             "format" : "int32"
-          },
-          "unpaged" : {
-            "type" : "boolean"
           }
         }
       },
@@ -406,6 +444,15 @@
           },
           "ignoreCase" : {
             "type" : "boolean"
+          }
+        }
+      },
+      "CustomerEmailUpdateDTO" : {
+        "required" : [ "email" ],
+        "type" : "object",
+        "properties" : {
+          "email" : {
+            "type" : "string"
           }
         }
       },

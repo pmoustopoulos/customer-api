@@ -1,6 +1,7 @@
 package com.ainigma100.customerapi.service.impl;
 
 import com.ainigma100.customerapi.dto.CustomerDTO;
+import com.ainigma100.customerapi.dto.CustomerEmailUpdateDTO;
 import com.ainigma100.customerapi.dto.CustomerSearchCriteriaDTO;
 import com.ainigma100.customerapi.entity.Customer;
 import com.ainigma100.customerapi.exception.ResourceAlreadyExistException;
@@ -73,6 +74,21 @@ public class CustomerServiceImpl implements CustomerService {
         Customer savedRecord = customerRepository.save(recordToBeSaved);
 
         return customerMapper.customerToCustomerDTO(savedRecord);
+    }
+
+
+    @Override
+    public CustomerDTO updateCustomerEmail(Long id, CustomerEmailUpdateDTO emailUpdateDTO) {
+
+        Customer recordFromDB = customerRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer", "id", id));
+
+        recordFromDB.setEmail(emailUpdateDTO.getEmail());
+
+        Customer savedRecord = customerRepository.save(recordFromDB);
+
+        return customerMapper.customerToCustomerDTO(savedRecord);
+
     }
 
 

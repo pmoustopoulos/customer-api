@@ -1,6 +1,7 @@
 package com.ainigma100.customerapi.controller;
 
 import com.ainigma100.customerapi.dto.CustomerDTO;
+import com.ainigma100.customerapi.dto.CustomerEmailUpdateDTO;
 import com.ainigma100.customerapi.dto.CustomerRequestDTO;
 import com.ainigma100.customerapi.dto.CustomerSearchCriteriaDTO;
 import com.ainigma100.customerapi.enums.Status;
@@ -163,6 +164,38 @@ class CustomerControllerTest {
                 .andExpect(jsonPath("$.results.firstName", is("John")))
                 .andExpect(jsonPath("$.results.lastName", is("Wick")))
                 .andExpect(jsonPath("$.results.email", is("jwick@tester.com")))
+                .andExpect(jsonPath("$.results.phoneNumber", is("0123456789")))
+                .andExpect(jsonPath("$.results.dateOfBirth", is(LocalDate.now().minusYears(18).toString())));
+    }
+
+
+    @Test
+    void givenCustomerEmailUpdateDTO_whenUpdateCustomerEmail_thenReturnCustomerDTO() throws Exception {
+
+        // given - precondition or setup
+        CustomerEmailUpdateDTO customerEmailUpdateDTO = new CustomerEmailUpdateDTO();
+        customerEmailUpdateDTO.setEmail("loco@gmail.com");
+        customerDTO.setEmail(customerEmailUpdateDTO.getEmail());
+
+        given(customerService.updateCustomerEmail(any(Long.class), any(CustomerEmailUpdateDTO.class)))
+                .willReturn(customerDTO);
+
+        // when - action or behaviour that we are going to test
+        ResultActions response = mockMvc.perform(patch("/api/v1/customers/{id}/email", 1L)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(customerEmailUpdateDTO)));
+
+        // then - verify the output
+        response.andDo(print())
+                // verify the status code that is returned
+                .andExpect(status().isOk())
+                // verify the actual returned value and the expected value
+                // $ - root member of a JSON structure whether it is an object or array
+                .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())))
+                .andExpect(jsonPath("$.results.id", is(1)))
+                .andExpect(jsonPath("$.results.firstName", is("John")))
+                .andExpect(jsonPath("$.results.lastName", is("Wick")))
+                .andExpect(jsonPath("$.results.email", is("loco@gmail.com")))
                 .andExpect(jsonPath("$.results.phoneNumber", is("0123456789")))
                 .andExpect(jsonPath("$.results.dateOfBirth", is(LocalDate.now().minusYears(18).toString())));
     }

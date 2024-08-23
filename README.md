@@ -1195,176 +1195,78 @@ public class CustomerServiceImpl implements CustomerService {
 
 <br><br>
 
-### Controller Layer
+#### HTTP Method Annotations:
 
-The controller layer in a Spring Boot application handles incoming HTTP requests and sends responses back to the client.
-It acts as the entry point for the client, interacting with the service layer to process business logic and return the
-appropriate data. **Note**: Do not add business logic in this class.
-
-#### Key Concepts:
-
-- **Using Wrapper Objects**:
-    - It's a best practice to return a wrapper object from the controller rather than returning entities directly. A
-      wrapper object can contain a DTO, along with metadata such as status codes, messages, or other relevant
-      information.
-    - **Advantages**:
-        - **Encapsulation**: The wrapper object encapsulates the DTO and provides a consistent response format, which
-          can be useful for clients to process responses reliably.
-        - **Security**: By using DTOs inside wrapper objects, you avoid exposing the internal structure of your entities
-          directly to the client. This helps in protecting sensitive information and reducing the risk of exposing
-          unintended data.
-        - **Flexibility**: Wrapper objects allow you to include additional information, such as error messages or
-          pagination details, making your API responses more informative and easier to handle on the client side.
-
+- **`@GetMapping`**:
+    - **Purpose**: Maps HTTP GET requests to a specific handler method. It is typically used to retrieve data from the
+      server.
+    - **Usage**: Do not include a request body in GET requests. Use path variables or query parameters to pass data to
+      the server.
     - **Example**:
-        - `APIResponse<CustomerDTO>`: A wrapper object that contains the `CustomerDTO` and additional metadata like
-          status and messages.
-
-    - **Wrapper Class for API Responses: `APIResponse<T>`**:
-        - The `APIResponse<T>` class is a generic wrapper that can be used across different controllers in your
-          application. It encapsulates the response data and adds useful metadata like status and error messages.
-        - **Key Attributes**:
-            - `status`: A string representing the status of the response (e.g., "SUCCESS" or "FAILED").
-            - `errors`: A list of `ErrorDTO` objects that contain error details when a request fails.
-            - `results`: The actual data (DTO) being returned by the API.
-
-        - **Example**:
       ```java
-      @Data
-      @AllArgsConstructor
-      @NoArgsConstructor
-      @JsonInclude(JsonInclude.Include.NON_NULL)
-      @Builder
-      public class APIResponse<T> {
-      
-          private String status;
-          private List<ErrorDTO> errors;
-          private T results;
-      
+      @GetMapping("/{id}")
+      public ResponseEntity<APIResponse<CustomerDTO>> getCustomerById(@PathVariable("id") Long id) {
+          // You will have your implementation
       }
       ```
 
-This structured approach ensures that your application is well-organized, with clear separation of concerns between
-different layers. It also makes your API more robust, secure, and easier to maintain.
+- **`@PostMapping`**:
+    - **Purpose**: Maps HTTP POST requests to a specific handler method. It is used to create new resources on the
+      server.
+    - **Usage**: Use `@RequestBody` to pass data in the request body when creating a new resource.
+    - **Example**:
+      ```java
+      @PostMapping
+      public ResponseEntity<APIResponse<CustomerDTO>> createCustomer(@Valid @RequestBody CustomerRequestDTO customerRequestDTO) {
+          // You will have your implementation
+      }
+      ```
 
+- **`@PutMapping`**:
+    - **Purpose**: Maps HTTP PUT requests to a specific handler method. It is used to update an existing resource on the
+      server.
+    - **Usage**: Use `@RequestBody` to pass updated data in the request body. PUT typically replaces the entire
+      resource.
+    - **Example**:
+      ```java
+      @PutMapping("/{id}")
+      public ResponseEntity<APIResponse<CustomerDTO>> updateCustomer(@PathVariable("id") Long id, @Valid @RequestBody CustomerRequestDTO customerRequestDTO) {
+          // You will have your implementation
+      }
+      ```
 
-<details>
-  <summary>View CustomerController code</summary>
+- **`@PatchMapping`**:
+    - **Purpose**: Maps HTTP PATCH requests to a specific handler method. It is used to apply partial updates to a
+      resource.
+    - **Usage**: Use `@RequestBody` to pass only the fields that need to be updated. PATCH is useful when you want to
+      modify only certain attributes of the resource without affecting the rest.
+    - **Example**:
+      ```java
+      @PatchMapping("/{id}")
+      public ResponseEntity<APIResponse<CustomerDTO>> partiallyUpdateCustomer(@PathVariable("id") Long id, @RequestBody Map<String, Object> updates) {
+          // You will have your implementation
+      }
+      ```
 
-```java
-package com.ainigma100.customerapi.controller;
+- **`@DeleteMapping`**:
+    - **Purpose**: Maps HTTP DELETE requests to a specific handler method. It is used to delete a resource from the
+      server.
+    - **Usage**: Typically does not require a request body. The resource to be deleted is usually specified in the path.
+    - **Example**:
+      ```java
+      @DeleteMapping("/{id}")
+      public ResponseEntity<APIResponse<String>> deleteCustomer(@PathVariable("id") Long id) {
+          // You will have your implementation
+      }
+      ```
 
+- **Difference Between `PUT` and `PATCH`**:
+    - **PUT**: Replaces the entire resource with the new data provided. If some fields are not provided, they will be
+      overwritten with null or default values.
+    - **PATCH**: Applies partial updates to a resource. Only the fields provided in the request body will be updated,
+      leaving the other fields unchanged.
 
-import com.ainigma100.customerapi.dto.APIResponse;
-import com.ainigma100.customerapi.dto.CustomerDTO;
-import com.ainigma100.customerapi.dto.CustomerRequestDTO;
-import com.ainigma100.customerapi.enums.Status;
-import com.ainigma100.customerapi.mapper.CustomerMapper;
-import com.ainigma100.customerapi.service.CustomerService;
-import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-@RequiredArgsConstructor
-@RequestMapping("/api/v1/customers")
-@RestController
-public class CustomerController {
-
-    private final CustomerService customerService;
-    private final CustomerMapper customerMapper;
-
-
-    @Operation(summary = "Add a new customer")
-    @PostMapping
-    public ResponseEntity<APIResponse<CustomerDTO>> createCustomer(
-            @Valid @RequestBody CustomerRequestDTO customerRequestDTO) {
-
-        CustomerDTO customerDTO = customerMapper.customerRequestDTOToCustomerDTO(customerRequestDTO);
-
-        CustomerDTO result = customerService.createCustomer(customerDTO);
-
-        // Builder Design pattern
-        APIResponse<CustomerDTO> response = APIResponse
-                .<CustomerDTO>builder()
-                .status(Status.SUCCESS.getValue())
-                .results(result)
-                .build();
-
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
-    }
-
-
-    @Operation(summary = "Find customer by ID",
-            description = "Returns a single customer")
-    @GetMapping("/{id}")
-    public ResponseEntity<APIResponse<CustomerDTO>> getCustomerById(@PathVariable("id") Long id) {
-
-        CustomerDTO result = customerService.getCustomerById(id);
-
-        // Builder Design pattern
-        APIResponse<CustomerDTO> responseDTO = APIResponse
-                .<CustomerDTO>builder()
-                .status(Status.SUCCESS.getValue())
-                .results(result)
-                .build();
-
-
-        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-
-    }
-
-
-    @Operation(summary = "Update an existing customer")
-    @PutMapping("/{id}")
-    public ResponseEntity<APIResponse<CustomerDTO>> updateCustomer(
-            @PathVariable("id") Long id,
-            @Valid @RequestBody CustomerRequestDTO customerRequestDTO) {
-
-        CustomerDTO customerDTO = customerMapper.customerRequestDTOToCustomerDTO(customerRequestDTO);
-
-        CustomerDTO result = customerService.updateCustomer(id, customerDTO);
-
-        // Builder Design pattern
-        APIResponse<CustomerDTO> responseDTO = APIResponse
-                .<CustomerDTO>builder()
-                .status(Status.SUCCESS.getValue())
-                .results(result)
-                .build();
-
-
-        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-
-    }
-
-
-    @Operation(summary = "Delete a customer by ID")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<APIResponse<String>> deleteCustomer(@PathVariable("id") Long id) {
-
-        customerService.deleteCustomer(id);
-
-        String result = "Customer deleted successfully";
-
-        // Builder Design pattern
-        APIResponse<String> responseDTO = APIResponse
-                .<String>builder()
-                .status(Status.SUCCESS.getValue())
-                .results(result)
-                .build();
-
-
-        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-
-    }
-
-
-}
-```
-
-</details>
+<br><br>
 
 ### Exception Handling
 

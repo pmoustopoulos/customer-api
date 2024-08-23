@@ -3,7 +3,6 @@ package com.ainigma100.customerapi.service;
 import com.ainigma100.customerapi.dto.CustomerDTO;
 import com.ainigma100.customerapi.dto.CustomerEmailUpdateDTO;
 import com.ainigma100.customerapi.dto.CustomerSearchCriteriaDTO;
-import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 
 public interface CustomerService {

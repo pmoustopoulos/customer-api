@@ -1097,6 +1097,9 @@ between the controller layer (handling HTTP requests) and the repository layer (
 package com.ainigma100.customerapi.service;
 
 import com.ainigma100.customerapi.dto.CustomerDTO;
+import com.ainigma100.customerapi.dto.CustomerEmailUpdateDTO;
+import com.ainigma100.customerapi.dto.CustomerSearchCriteriaDTO;
+import org.springframework.data.domain.Page;
 
 public interface CustomerService {
 
@@ -1105,6 +1108,8 @@ public interface CustomerService {
     CustomerDTO getCustomerById(Long id);
 
     CustomerDTO updateCustomer(Long id, CustomerDTO customerDTO);
+
+    CustomerDTO updateCustomerEmail(Long id, CustomerEmailUpdateDTO emailUpdateDTO);
 
     void deleteCustomer(Long id);
 
@@ -1120,6 +1125,7 @@ public interface CustomerService {
 package com.ainigma100.customerapi.service.impl;
 
 import com.ainigma100.customerapi.dto.CustomerDTO;
+import com.ainigma100.customerapi.dto.CustomerEmailUpdateDTO;
 import com.ainigma100.customerapi.entity.Customer;
 import com.ainigma100.customerapi.exception.ResourceAlreadyExistException;
 import com.ainigma100.customerapi.exception.ResourceNotFoundException;
@@ -1180,6 +1186,20 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    public CustomerDTO updateCustomerEmail(Long id, CustomerEmailUpdateDTO emailUpdateDTO) {
+
+        Customer recordFromDB = customerRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer", "id", id));
+
+        recordFromDB.setEmail(emailUpdateDTO.getEmail());
+
+        Customer savedRecord = customerRepository.save(recordFromDB);
+
+        return customerMapper.customerToCustomerDTO(savedRecord);
+
+    }
+
+    @Override
     public void deleteCustomer(Long id) {
 
         Customer recordFromDB = customerRepository.findById(id)
@@ -1194,6 +1214,58 @@ public class CustomerServiceImpl implements CustomerService {
 
 
 <br><br>
+
+### Controller Layer
+
+The controller layer in a Spring Boot application handles incoming HTTP requests and sends responses back to the client.
+It acts as the entry point for the client, interacting with the service layer to process business logic and return the
+appropriate data. **Note**: Do not add business logic in this class.
+
+#### Key Concepts:
+
+- **Using Wrapper Objects**:
+    - It's a best practice to return a wrapper object from the controller rather than returning entities directly. A
+      wrapper object can contain a DTO, along with metadata such as status codes, messages, or other relevant
+      information.
+    - **Advantages**:
+        - **Encapsulation**: The wrapper object encapsulates the DTO and provides a consistent response format, which
+          can be useful for clients to process responses reliably.
+        - **Security**: By using DTOs inside wrapper objects, you avoid exposing the internal structure of your entities
+          directly to the client. This helps in protecting sensitive information and reducing the risk of exposing
+          unintended data.
+        - **Flexibility**: Wrapper objects allow you to include additional information, such as error messages or
+          pagination details, making your API responses more informative and easier to handle on the client side.
+
+    - **Example**:
+        - `APIResponse<CustomerDTO>`: A wrapper object that contains the `CustomerDTO` and additional metadata like
+          status and messages.
+
+    - **Wrapper Class for API Responses: `APIResponse<T>`**:
+        - The `APIResponse<T>` class is a generic wrapper that can be used across different controllers in your
+          application. It encapsulates the response data and adds useful metadata like status and error messages.
+        - **Key Attributes**:
+            - `status`: A string representing the status of the response (e.g., "SUCCESS" or "FAILED").
+            - `errors`: A list of `ErrorDTO` objects that contain error details when a request fails.
+            - `results`: The actual data (DTO) being returned by the API.
+
+        - **Example**:
+      ```java
+      @Data
+      @AllArgsConstructor
+      @NoArgsConstructor
+      @JsonInclude(JsonInclude.Include.NON_NULL)
+      @Builder
+      public class APIResponse<T> {
+      
+          private String status;
+          private List<ErrorDTO> errors;
+          private T results;
+      
+      }
+      ```
+
+This structured approach ensures that your application is well-organized, with clear separation of concerns between
+different layers. It also makes your API more robust, secure, and easier to maintain.
 
 #### HTTP Method Annotations:
 
@@ -1265,6 +1337,141 @@ public class CustomerServiceImpl implements CustomerService {
       overwritten with null or default values.
     - **PATCH**: Applies partial updates to a resource. Only the fields provided in the request body will be updated,
       leaving the other fields unchanged.
+
+<details>
+  <summary>View CustomerController code</summary>
+
+```java
+package com.ainigma100.customerapi.controller;
+
+
+import com.ainigma100.customerapi.dto.*;
+import com.ainigma100.customerapi.enums.Status;
+import com.ainigma100.customerapi.mapper.CustomerMapper;
+import com.ainigma100.customerapi.service.CustomerService;
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RequiredArgsConstructor
+@RequestMapping("/api/v1/customers")
+@RestController
+public class CustomerController {
+
+    private final CustomerService customerService;
+    private final CustomerMapper customerMapper;
+
+
+    @Operation(summary = "Add a new customer")
+    @PostMapping
+    public ResponseEntity<APIResponse<CustomerDTO>> createCustomer(
+            @Valid @RequestBody CustomerRequestDTO customerRequestDTO) {
+
+        CustomerDTO customerDTO = customerMapper.customerRequestDTOToCustomerDTO(customerRequestDTO);
+
+        CustomerDTO result = customerService.createCustomer(customerDTO);
+
+        // Builder Design pattern
+        APIResponse<CustomerDTO> response = APIResponse
+                .<CustomerDTO>builder()
+                .status(Status.SUCCESS.getValue())
+                .results(result)
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+
+    @Operation(summary = "Find customer by ID",
+            description = "Returns a single customer")
+    @GetMapping("/{id}")
+    public ResponseEntity<APIResponse<CustomerDTO>> getCustomerById(@PathVariable("id") Long id) {
+
+        CustomerDTO result = customerService.getCustomerById(id);
+
+        // Builder Design pattern
+        APIResponse<CustomerDTO> responseDTO = APIResponse
+                .<CustomerDTO>builder()
+                .status(Status.SUCCESS.getValue())
+                .results(result)
+                .build();
+
+
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+
+    }
+
+
+    @Operation(summary = "Update an existing customer")
+    @PutMapping("/{id}")
+    public ResponseEntity<APIResponse<CustomerDTO>> updateCustomer(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody CustomerRequestDTO customerRequestDTO) {
+
+        CustomerDTO customerDTO = customerMapper.customerRequestDTOToCustomerDTO(customerRequestDTO);
+
+        CustomerDTO result = customerService.updateCustomer(id, customerDTO);
+
+        // Builder Design pattern
+        APIResponse<CustomerDTO> responseDTO = APIResponse
+                .<CustomerDTO>builder()
+                .status(Status.SUCCESS.getValue())
+                .results(result)
+                .build();
+
+
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+
+    }
+
+    @Operation(summary = "Partially update a customer's email")
+    @PatchMapping("/{id}/email")
+    public ResponseEntity<APIResponse<CustomerDTO>> updateCustomerEmail(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody CustomerEmailUpdateDTO emailUpdateDTO) {
+
+        CustomerDTO result = customerService.updateCustomerEmail(id, emailUpdateDTO);
+
+        // Builder Design pattern
+        APIResponse<CustomerDTO> response = APIResponse
+                .<CustomerDTO>builder()
+                .status(Status.SUCCESS.getValue())
+                .results(result)
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
+    @Operation(summary = "Delete a customer by ID")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<APIResponse<String>> deleteCustomer(@PathVariable("id") Long id) {
+
+        customerService.deleteCustomer(id);
+
+        String result = "Customer deleted successfully";
+
+        // Builder Design pattern
+        APIResponse<String> responseDTO = APIResponse
+                .<String>builder()
+                .status(Status.SUCCESS.getValue())
+                .results(result)
+                .build();
+
+
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+
+    }
+
+}
+```
+
+</details>
+
 
 <br><br>
 
@@ -2026,6 +2233,7 @@ involves mocking the repository to isolate the service logic.
 package com.ainigma100.customerapi.service.impl;
 
 import com.ainigma100.customerapi.dto.CustomerDTO;
+import com.ainigma100.customerapi.dto.CustomerEmailUpdateDTO;
 import com.ainigma100.customerapi.entity.Customer;
 import com.ainigma100.customerapi.exception.ResourceAlreadyExistException;
 import com.ainigma100.customerapi.exception.ResourceNotFoundException;
@@ -2241,6 +2449,60 @@ class CustomerServiceImplTest {
 
 
     @Test
+    @DisplayName("Test updating a customer's email by ID")
+    void givenValidIdAndCustomerEmailUpdateDTO_whenUpdateCustomerEmail_thenReturnCustomerDTO() {
+
+        // given - precondition or setup
+        Long id = 1L;
+        CustomerEmailUpdateDTO customerEmailUpdateDTO = new CustomerEmailUpdateDTO();
+        customerEmailUpdateDTO.setEmail("loco@gmail.com");
+        customer.setEmail(customerEmailUpdateDTO.getEmail());
+        given(customerRepository.findById(id)).willReturn(Optional.of(customer));
+        given(customerRepository.save(customer)).willReturn(customer);
+        given(customerMapper.customerToCustomerDTO(customer)).willReturn(customerDTO);
+
+        // when - action or behaviour that we are going to test
+        CustomerDTO result = customerService.updateCustomerEmail(id, customerEmailUpdateDTO);
+
+        // then - verify the output
+        assertThat(result).isNotNull();
+        assertThat(result.getFirstName()).isEqualTo(customerDTO.getFirstName());
+        assertThat(result.getLastName()).isEqualTo(customerDTO.getLastName());
+        assertThat(result.getEmail()).isEqualTo(customerDTO.getEmail());
+        assertThat(result.getPhoneNumber()).isEqualTo(customerDTO.getPhoneNumber());
+
+        verify(customerRepository, times(1)).findById(id);
+        verify(customerRepository, times(1)).save(customer);
+        verify(customerMapper, times(1)).customerToCustomerDTO(customer);
+
+    }
+
+    @Test
+    @DisplayName("Test updating a customer's email by invalid ID throws ResourceNotFoundException")
+    void givenInvalidIdAndCustomerEmailUpdateDTO_whenUpdateCustomerEmail_thenThrowResourceNotFoundException() {
+
+        // given - precondition or setup
+        Long id = 100L;
+        CustomerEmailUpdateDTO customerEmailUpdateDTO = new CustomerEmailUpdateDTO();
+        customerEmailUpdateDTO.setEmail("loco@gmail.com");
+        customer.setEmail(customerEmailUpdateDTO.getEmail());
+
+        given(customerRepository.findById(id)).willReturn(Optional.empty());
+
+        // when/then - verify that the ResourceNotFoundException is thrown
+        assertThatThrownBy(() -> customerService.updateCustomerEmail(id, customerEmailUpdateDTO))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Customer with id : '" + id + "' not found");
+
+
+        verify(customerRepository, times(1)).findById(id);
+        verify(customerRepository, never()).save(any(Customer.class));
+        verify(customerMapper, never()).customerToCustomerDTO(any(Customer.class));
+
+    }
+
+
+    @Test
     @DisplayName("Test deleting a customer by ID")
     void givenValidId_whenDeleteCustomer_thenDeleteCustomer() {
 
@@ -2343,6 +2605,7 @@ its dependencies, such as services and mappers.
 package com.ainigma100.customerapi.controller;
 
 import com.ainigma100.customerapi.dto.CustomerDTO;
+import com.ainigma100.customerapi.dto.CustomerEmailUpdateDTO;
 import com.ainigma100.customerapi.dto.CustomerRequestDTO;
 import com.ainigma100.customerapi.enums.Status;
 import com.ainigma100.customerapi.mapper.CustomerMapper;
@@ -2494,6 +2757,38 @@ class CustomerControllerTest {
                 .andExpect(jsonPath("$.results.firstName", is("John")))
                 .andExpect(jsonPath("$.results.lastName", is("Wick")))
                 .andExpect(jsonPath("$.results.email", is("jwick@tester.com")))
+                .andExpect(jsonPath("$.results.phoneNumber", is("0123456789")))
+                .andExpect(jsonPath("$.results.dateOfBirth", is(LocalDate.now().minusYears(18).toString())));
+    }
+
+
+    @Test
+    void givenCustomerEmailUpdateDTO_whenUpdateCustomerEmail_thenReturnCustomerDTO() throws Exception {
+
+        // given - precondition or setup
+        CustomerEmailUpdateDTO customerEmailUpdateDTO = new CustomerEmailUpdateDTO();
+        customerEmailUpdateDTO.setEmail("loco@gmail.com");
+        customerDTO.setEmail(customerEmailUpdateDTO.getEmail());
+
+        given(customerService.updateCustomerEmail(any(Long.class), any(CustomerEmailUpdateDTO.class)))
+                .willReturn(customerDTO);
+
+        // when - action or behaviour that we are going to test
+        ResultActions response = mockMvc.perform(patch("/api/v1/customers/{id}/email", 1L)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(customerEmailUpdateDTO)));
+
+        // then - verify the output
+        response.andDo(print())
+                // verify the status code that is returned
+                .andExpect(status().isOk())
+                // verify the actual returned value and the expected value
+                // $ - root member of a JSON structure whether it is an object or array
+                .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())))
+                .andExpect(jsonPath("$.results.id", is(1)))
+                .andExpect(jsonPath("$.results.firstName", is("John")))
+                .andExpect(jsonPath("$.results.lastName", is("Wick")))
+                .andExpect(jsonPath("$.results.email", is("loco@gmail.com")))
                 .andExpect(jsonPath("$.results.phoneNumber", is("0123456789")))
                 .andExpect(jsonPath("$.results.dateOfBirth", is(LocalDate.now().minusYears(18).toString())));
     }

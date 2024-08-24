@@ -1315,7 +1315,7 @@ different layers. It also makes your API more robust, secure, and easier to main
     - **Example**:
       ```java
       @PatchMapping("/{id}")
-      public ResponseEntity<APIResponse<CustomerDTO>> partiallyUpdateCustomer(@PathVariable("id") Long id, @RequestBody Map<String, Object> updates) {
+      public ResponseEntity<APIResponse<CustomerDTO>> partiallyUpdateCustomer(@PathVariable("id") Long id, @RequestBody CustomerEmailUpdateDTO customerEmailUpdateDTO) {
           // You will have your implementation
       }
       ```

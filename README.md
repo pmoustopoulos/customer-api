@@ -353,6 +353,8 @@ These annotations are core to Spring Boot and are used throughout the applicatio
 - **`@Configuration`**: Indicates that the class contains Spring bean definitions and configuration settings.
 - **`@Bean`**: Marks a method as a bean producer in Spring’s application context. This method’s return value is
   registered as a Spring bean.
+- **`@Value`**: This annotation is used to pull configuration values from your properties file and inject them directly
+  into your code.
 
 #### 1.5. Event Handling
 
@@ -474,8 +476,6 @@ public class CustomerService {
 - **Easier to Test**: You can easily provide mock dependencies when testing.
 
 **Note:** Please search online for more details and try to understand this topic because it is important.
-
-
 
 <br><br>
 

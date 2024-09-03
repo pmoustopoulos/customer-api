@@ -54,6 +54,8 @@ complex frameworks.
 - **Production-Ready**: Includes features like health checks, metrics, and externalized configuration, making it easy
   to deploy applications in a production environment.
 
+---
+
 ## 2. Project Structure Overview
 
 Understanding the structure of a Spring Boot project is crucial for effective development. Below is the typical
@@ -91,6 +93,8 @@ Furthermore, some packages can be skipped in case based on your use case you do 
 - **`repository`**: Data access layer using Spring Data JPA repositories.
 - **`service`**: Business logic layer, including interfaces and their implementations.
 - **`utils`**: Utility classes and helpers used across the application.
+
+---
 
 ## 3. Introduction to Maven and `pom.xml`
 
@@ -291,7 +295,7 @@ and MapStruct:
 By configuring these plugins, we ensure that Lombok, MapStruct, and their integration work seamlessly during the build
 process, reducing manual coding effort and improving efficiency.
 
-<br>
+---
 
 ## 4. Key Annotations in Spring Boot
 
@@ -389,7 +393,7 @@ each use case (security, data validation, testing) has specific annotations that
 improve code quality. This section covers the key annotations used in this project, providing a solid foundation for
 understanding how they work together in a Spring Boot application.
 
-<br><br>
+---
 
 ## 5. Dependency Injection in Spring Boot
 
@@ -477,7 +481,7 @@ public class CustomerService {
 
 **Note:** Please search online for more details and try to understand this topic because it is important.
 
-<br><br>
+---
 
 ## 6. Design Patterns: RESTful API vs. MVC
 
@@ -543,6 +547,8 @@ The choice between RESTful API and MVC depends on your project requirements:
     - You want to leverage server-side rendering for better SEO or faster initial page loads.
     - You’re building a monolithic application where integrating UI and backend logic is straightforward and beneficial.
 
+---
+
 ## 7. Naming Conventions
 
 Consistent naming conventions in your codebase and API design make your project easier to navigate, maintain, and scale.
@@ -602,6 +608,8 @@ Below are some guidelines for naming conventions in a Spring Boot project focuse
   endpoints.
   In some cases you may see filtering and sorting information provided as a payload inside a request body.
     - **Example**: `/customers?status=active`, `/orders?customerId=123&status=pending`
+
+---
 
 ## 8. Configuring `application.yaml`
 
@@ -749,7 +757,7 @@ jpa:
     ddl-auto: update
 ```
 
-<br>
+---
 
 ## 9. Detailed Package Breakdown
 
@@ -1687,7 +1695,7 @@ public class GlobalExceptionHandler {
 
 
 
-<br><br>
+---
 
 ## 10. Helper Classes
 
@@ -2028,7 +2036,7 @@ public class ServerDetails {
 
 </details>
 
-<br><br>
+---
 
 ## 11. Testing
 
@@ -2855,7 +2863,7 @@ setting up your environment.
 
 If you need to run the integration tests, just make sure Docker is installed and running on your machine.
 
-<br><br>
+---
 
 ## 12. Best Practices
 
@@ -3018,7 +3026,7 @@ scalable. Below are some key practices to keep in mind:
     - **Manage Technical Debt**: Use SonarQube to track and reduce technical debt by identifying areas that need
       refactoring.
 
-<br><br>
+---
 
 ## 13. Enhanced Pagination Example
 
@@ -3283,7 +3291,7 @@ By implementing enhanced pagination, you ensure that your application can effici
 providing users with a responsive experience. This approach is versatile and can be adapted to various other scenarios
 in your application.
 
-<br><br>
+---
 
 ## 14. Feedback and Contributions
 

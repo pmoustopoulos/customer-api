@@ -11,7 +11,7 @@
 
     <groupId>com.ainigma100</groupId>
     <artifactId>customer-api</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>3.3.3</version>
     <name>customer-api</name>
     <description>customer-api</description>
 

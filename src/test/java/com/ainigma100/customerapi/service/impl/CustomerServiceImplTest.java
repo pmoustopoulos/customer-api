@@ -89,7 +89,7 @@ class CustomerServiceImplTest {
 
         // given - precondition or setup
         String email = customerDTO.getEmail();
-        given(customerRepository.findByEmail(email)).willReturn(null);
+        given(customerRepository.findByEmail(email)).willReturn(Optional.empty());
         given(customerMapper.customerDTOToCustomer(customerDTO)).willReturn(customer);
         given(customerRepository.save(customer)).willReturn(customer);
         given(customerMapper.customerToCustomerDTO(customer)).willReturn(customerDTO);

@@ -34,11 +34,10 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public CustomerDTO createCustomer(CustomerDTO customerDTO) {
 
-        Customer recordFromDB = customerRepository.findByEmail(customerDTO.getEmail());
-
-        if (recordFromDB != null) {
-            throw new ResourceAlreadyExistException("Customer", "email", customerDTO.getEmail());
-        }
+        customerRepository.findByEmail(customerDTO.getEmail())
+                .ifPresent(customer -> {
+                    throw new ResourceAlreadyExistException("Customer", "email", customerDTO.getEmail());
+                });
 
         Customer recordToBeSaved = customerMapper.customerDTOToCustomer(customerDTO);
 

@@ -117,7 +117,7 @@ class CustomerServiceImplTest {
 
         // given - precondition or setup
         String email = customerDTO.getEmail();
-        given(customerRepository.findByEmail(email)).willReturn(customer);
+        given(customerRepository.findByEmail(email)).willReturn(Optional.of(customer));
 
         // when/then - verify that the ResourceAlreadyExistException is thrown
         assertThatThrownBy(() -> customerService.createCustomer(customerDTO))

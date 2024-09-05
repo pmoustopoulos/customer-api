@@ -52,7 +52,7 @@ class CustomerRepositoryTest {
         customerRepository.save(customer);
 
         // when - action or behaviour that we are going to test
-        Customer customerFromDB = customerRepository.findByEmail(email);
+        Customer customerFromDB = customerRepository.findByEmail(email).orElse(null);
 
         // then - verify the output
         assertNotNull(customerFromDB);
@@ -71,7 +71,7 @@ class CustomerRepositoryTest {
         customerRepository.save(customer);
 
         // when - action or behaviour that we are going to test
-        Customer customerFromDB = customerRepository.findByEmail(email);
+        Customer customerFromDB = customerRepository.findByEmail(email).orElse(null);
 
         // then - verify the output
         assertNull(customerFromDB);
@@ -85,7 +85,7 @@ class CustomerRepositoryTest {
         customerRepository.save(customer);
 
         // when - action or behaviour that we are going to test
-        Customer customerFromDB = customerRepository.findByEmail(email);
+        Customer customerFromDB = customerRepository.findByEmail(email).orElse(null);
 
         // then - verify the output
         assertNull(customerFromDB);
@@ -99,7 +99,7 @@ class CustomerRepositoryTest {
         customerRepository.save(customer);
 
         // when - action or behaviour that we are going to test
-        Customer customerFromDB = customerRepository.findByEmail(email);
+        Customer customerFromDB = customerRepository.findByEmail(email).orElse(null);
 
         // then - verify the output
         assertNull(customerFromDB);

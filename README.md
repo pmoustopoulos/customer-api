@@ -26,17 +26,19 @@ Spring Boot 3.
 7. [Naming Conventions](#7-naming-conventions)
 8. [Configuring `application.yaml`](#8-configuring-applicationyaml)
 9. [Detailed Package Breakdown](#9-detailed-package-breakdown)
-    - [Entity Layer](#entity-layer)
-    - [Repository Layer](#repository-layer)
-    - [Service Layer](#service-layer)
-    - [DTOs and MapStruct](#dtos-and-mapstruct)
-    - [Controller Layer](#controller-layer)
-    - [Exception Handling](#exception-handling)
+   - [Entity Layer](#entity-layer)
+   - [Repository Layer](#repository-layer)
+   - [Service Layer](#service-layer)
+   - [DTOs and MapStruct](#dtos-and-mapstruct)
+   - [Controller Layer](#controller-layer)
+   - [Exception Handling](#exception-handling)
 10. [Helper Classes](#10-helper-classes)
 11. [Testing](#11-testing)
 12. [Best Practices](#12-best-practices)
 13. [Enhanced Pagination Example](#13-enhanced-pagination-example)
-14. [Feedback and Contributions](#14-feedback-and-contributions)
+14. [Appendix: Using
+    `openapi-generator-maven-plugin` for API Client Generation](#14-appendix-using-openapi-generator-maven-plugin-for-api-client-generation)
+15. [Feedback and Contributions](#15-feedback-and-contributions)
 
 ## 1. Introduction
 
@@ -1155,17 +1157,16 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public CustomerDTO createCustomer(CustomerDTO customerDTO) {
 
-        Customer recordFromDB = customerRepository.findByEmail(customerDTO.getEmail());
+        customerRepository.findByEmail(customerDTO.getEmail())
+                .ifPresent(customer -> {
+                    throw new ResourceAlreadyExistException("Customer", "email", customerDTO.getEmail());
+                });
 
-        if (recordFromDB != null) {
-            throw new ResourceAlreadyExistException("Customer", "email", customerDTO.getEmail());
-        }
-
-        Customer recordToBeSaved = customerMapper.toCustomer(customerDTO);
+        Customer recordToBeSaved = customerMapper.customerDTOToCustomer(customerDTO);
 
         Customer savedRecord = customerRepository.save(recordToBeSaved);
 
-        return customerMapper.toCustomerDTO(savedRecord);
+        return customerMapper.customerToCustomerDTO(savedRecord);
     }
 
     @Override
@@ -2159,7 +2160,7 @@ class CustomerRepositoryTest {
         customerRepository.save(customer);
 
         // when - action or behaviour that we are going to test
-        Customer customerFromDB = customerRepository.findByEmail(email);
+        Customer customerFromDB = customerRepository.findByEmail(email).orElse(null);
 
         // then - verify the output
         assertNotNull(customerFromDB);
@@ -2178,7 +2179,7 @@ class CustomerRepositoryTest {
         customerRepository.save(customer);
 
         // when - action or behaviour that we are going to test
-        Customer customerFromDB = customerRepository.findByEmail(email);
+        Customer customerFromDB = customerRepository.findByEmail(email).orElse(null);
 
         // then - verify the output
         assertNull(customerFromDB);
@@ -2192,7 +2193,7 @@ class CustomerRepositoryTest {
         customerRepository.save(customer);
 
         // when - action or behaviour that we are going to test
-        Customer customerFromDB = customerRepository.findByEmail(email);
+        Customer customerFromDB = customerRepository.findByEmail(email).orElse(null);
 
         // then - verify the output
         assertNull(customerFromDB);
@@ -2206,7 +2207,7 @@ class CustomerRepositoryTest {
         customerRepository.save(customer);
 
         // when - action or behaviour that we are going to test
-        Customer customerFromDB = customerRepository.findByEmail(email);
+        Customer customerFromDB = customerRepository.findByEmail(email).orElse(null);
 
         // then - verify the output
         assertNull(customerFromDB);
@@ -2317,7 +2318,7 @@ class CustomerServiceImplTest {
 
         // given - precondition or setup
         String email = customerDTO.getEmail();
-        given(customerRepository.findByEmail(email)).willReturn(null);
+        given(customerRepository.findByEmail(email)).willReturn(Optional.empty());
         given(customerMapper.customerDTOToCustomer(customerDTO)).willReturn(customer);
         given(customerRepository.save(customer)).willReturn(customer);
         given(customerMapper.customerToCustomerDTO(customer)).willReturn(customerDTO);
@@ -2345,7 +2346,7 @@ class CustomerServiceImplTest {
 
         // given - precondition or setup
         String email = customerDTO.getEmail();
-        given(customerRepository.findByEmail(email)).willReturn(customer);
+        given(customerRepository.findByEmail(email)).willReturn(Optional.of(customer));
 
         // when/then - verify that the ResourceAlreadyExistException is thrown
         assertThatThrownBy(() -> customerService.createCustomer(customerDTO))
@@ -2577,28 +2578,27 @@ its dependencies, such as services and mappers.
 ### Key Points:
 
 1. **Mocking Service and Mapper**:
-    - Mock the service and mapper beans to isolate the controller’s logic. By controlling the outputs of the service and
-      mapper methods, you can focus your tests on the controller's behavior and ensure that it processes requests and
-      responses correctly.
+   - Mock the service and mapper beans to isolate the controller’s logic. By controlling the outputs of the service and
+     mapper methods, you can focus your tests on the controller's behavior and ensure that it processes requests and
+     responses correctly.
 
 2. **Testing HTTP Methods**:
-    - Test different HTTP methods (e.g., GET, POST, PUT, DELETE) to ensure that the controller correctly processes
-      requests and returns the expected responses for each type of action.
+   - Test different HTTP methods (e.g., GET, POST, PUT, DELETE) to ensure that the controller correctly processes
+     requests and returns the expected responses for each type of action.
 
 3. **Argument Matchers**:
-    - When setting up mock interactions, use `ArgumentMatchers` like `any(Class.class)` to generalize the input
-      parameters, especially when you do not care about the specific value. Alternatively, use specific matchers like
-      `eq()` when you want to ensure that the method is called with exact values. Choosing the right matcher depends on
-      your test scenario. Understanding when to use each will make your tests more reliable.
+   - When setting up mock interactions, use `ArgumentMatchers` like `any(Class.class)` to generalize the input
+     parameters, especially when you do not care about the specific value. Alternatively, use specific matchers like
+     `eq()` when you want to ensure that the method is called with exact values. Choosing the right matcher depends on
+     your test scenario. Understanding when to use each will make your tests more reliable.
 
 4. **Validation of Responses**:
-    - Validate the status code, headers, and response body using methods like `andExpect()`. Ensure that the response
-      structure and content are what you expect. This step is crucial to verify that your API meets its contract.
+   - Validate the status code, headers, and response body using methods like `andExpect()`. Ensure that the response
+     structure and content are what you expect. This step is crucial to verify that your API meets its contract.
 
 5. **Use of `ResultActions`**:
-    - Capture the result of the `MockMvc` request using `ResultActions`. This allows you to chain further verifications
-      on
-      the response, ensuring that all aspects of the response are as expected.
+   - Capture the result of the `MockMvc` request using `ResultActions`. This allows you to chain further verifications
+     on the response, ensuring that all aspects of the response are as expected.
 
 ### Note:
 
@@ -3293,7 +3293,178 @@ in your application.
 
 ---
 
-## 14. Feedback and Contributions
+## 14. Appendix: Using `openapi-generator-maven-plugin` for API Client Generation
+
+**The configuration in this section is not part of the current project but is provided to share it with the community
+for educational purposes. You will not find it in the codebase, but you may find it useful if you need to generate 
+client code for an external API.**
+
+### Overview
+
+In many cases, when working with external APIs, the provider may supply an OpenAPI (Swagger) specification. Instead of
+manually creating models and client code, you can use the `openapi-generator-maven-plugin` to automate this process.
+This saves development time and ensures the API client and models are always in sync with the specification.
+
+### Why Use This Plugin?
+
+The `openapi-generator-maven-plugin` is particularly useful in scenarios such as:
+
+- **Integrating with Third-Party APIs**: You can generate client code automatically based on external API
+  specifications (Swagger).
+- **Maintaining Consistency**: When APIs change frequently, auto-generating code ensures that your models and API
+  clients remain consistent with the latest API definitions.
+- **Avoiding Manual Model Creation**: Instead of creating Java models for responses manually, you can generate them
+  directly from the Swagger spec.
+- **Time-Saving**: Automating the process of generating client code from API definitions saves time and effort when
+  integrating with complex or frequently changing APIs.
+
+### Benefits of Using OpenAPI Generator
+
+1. **Auto-Generated API Clients**: Automatically generate Java client code to call external APIs, avoiding the need to
+   manually code the clients.
+2. **Consistent Models**: Ensure consistency between the API models and the actual API by generating them from the spec.
+3. **Faster Development**: Automates the client code generation process, allowing you to quickly integrate with
+   third-party APIs.
+4. **Swagger Files for External API Calls**: When provided with a Swagger spec for an external API, you can generate the
+   client code and models instead of writing them by hand.
+
+**Note**: Most of the time I use it to check the APIs and to avoid implementing the Java objects they return.
+
+### How to Use `openapi-generator-maven-plugin`
+
+Although this is not part of the current project, here's an example of how you could configure the plugin to generate
+client code for external APIs:
+
+### Step 1: Add the Swagger Files
+
+Create a folder named swagger inside src/main/resources and place your OpenAPI specification files (in JSON or YAML
+format) inside.
+
+```
+├── src/
+│   ├── main/
+│   │   ├── java/
+│   │   └── resources/
+│   │       └── swagger/
+│   │           ├── department-api.json
+```
+
+### Step 2: Configure `pom.xml`
+
+Before adding new dependencies, check if you already have similar dependencies to avoid conflicts. Add the necessary
+properties and dependencies:
+
+```xml
+
+<properties>
+    <!-- other properties -->
+
+    <!-- Add the latest versions -->
+    <springdoc-openapi-starter-webmvc-ui.version>2.6.0</springdoc-openapi-starter-webmvc-ui.version>
+    <openapi-generator-maven-plugin.version>7.8.0</openapi-generator-maven-plugin.version>
+    <jackson-databind-nullable.version>0.2.6</jackson-databind-nullable.version>
+</properties>
+```
+
+Add the required dependencies:
+
+```xml
+
+<dependency>
+    <groupId>org.springdoc</groupId>
+    <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+    <version>${springdoc-openapi-starter-webmvc-ui.version}</version>
+</dependency>
+
+<dependency>
+<groupId>org.openapitools</groupId>
+<artifactId>jackson-databind-nullable</artifactId>
+<version>${jackson-databind-nullable.version}</version>
+</dependency>
+```
+
+### Step 3: Add the OpenAPI Generator Plugin
+
+```xml
+
+<plugin>
+    <groupId>org.openapitools</groupId>
+    <artifactId>openapi-generator-maven-plugin</artifactId>
+    <version>${openapi-generator-maven-plugin.version}</version>
+    <executions>
+        <!-- Generate Department API client code -->
+        <execution>
+            <id>department-api</id>
+            <goals>
+                <goal>generate</goal>
+            </goals>
+            <configuration>
+                <inputSpec>${project.basedir}/src/main/resources/swagger/department-api.json</inputSpec>
+                <generatorName>spring</generatorName>
+                <output>${project.build.directory}/gen-openapi/department</output>
+                <apiPackage>${project.groupId}.department.api</apiPackage>
+                <modelPackage>${project.groupId}.department.model</modelPackage>
+                <generateSupportingFiles>true</generateSupportingFiles>
+                <configOptions>
+                    <delegatePattern>true</delegatePattern>
+                    <interfaceOnly>true</interfaceOnly>
+                    <useSpringBoot3>true</useSpringBoot3>
+                    <cleanupOutput>true</cleanupOutput>
+                </configOptions>
+            </configuration>
+        </execution>
+
+        <!-- You can add more files here as a new execution. Just be sure to have different 'id' -->
+
+    </executions>
+</plugin>
+```
+
+### Step 4: Run Maven Command
+
+Run the following Maven command to generate the code based on the OpenAPI specifications.
+
+```shell
+mvn clean install
+```
+
+As soon as you run the above command, you will notice that some generated files have been
+created in the target folder. You will find inside there the ```APIs``` and the ```Models```.
+
+```
+├── target/
+│   └── gen-openapi/
+│       ├── department/
+```
+
+### Step 5: Generate Sources and Update Folders (if necessary)
+
+If after running `mvn clean install` you find that the generated models are not imported into your project, you may need
+to manually update the project sources. Follow these steps:
+
+1. Right-click on your project in your IntelliJ.
+2. Navigate to `Maven` → `Generate Sources and Update Folders`.
+
+This action triggers Maven to re-import the generated sources into your project. After completion, verify that the
+generated models are now accessible within your project structure.
+
+### Additional Configurations
+
+The `openapi-generator-maven-plugin` offers a variety of configurations to customize the generated code, such as
+generating different types of API clients, models, or server stubs. You can explore more configurations and options in
+the official plugin documentation
+found https://github.com/OpenAPITools/openapi-generator/tree/master/modules/openapi-generator-maven-plugin.
+
+### Summary
+
+Using tools like `openapi-generator-maven-plugin` can save time and effort when working with external APIs. It automates
+the creation of client code and models, ensuring that they are always consistent with the API spec, without manual
+intervention. Although not included in this guide's codebase, this is a useful technique for certain scenarios where you
+frequently call external services based on OpenAPI specifications.
+
+---
+
+## 15. Feedback and Contributions
 
 Feedback and contributions are welcome! If you have suggestions, improvements, or additional insights, please feel free
 to share. Together, we can make this a valuable resource for anyone learning Spring Boot 3.

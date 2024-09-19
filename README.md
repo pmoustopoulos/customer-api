@@ -163,7 +163,7 @@ running tests, and packaging the application. They are specified in the `<build>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <springdoc-openapi-starter-webmvc-ui.version>2.6.0</springdoc-openapi-starter-webmvc-ui.version>
-        <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
+        <org.mapstruct.version>1.6.2</org.mapstruct.version>
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
     </properties>
 

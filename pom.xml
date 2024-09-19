@@ -5,13 +5,13 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.2</version>
+        <version>3.3.3</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
     <groupId>com.ainigma100</groupId>
     <artifactId>customer-api</artifactId>
-    <version>3.3.3</version>
+    <version>0.0.1-SNAPSHOT</version>
     <name>customer-api</name>
     <description>customer-api</description>
 

@@ -688,7 +688,7 @@ This file contains general settings that apply to all environments. Here’s a b
 server:
   port: 8088
   servlet:
-    context-path: '/@project.artifactId@'
+    context-path: '/@project.name@'
   shutdown: graceful
 
 spring:
@@ -712,7 +712,7 @@ springdoc:
 
 openapi:
   output:
-    file: 'openapi-@project.artifactId@.json'
+    file: 'openapi-@project.name@.json'
 ```
 
 #### application-dev.yaml

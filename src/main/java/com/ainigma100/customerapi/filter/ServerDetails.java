@@ -24,13 +24,15 @@ public class ServerDetails {
 
     private static final Logger log = LoggerFactory.getLogger(ServerDetails.class);
 
-
     private final Environment environment;
     private static final String SERVER_SSL_KEY_STORE = "server.ssl.key-store";
     private static final String SERVER_PORT = "server.port";
     private static final String SERVER_SERVLET_CONTEXT_PATH = "server.servlet.context-path";
     private static final String SPRINGDOC_SWAGGER_UI_PATH = "springdoc.swagger-ui.path";
     private static final String DEFAULT_PROFILE = "default";
+    private static final String SPRING_H2_CONSOLE_ENABLED = "spring.h2.console.enabled";
+    private static final String SPRING_H2_CONSOLE_PATH = "spring.h2.console.path";
+    private static final String SPRING_DATASOURCE_DRIVER_CLASS_NAME = "spring.datasource.driver-class-name";
 
     @EventListener(ApplicationReadyEvent.class)
     public void logServerDetails() {
@@ -43,15 +45,18 @@ public class ServerDetails {
         String activeProfile = (activeProfiles.length > 0) ? String.join(",", activeProfiles) : DEFAULT_PROFILE;
         String swaggerUI = Optional.ofNullable(environment.getProperty(SPRINGDOC_SWAGGER_UI_PATH)).orElse("/swagger-ui/index.html");
 
+        // Get H2 Console URL if H2 is configured and the console is enabled
+        String h2ConsoleUrl = getH2ConsoleUrlIfEnabled(protocol, host, serverPort, contextPath);
+
         log.info(
                 """
                 
-                
                 Access Swagger UI URL: {}://{}:{}{}{}
-                Active Profile: {}
+                Active Profile: {}{}
                 """,
                 protocol, host, serverPort, contextPath, swaggerUI,
-                activeProfile
+                activeProfile,
+                h2ConsoleUrl
         );
     }
 
@@ -63,5 +68,28 @@ public class ServerDetails {
             return "unknown";
         }
     }
-}
 
+    private String getH2ConsoleUrlIfEnabled(String protocol, String host, String port, String contextPath) {
+
+        if (isH2DatabaseConfigured() && isH2ConsoleEnabled()) {
+            String h2ConsolePath = Optional.ofNullable(environment.getProperty(SPRING_H2_CONSOLE_PATH)).orElse("/h2-console");
+            return String.format("%nAccess H2 Console URL: %s://%s:%s%s%s", protocol, host, port, contextPath, h2ConsolePath);
+        }
+
+        return "";
+    }
+
+    private boolean isH2DatabaseConfigured() {
+        // Check if the driver class name is related to H2
+        String driverClassName = environment.getProperty(SPRING_DATASOURCE_DRIVER_CLASS_NAME);
+        return Optional.ofNullable(driverClassName)
+                .map(driver -> driver.equals("org.h2.Driver"))
+                .orElse(false);
+    }
+
+    private boolean isH2ConsoleEnabled() {
+        return Optional.ofNullable(environment.getProperty(SPRING_H2_CONSOLE_ENABLED))
+                .map(Boolean::parseBoolean)
+                .orElse(false);
+    }
+}

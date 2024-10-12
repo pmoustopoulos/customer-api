@@ -13,3 +13,6 @@ spring:
     generate-ddl: true
     hibernate:
       ddl-auto: update
+  h2:
+    console:
+      enabled: false

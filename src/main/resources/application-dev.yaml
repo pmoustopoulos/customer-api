@@ -15,4 +15,4 @@ spring:
       ddl-auto: update
   h2:
     console:
-      enabled: false
+      enabled: true

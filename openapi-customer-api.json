@@ -6,7 +6,7 @@
     "version" : "2.6.0"
   },
   "servers" : [ {
-    "url" : "http://127.0.0.1:8088/customer-api",
+    "url" : "http://192.168.1.7:8080/customer-api",
     "description" : "Generated server url"
   } ],
   "paths" : {
@@ -208,24 +208,34 @@
           "firstName" : {
             "maxLength" : 2147483647,
             "minLength" : 2,
-            "type" : "string"
+            "type" : "string",
+            "description" : "Customer's first name",
+            "example" : "John"
           },
           "lastName" : {
             "maxLength" : 2147483647,
             "minLength" : 2,
-            "type" : "string"
+            "type" : "string",
+            "description" : "Customer's last name",
+            "example" : "Wick"
           },
           "email" : {
-            "type" : "string"
+            "type" : "string",
+            "description" : "Customer's email address",
+            "example" : "jwick@tester.com"
           },
           "phoneNumber" : {
             "maxLength" : 10,
             "minLength" : 10,
-            "type" : "string"
+            "type" : "string",
+            "description" : "Customer's phone number, must be exactly 10 characters",
+            "example" : "6981234567"
           },
           "dateOfBirth" : {
             "type" : "string",
-            "format" : "date"
+            "description" : "Customer's date of birth in format YYYY-MM-DD. Must not be in the future and the customer should meet the minimum age requirement.",
+            "format" : "date",
+            "example" : "1989-01-02"
           }
         }
       },
@@ -345,26 +355,20 @@
             }
           },
           "results" : {
-            "$ref" : "#/components/schemas/PageCustomerDTO"
+            "$ref" : "#/components/schemas/PageObject"
           }
         }
       },
-      "PageCustomerDTO" : {
+      "PageObject" : {
         "type" : "object",
         "properties" : {
-          "totalPages" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
           "totalElements" : {
             "type" : "integer",
             "format" : "int64"
           },
-          "first" : {
-            "type" : "boolean"
-          },
-          "last" : {
-            "type" : "boolean"
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
           },
           "size" : {
             "type" : "integer",
@@ -386,12 +390,18 @@
               "$ref" : "#/components/schemas/SortObject"
             }
           },
-          "pageable" : {
-            "$ref" : "#/components/schemas/PageableObject"
+          "first" : {
+            "type" : "boolean"
+          },
+          "last" : {
+            "type" : "boolean"
           },
           "numberOfElements" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "pageable" : {
+            "$ref" : "#/components/schemas/PageableObject"
           },
           "empty" : {
             "type" : "boolean"
@@ -411,9 +421,6 @@
               "$ref" : "#/components/schemas/SortObject"
             }
           },
-          "unpaged" : {
-            "type" : "boolean"
-          },
           "paged" : {
             "type" : "boolean"
           },
@@ -424,6 +431,9 @@
           "pageSize" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "unpaged" : {
+            "type" : "boolean"
           }
         }
       },

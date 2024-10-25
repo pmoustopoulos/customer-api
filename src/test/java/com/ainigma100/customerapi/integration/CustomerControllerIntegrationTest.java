@@ -89,7 +89,7 @@ class CustomerControllerIntegrationTest extends AbstractContainerBaseTest {
                 .andExpect(jsonPath("$.results.firstName", is(customerRequestDTO.getFirstName())))
                 .andExpect(jsonPath("$.results.lastName", is(customerRequestDTO.getLastName())))
                 .andExpect(jsonPath("$.results.email", is(customerRequestDTO.getEmail())))
-                .andExpect(jsonPath("$.results.phoneNumber", is(customerRequestDTO.getPhoneNumber())))
+                .andExpect(jsonPath("$.results.phoneNumber", is("*******789")))
                 .andExpect(jsonPath("$.results.dateOfBirth", is(customerRequestDTO.getDateOfBirth().toString())));
     }
 
@@ -122,7 +122,7 @@ class CustomerControllerIntegrationTest extends AbstractContainerBaseTest {
                 .andExpect(jsonPath("$.results.firstName", is(customer.getFirstName())))
                 .andExpect(jsonPath("$.results.lastName", is(customer.getLastName())))
                 .andExpect(jsonPath("$.results.email", is(customer.getEmail())))
-                .andExpect(jsonPath("$.results.phoneNumber", is(customer.getPhoneNumber())))
+                .andExpect(jsonPath("$.results.phoneNumber", is("*******789")))
                 .andExpect(jsonPath("$.results.dateOfBirth", is(customer.getDateOfBirth().toString())));
     }
 
@@ -164,7 +164,7 @@ class CustomerControllerIntegrationTest extends AbstractContainerBaseTest {
                 .andExpect(jsonPath("$.results.firstName", is(customerRequestDTO.getFirstName())))
                 .andExpect(jsonPath("$.results.lastName", is(customerRequestDTO.getLastName())))
                 .andExpect(jsonPath("$.results.email", is(customerRequestDTO.getEmail())))
-                .andExpect(jsonPath("$.results.phoneNumber", is(customerRequestDTO.getPhoneNumber())))
+                .andExpect(jsonPath("$.results.phoneNumber", is("*******444")))
                 .andExpect(jsonPath("$.results.dateOfBirth", is(customerRequestDTO.getDateOfBirth().toString())));
     }
 
@@ -201,7 +201,7 @@ class CustomerControllerIntegrationTest extends AbstractContainerBaseTest {
                 .andExpect(jsonPath("$.results.firstName", is("John")))
                 .andExpect(jsonPath("$.results.lastName", is("Wick")))
                 .andExpect(jsonPath("$.results.email", is("loco@gmail.com")))
-                .andExpect(jsonPath("$.results.phoneNumber", is("0123456789")))
+                .andExpect(jsonPath("$.results.phoneNumber", is("*******789")))
                 .andExpect(jsonPath("$.results.dateOfBirth", is(LocalDate.now().minusYears(18).toString())));
     }
 
@@ -276,7 +276,7 @@ class CustomerControllerIntegrationTest extends AbstractContainerBaseTest {
                 .andExpect(jsonPath("$.results.content[0].firstName", is(customer2.getFirstName())))
                 .andExpect(jsonPath("$.results.content[0].lastName", is(customer2.getLastName())))
                 .andExpect(jsonPath("$.results.content[0].email", is(customer2.getEmail())))
-                .andExpect(jsonPath("$.results.content[0].phoneNumber", is(customer2.getPhoneNumber())));
+                .andExpect(jsonPath("$.results.content[0].phoneNumber", is("*******881")));
     }
 
 }

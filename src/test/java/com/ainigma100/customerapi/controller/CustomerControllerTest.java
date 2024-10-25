@@ -108,7 +108,7 @@ class CustomerControllerTest {
                 .andExpect(jsonPath("$.results.firstName", is("John")))
                 .andExpect(jsonPath("$.results.lastName", is("Wick")))
                 .andExpect(jsonPath("$.results.email", is("jwick@tester.com")))
-                .andExpect(jsonPath("$.results.phoneNumber", is("0123456789")))
+                .andExpect(jsonPath("$.results.phoneNumber", is("*******789")))
                 .andExpect(jsonPath("$.results.dateOfBirth", is(LocalDate.now().minusYears(18).toString())));
     }
 
@@ -134,7 +134,7 @@ class CustomerControllerTest {
                 .andExpect(jsonPath("$.results.firstName", is("John")))
                 .andExpect(jsonPath("$.results.lastName", is("Wick")))
                 .andExpect(jsonPath("$.results.email", is("jwick@tester.com")))
-                .andExpect(jsonPath("$.results.phoneNumber", is("0123456789")))
+                .andExpect(jsonPath("$.results.phoneNumber", is("*******789")))
                 .andExpect(jsonPath("$.results.dateOfBirth", is(LocalDate.now().minusYears(18).toString())));
     }
 
@@ -164,7 +164,7 @@ class CustomerControllerTest {
                 .andExpect(jsonPath("$.results.firstName", is("John")))
                 .andExpect(jsonPath("$.results.lastName", is("Wick")))
                 .andExpect(jsonPath("$.results.email", is("jwick@tester.com")))
-                .andExpect(jsonPath("$.results.phoneNumber", is("0123456789")))
+                .andExpect(jsonPath("$.results.phoneNumber", is("*******789")))
                 .andExpect(jsonPath("$.results.dateOfBirth", is(LocalDate.now().minusYears(18).toString())));
     }
 
@@ -196,7 +196,7 @@ class CustomerControllerTest {
                 .andExpect(jsonPath("$.results.firstName", is("John")))
                 .andExpect(jsonPath("$.results.lastName", is("Wick")))
                 .andExpect(jsonPath("$.results.email", is("loco@gmail.com")))
-                .andExpect(jsonPath("$.results.phoneNumber", is("0123456789")))
+                .andExpect(jsonPath("$.results.phoneNumber", is("*******789")))
                 .andExpect(jsonPath("$.results.dateOfBirth", is(LocalDate.now().minusYears(18).toString())));
     }
 
@@ -246,7 +246,7 @@ class CustomerControllerTest {
                 .andExpect(jsonPath("$.results.content[0].firstName", is(customerDTOList.get(0).getFirstName())))
                 .andExpect(jsonPath("$.results.content[0].lastName", is(customerDTOList.get(0).getLastName())))
                 .andExpect(jsonPath("$.results.content[0].email", is(customerDTOList.get(0).getEmail())))
-                .andExpect(jsonPath("$.results.content[0].phoneNumber", is(customerDTOList.get(0).getPhoneNumber())));
+                .andExpect(jsonPath("$.results.content[0].phoneNumber", is("*******789")));
     }
 
 }

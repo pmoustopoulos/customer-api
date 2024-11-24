@@ -3,8 +3,8 @@ package com.ainigma100.customerapi.config;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
-import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -29,11 +29,6 @@ import java.util.Optional;
  */
 @Slf4j
 @Configuration
-@OpenAPIDefinition(info = @Info(
-        title = "${springdoc.title}",
-        version = "${springdoc.version}",
-        description = "Documentation ${spring.application.name} v1.0"
-))
 public class OpenApiConfig {
 
 
@@ -51,6 +46,29 @@ public class OpenApiConfig {
 
     private static final String SERVER_SSL_KEY_STORE = "server.ssl.key-store";
     private static final String SERVER_SERVLET_CONTEXT_PATH = "server.servlet.context-path";
+
+    @Bean
+    public OpenAPI customOpenAPI() {
+
+        String documentationVersion = environment.getProperty("springdoc.version", "1.0");
+        String appTitle = environment.getProperty("springdoc.title", "API Documentation");
+
+
+        String[] activeProfiles = environment.getActiveProfiles();
+        String profileInfo = activeProfiles.length > 0
+                ? String.join(", ", activeProfiles).toUpperCase()
+                : "DEFAULT";
+
+        String description = String.format("Active profile: %s", profileInfo);
+
+        return new OpenAPI()
+                .info(new Info()
+                        .title(appTitle)
+                        .version(documentationVersion)
+                        .description(description));
+    }
+
+
 
     @Bean
     public CommandLineRunner generateOpenApiJson() {

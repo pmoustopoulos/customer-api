@@ -3,10 +3,10 @@
   "info" : {
     "title" : "Customer API",
     "description" : "Documentation customer-api v1.0",
-    "version" : "2.6.0"
+    "version" : "2.7.0"
   },
   "servers" : [ {
-    "url" : "http://192.168.1.7:8080/customer-api",
+    "url" : "http://192.168.1.63:8088/customer-api",
     "description" : "Generated server url"
   } ],
   "paths" : {
@@ -370,6 +370,12 @@
             "type" : "integer",
             "format" : "int32"
           },
+          "first" : {
+            "type" : "boolean"
+          },
+          "last" : {
+            "type" : "boolean"
+          },
           "size" : {
             "type" : "integer",
             "format" : "int32"
@@ -385,16 +391,7 @@
             "format" : "int32"
           },
           "sort" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/SortObject"
-            }
-          },
-          "first" : {
-            "type" : "boolean"
-          },
-          "last" : {
-            "type" : "boolean"
+            "$ref" : "#/components/schemas/SortObject"
           },
           "numberOfElements" : {
             "type" : "integer",
@@ -416,10 +413,10 @@
             "format" : "int64"
           },
           "sort" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/SortObject"
-            }
+            "$ref" : "#/components/schemas/SortObject"
+          },
+          "unpaged" : {
+            "type" : "boolean"
           },
           "paged" : {
             "type" : "boolean"
@@ -431,28 +428,19 @@
           "pageSize" : {
             "type" : "integer",
             "format" : "int32"
-          },
-          "unpaged" : {
-            "type" : "boolean"
           }
         }
       },
       "SortObject" : {
         "type" : "object",
         "properties" : {
-          "direction" : {
-            "type" : "string"
-          },
-          "nullHandling" : {
-            "type" : "string"
-          },
-          "ascending" : {
+          "empty" : {
             "type" : "boolean"
           },
-          "property" : {
-            "type" : "string"
+          "unsorted" : {
+            "type" : "boolean"
           },
-          "ignoreCase" : {
+          "sorted" : {
             "type" : "boolean"
           }
         }

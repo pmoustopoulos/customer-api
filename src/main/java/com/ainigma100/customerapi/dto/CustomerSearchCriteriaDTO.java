@@ -22,6 +22,7 @@ public class CustomerSearchCriteriaDTO {
     private String phoneNumber;
     private LocalDate dateOfBirth;
 
+    @Schema(example = "0")
     @NotNull(message = "page cannot be null")
     @PositiveOrZero(message = "page must be a zero or a positive number")
     private Integer page;

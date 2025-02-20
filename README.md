@@ -26,12 +26,12 @@ Spring Boot 3.
 7. [Naming Conventions](#7-naming-conventions)
 8. [Configuring `application.yaml`](#8-configuring-applicationyaml)
 9. [Detailed Package Breakdown](#9-detailed-package-breakdown)
-   - [Entity Layer](#entity-layer)
-   - [Repository Layer](#repository-layer)
-   - [Service Layer](#service-layer)
-   - [DTOs and MapStruct](#dtos-and-mapstruct)
-   - [Controller Layer](#controller-layer)
-   - [Exception Handling](#exception-handling)
+    - [Entity Layer](#entity-layer)
+    - [Repository Layer](#repository-layer)
+    - [Service Layer](#service-layer)
+    - [DTOs and MapStruct](#dtos-and-mapstruct)
+    - [Controller Layer](#controller-layer)
+    - [Exception Handling](#exception-handling)
 10. [Helper Classes](#10-helper-classes)
 11. [Testing](#11-testing)
 12. [Best Practices](#12-best-practices)
@@ -144,106 +144,160 @@ running tests, and packaging the application. They are specified in the `<build>
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.4.2</version>
+    <relativePath/> <!-- lookup parent from repository -->
+  </parent>
+
+  <groupId>com.ainigma100</groupId>
+  <artifactId>customer-api</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>customer-api</name>
+  <description>customer-api</description>
+
+  <properties>
+    <java.version>21</java.version>
+    <springdoc-openapi-starter-webmvc-ui.version>2.8.4</springdoc-openapi-starter-webmvc-ui.version>
+    <org.mapstruct.version>1.6.3</org.mapstruct.version>
+    <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
+  </properties>
+
+  <dependencies>
+
+    <!-- Spring Boot Starter for Web -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+
+    <!-- Spring Boot Starter for JPA -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-jpa</artifactId>
+    </dependency>
+
+    <!-- Spring Boot Starter for Actuator -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+
+    <!-- Spring Boot Starter for Validation -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-validation</artifactId>
+    </dependency>
+
+    <!-- H2 Database for Development -->
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+
+    <!-- Lombok for Reducing Boilerplate Code -->
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <!-- MapStruct for DTO Mapping -->
+    <dependency>
+      <groupId>org.mapstruct</groupId>
+      <artifactId>mapstruct</artifactId>
+      <version>${org.mapstruct.version}</version>
+    </dependency>
+
+    <!-- SpringDoc OpenAPI for API Documentation -->
+    <dependency>
+      <groupId>org.springdoc</groupId>
+      <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+      <version>${springdoc-openapi-starter-webmvc-ui.version}</version>
+    </dependency>
+
+    <!-- Spring Boot Starter for Testing -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+
+    <!-- Test Containers -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-testcontainers</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>postgresql</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <!-- This connector will be used by the testcontainers -->
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <finalName>${project.artifactId}-v${project.version}</finalName>
+    <plugins>
+      <!-- Spring Boot Maven Plugin -->
+      <plugin>
         <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.0</version>
-        <relativePath/> <!-- lookup parent from repository -->
-    </parent>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+            </exclude>
+          </excludes>
+        </configuration>
+      </plugin>
 
-    <groupId>com.ainigma100</groupId>
-    <artifactId>customer-api</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>customer-api</name>
-    <description>customer-api</description>
+      <!-- Maven Compiler Plugin -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>${java.version}</source>
+          <target>${java.version}</target>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.mapstruct</groupId>
+              <artifactId>mapstruct-processor</artifactId>
+              <version>${org.mapstruct.version}</version>
+            </path>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>${lombok.version}</version>
+            </path>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok-mapstruct-binding</artifactId>
+              <version>${lombok-mapstruct-binding.version}</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
-    <properties>
-        <java.version>21</java.version>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
-        <springdoc-openapi-starter-webmvc-ui.version>2.7.0</springdoc-openapi-starter-webmvc-ui.version>
-        <org.mapstruct.version>1.6.2</org.mapstruct.version>
-        <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
-    </properties>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-validation</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct</artifactId>
-            <version>${org.mapstruct.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>${springdoc-openapi-starter-webmvc-ui.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven-compiler-plugin.version}</version>
-                <configuration>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.mapstruct</groupId>
-                            <artifactId>mapstruct-processor</artifactId>
-                            <version>${org.mapstruct.version}</version>
-                        </path>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </path>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok-mapstruct-binding</artifactId>
-                            <version>${lombok-mapstruct-binding.version}</version>
-                        </path>
-                    </annotationProcessorPaths>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>
 ```
 
@@ -707,12 +761,11 @@ spring:
 springdoc:
   swagger-ui:
     path: /ui
-  title: 'Customer API'
+  title: 'Customer API - v@project.version@'
   version: '@springdoc-openapi-starter-webmvc-ui.version@'
-
 openapi:
   output:
-    file: 'openapi-@project.name@.json'
+    file: 'openapi-@project.name@_v@project.version@.json'
 ```
 
 #### application-dev.yaml
@@ -1137,8 +1190,6 @@ package com.ainigma100.customerapi.service.impl;
 import com.ainigma100.customerapi.dto.CustomerDTO;
 import com.ainigma100.customerapi.dto.CustomerEmailUpdateDTO;
 import com.ainigma100.customerapi.entity.Customer;
-import com.ainigma100.customerapi.exception.ResourceAlreadyExistException;
-import com.ainigma100.customerapi.exception.ResourceNotFoundException;
 import com.ainigma100.customerapi.mapper.CustomerMapper;
 import com.ainigma100.customerapi.repository.CustomerRepository;
 import com.ainigma100.customerapi.service.CustomerService;
@@ -1159,7 +1210,7 @@ public class CustomerServiceImpl implements CustomerService {
 
         customerRepository.findByEmail(customerDTO.getEmail())
                 .ifPresent(customer -> {
-                    throw new ResourceAlreadyExistException("Customer", "email", customerDTO.getEmail());
+                    throw new EntityExistsException("Customer", "email", customerDTO.getEmail());
                 });
 
         Customer recordToBeSaved = customerMapper.customerDTOToCustomer(customerDTO);
@@ -1173,7 +1224,7 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerDTO getCustomerById(Long id) {
 
         Customer recordFromDB = customerRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Customer", "id", id));
+                .orElseThrow(() -> new EntityNotFoundException("Customer", "id", id));
 
         return customerMapper.toCustomerDTO(recordFromDB);
     }
@@ -1182,7 +1233,7 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerDTO updateCustomer(Long id, CustomerDTO customerDTO) {
 
         Customer recordFromDB = customerRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Customer", "id", id));
+                .orElseThrow(() -> new EntityNotFoundException("Customer", "id", id));
 
         // just to be safe that the object does not have another id
         customerDTO.setId(recordFromDB.getId());
@@ -1198,7 +1249,7 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerDTO updateCustomerEmail(Long id, CustomerEmailUpdateDTO emailUpdateDTO) {
 
         Customer recordFromDB = customerRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Customer", "id", id));
+                .orElseThrow(() -> new EntityNotFoundException("Customer", "id", id));
 
         recordFromDB.setEmail(emailUpdateDTO.getEmail());
 
@@ -1212,7 +1263,7 @@ public class CustomerServiceImpl implements CustomerService {
     public void deleteCustomer(Long id) {
 
         Customer recordFromDB = customerRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Customer", "id", id));
+                .orElseThrow(() -> new EntityNotFoundException("Customer", "id", id));
 
         customerRepository.delete(recordFromDB);
     }
@@ -1489,8 +1540,14 @@ public class CustomerController {
 In a Spring Boot application, it's important to handle exceptions in a way that provides meaningful feedback to the
 client while maintaining a clean and maintainable codebase. In addition, you have to be sure not to expose sensitive
 data.
+
 The `GlobalExceptionHandler` class in this project serves this purpose by centralizing exception handling and ensuring
 consistent error responses across the entire application.
+
+The class has a private method, `isProduction()`, that checks active Spring profiles to determine if the application is
+running in production mode. In production, detailed exception messages are hidden from clients, and a generic error
+message is returned instead. However, the original exception details are logged for internal use, enhancing security by
+preventing exposure of sensitive information.
 
 #### Global Exception Handler
 
@@ -1502,9 +1559,9 @@ ensuring that the application responds with appropriate HTTP status codes and er
 
 - **Runtime Exceptions**: Handles general runtime exceptions, such as `NullPointerException` and `RuntimeException`,
   returning a 500 Internal Server Error response.
-- **Resource Not Found**: Manages `ResourceNotFoundException`, returning a 404 Not Found status with a relevant error
+- **Resource Not Found**: Manages `EntityNotFoundException`, returning a 404 Not Found status with a relevant error
   message.
-- **Business Logic and Data Exceptions**: Handles custom exceptions like `ResourceAlreadyExistException`, and
+- **Business Logic and Data Exceptions**: Handles custom exceptions like `EntityExistsException`, and
   `DataAccessException`, providing a 400 Bad Request response.
 - **Validation Exceptions**: Manages exceptions related to validation, such as `MethodArgumentNotValidException` and
   `ConstraintViolationException`, returning detailed validation error messages.
@@ -1515,11 +1572,9 @@ ensuring that the application responds with appropriate HTTP status codes and er
 
 #### Custom Exceptions
 
-The application also defines several custom exceptions to manage specific error scenarios:
+The application also defines a custom exception to manage specific error scenarios:
 
 - **`BusinessLogicException`**: Thrown when a business rule is violated.
-- **`ResourceAlreadyExistException`**: Used when an attempt is made to create a resource that already exists.
-- **`ResourceNotFoundException`**: Thrown when a requested resource is not found in the database.
 
 These custom exceptions extend `RuntimeException` and are annotated with `@ResponseStatus` to map them to specific HTTP
 status codes.
@@ -1548,10 +1603,13 @@ package com.ainigma100.customerapi.exception;
 import com.ainigma100.customerapi.dto.APIResponse;
 import com.ainigma100.customerapi.dto.ErrorDTO;
 import com.ainigma100.customerapi.enums.Status;
+import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataAccessException;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -1566,10 +1624,23 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Slf4j
 @ControllerAdvice
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
+
+    private final Environment environment;
+
+    /**
+     * Checks if the application is running in production mode.
+     * Returns true if the active profile is 'prod' or 'production'.
+     */
+    private boolean isProduction() {
+        return Stream.of(environment.getActiveProfiles())
+                .anyMatch(profile -> profile.equalsIgnoreCase("prod") || profile.equalsIgnoreCase("production"));
+    }
 
 
     @ExceptionHandler({RuntimeException.class, NullPointerException.class})
@@ -1577,37 +1648,13 @@ public class GlobalExceptionHandler {
 
         APIResponse<ErrorDTO> response = new APIResponse<>();
         response.setStatus(Status.FAILED.getValue());
-        response.setErrors(Collections.singletonList(new ErrorDTO("", "An internal server error occurred")));
+
+        String errorMessage = isProduction() ? "An internal server error occurred" : exception.getMessage();
+        response.setErrors(Collections.singletonList(new ErrorDTO("", errorMessage)));
 
         log.error("RuntimeException or NullPointerException occurred {}", exception.getMessage());
 
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-
-    @ExceptionHandler({ResourceNotFoundException.class})
-    public ResponseEntity<Object> handleResourceNotFoundExceptions(ResourceNotFoundException exception) {
-
-        APIResponse<ErrorDTO> response = new APIResponse<>();
-        response.setStatus(Status.FAILED.getValue());
-        response.setErrors(Collections.singletonList(new ErrorDTO("", "The requested resource was not found")));
-
-        log.error("ResourceNotFoundException occurred {}", exception.getMessage());
-
-        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-    }
-
-
-    @ExceptionHandler({ResourceAlreadyExistException.class, DataAccessException.class})
-    public ResponseEntity<Object> handleOtherExceptions(Exception exception) {
-
-        APIResponse<ErrorDTO> response = new APIResponse<>();
-        response.setStatus(Status.FAILED.getValue());
-        response.setErrors(Collections.singletonList(new ErrorDTO("", "An error occurred while processing your request")));
-
-        log.error("ResourceAlreadyExistException or DataAccessException occurred {}", exception.getMessage());
-
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
 
@@ -1635,19 +1682,18 @@ public class GlobalExceptionHandler {
 
             ex.getBindingResult().getAllErrors().forEach(error -> {
                 String fieldName = ((FieldError) error).getField();
-                String errorMessage = error.getDefaultMessage();
+                String errorMessage = isProduction() ? "Invalid input value" : error.getDefaultMessage();
                 errors.add(new ErrorDTO(fieldName, errorMessage));
             });
 
         } else if (exception instanceof MissingServletRequestParameterException ex) {
 
-            String parameterName = ex.getParameterName();
-            errors.add(new ErrorDTO("", "Required parameter is missing: " + parameterName));
+            String errorMessage = isProduction() ? "Required parameter is missing" : "Missing parameter: " + ex.getParameterName();
+            errors.add(new ErrorDTO("", errorMessage));
 
         } else if (exception instanceof MissingPathVariableException ex) {
-
-            String variableName = ex.getVariableName();
-            errors.add(new ErrorDTO("", "Missing path variable: " + variableName));
+            String errorMessage = isProduction() ? "Missing path variable" : "Missing path variable: " + ex.getVariableName();
+            errors.add(new ErrorDTO("", errorMessage));
         }
 
         log.error("Validation errors: {}", errors);
@@ -1676,7 +1722,8 @@ public class GlobalExceptionHandler {
         List<ErrorDTO> errors = new ArrayList<>();
 
         for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
-            errors.add(new ErrorDTO(violation.getPropertyPath().toString(), violation.getMessage()));
+            errors.add(new ErrorDTO(violation.getPropertyPath().toString(),
+                    isProduction() ? "Invalid input data" : violation.getMessage()));
         }
 
         APIResponse<ErrorDTO> response = new APIResponse<>();
@@ -1688,6 +1735,34 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<Object> handleEntityNotFoundExceptions(EntityNotFoundException exception) {
+
+        APIResponse<ErrorDTO> response = new APIResponse<>();
+        response.setStatus(Status.FAILED.getValue());
+
+        String errorMessage = isProduction() ? "The requested resource was not found" : exception.getMessage();
+        response.setErrors(Collections.singletonList(new ErrorDTO("", errorMessage)));
+
+        log.error("EntityNotFoundException occurred {}", exception.getMessage());
+
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(EntityExistsException.class)
+    public ResponseEntity<APIResponse<ErrorDTO>> handleEntityExistsException(EntityExistsException exception) {
+
+        APIResponse<ErrorDTO> response = new APIResponse<>();
+        response.setStatus(Status.FAILED.getValue());
+
+        String errorMessage = isProduction() ? "The entity already exists" : exception.getMessage();
+        response.setErrors(Collections.singletonList(new ErrorDTO("", errorMessage)));
+
+        log.error("EntityExistsException occurred: {}", exception.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
 
 }
 ```
@@ -1754,103 +1829,102 @@ import java.util.Optional;
 public class OpenApiConfig {
 
 
-  private final Environment environment;
+    private final Environment environment;
 
-  public OpenApiConfig(Environment environment) {
-    this.environment = environment;
-  }
-
-  @Value("${server.port:8080}")
-  private int serverPort;
-
-  @Value("${openapi.output.file}")
-  private String outputFileName;
-
-  private static final String SERVER_SSL_KEY_STORE = "server.ssl.key-store";
-  private static final String SERVER_SERVLET_CONTEXT_PATH = "server.servlet.context-path";
-
-  @Bean
-  public OpenAPI customOpenAPI() {
-
-    String documentationVersion = environment.getProperty("springdoc.version", "1.0");
-    String appTitle = environment.getProperty("springdoc.title", "API Documentation");
-
-
-    String[] activeProfiles = environment.getActiveProfiles();
-    String profileInfo = activeProfiles.length > 0
-            ? String.join(", ", activeProfiles).toUpperCase()
-            : "DEFAULT";
-
-    String description = String.format("Active profile: %s", profileInfo);
-
-    return new OpenAPI()
-            .info(new Info()
-                    .title(appTitle)
-                    .version(documentationVersion)
-                    .description(description));
-  }
-
-
-
-  @Bean
-  public CommandLineRunner generateOpenApiJson() {
-    return args -> {
-      String protocol = Optional.ofNullable(environment.getProperty(SERVER_SSL_KEY_STORE)).map(key -> "https").orElse("http");
-      String host = getServerIP();
-      String contextPath = Optional.ofNullable(environment.getProperty(SERVER_SERVLET_CONTEXT_PATH)).orElse("");
-
-      // Define the API docs URL
-      String apiDocsUrl = String.format("%s://%s:%d%s/v3/api-docs", protocol, host, serverPort, contextPath);
-
-      log.info("Attempting to fetch OpenAPI docs from URL: {}", apiDocsUrl);
-
-      try {
-        // Create RestClient instance
-        RestClient restClient = RestClient.create();
-
-        // Fetch the OpenAPI JSON
-        String response = restClient.get()
-                .uri(apiDocsUrl)
-                .retrieve()
-                .body(String.class);
-
-        // Format and save the JSON to a file
-        formatAndSaveToFile(response, outputFileName);
-
-        log.info("OpenAPI documentation generated successfully at {}", outputFileName);
-
-      } catch (Exception e) {
-        log.error("Failed to generate OpenAPI documentation from URL: {}", apiDocsUrl, e);
-      }
-    };
-  }
-
-  private String getServerIP() {
-    try {
-      return InetAddress.getLocalHost().getHostAddress();
-    } catch (UnknownHostException e) {
-      log.error("Error resolving host address", e);
-      return "unknown";
+    public OpenApiConfig(Environment environment) {
+        this.environment = environment;
     }
-  }
 
-  private void formatAndSaveToFile(String content, String fileName) {
-    try {
-      ObjectMapper objectMapper = new ObjectMapper();
+    @Value("${server.port:8080}")
+    private int serverPort;
 
-      // Enable pretty-print
-      objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+    @Value("${openapi.output.file}")
+    private String outputFileName;
 
-      // Read the JSON content as a JsonNode
-      JsonNode jsonNode = objectMapper.readTree(content);
+    private static final String SERVER_SSL_KEY_STORE = "server.ssl.key-store";
+    private static final String SERVER_SERVLET_CONTEXT_PATH = "server.servlet.context-path";
 
-      // Write the formatted JSON to a file
-      objectMapper.writeValue(new File(fileName), jsonNode);
+    @Bean
+    public OpenAPI customOpenAPI() {
 
-    } catch (IOException e) {
-      log.error("Error while saving JSON to file", e);
+        String documentationVersion = environment.getProperty("springdoc.version", "1.0");
+        String appTitle = environment.getProperty("springdoc.title", "API Documentation");
+
+
+        String[] activeProfiles = environment.getActiveProfiles();
+        String profileInfo = activeProfiles.length > 0
+                ? String.join(", ", activeProfiles).toUpperCase()
+                : "DEFAULT";
+
+        String description = String.format("Active profile: %s", profileInfo);
+
+        return new OpenAPI()
+                .info(new Info()
+                        .title(appTitle)
+                        .version(documentationVersion)
+                        .description(description));
     }
-  }
+
+
+    @Bean
+    public CommandLineRunner generateOpenApiJson() {
+        return args -> {
+            String protocol = Optional.ofNullable(environment.getProperty(SERVER_SSL_KEY_STORE)).map(key -> "https").orElse("http");
+            String host = getServerIP();
+            String contextPath = Optional.ofNullable(environment.getProperty(SERVER_SERVLET_CONTEXT_PATH)).orElse("");
+
+            // Define the API docs URL
+            String apiDocsUrl = String.format("%s://%s:%d%s/v3/api-docs", protocol, host, serverPort, contextPath);
+
+            log.info("Attempting to fetch OpenAPI docs from URL: {}", apiDocsUrl);
+
+            try {
+                // Create RestClient instance
+                RestClient restClient = RestClient.create();
+
+                // Fetch the OpenAPI JSON
+                String response = restClient.get()
+                        .uri(apiDocsUrl)
+                        .retrieve()
+                        .body(String.class);
+
+                // Format and save the JSON to a file
+                formatAndSaveToFile(response, outputFileName);
+
+                log.info("OpenAPI documentation generated successfully at {}", outputFileName);
+
+            } catch (Exception e) {
+                log.error("Failed to generate OpenAPI documentation from URL: {}", apiDocsUrl, e);
+            }
+        };
+    }
+
+    private String getServerIP() {
+        try {
+            return InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            log.error("Error resolving host address", e);
+            return "unknown";
+        }
+    }
+
+    private void formatAndSaveToFile(String content, String fileName) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            // Enable pretty-print
+            objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+
+            // Read the JSON content as a JsonNode
+            JsonNode jsonNode = objectMapper.readTree(content);
+
+            // Write the formatted JSON to a file
+            objectMapper.writeValue(new File(fileName), jsonNode);
+
+        } catch (IOException e) {
+            log.error("Error while saving JSON to file", e);
+        }
+    }
 }
 ```
 
@@ -1999,59 +2073,49 @@ context path, and active profiles. It also provides the URL for accessing the Sw
   <summary>View ServerDetails code</summary>
 
 ```java
-package com.ainigma100.customerapi.filter;
-
-import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
-import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Component;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Optional;
-
+/**
+ * Component for logging server details upon application startup.
+ *
+ * <p>This class listens for the ApplicationReadyEvent to log important server details such as
+ * the protocol, host, port, context path, active profiles, and the URL for accessing Swagger UI.</p>
+ */
 @AllArgsConstructor
 @Component
 public class ServerDetails {
 
   private static final Logger log = LoggerFactory.getLogger(ServerDetails.class);
 
+
   private final Environment environment;
-  private static final String SERVER_SSL_KEY_STORE = "server.ssl.key-store";
-  private static final String SERVER_PORT = "server.port";
-  private static final String SERVER_SERVLET_CONTEXT_PATH = "server.servlet.context-path";
-  private static final String SPRINGDOC_SWAGGER_UI_PATH = "springdoc.swagger-ui.path";
-  private static final String DEFAULT_PROFILE = "default";
-  private static final String SPRING_H2_CONSOLE_ENABLED = "spring.h2.console.enabled";
-  private static final String SPRING_H2_CONSOLE_PATH = "spring.h2.console.path";
-  private static final String SPRING_DATASOURCE_DRIVER_CLASS_NAME = "spring.datasource.driver-class-name";
+
 
   @EventListener(ApplicationReadyEvent.class)
   public void logServerDetails() {
 
-    String protocol = Optional.ofNullable(environment.getProperty(SERVER_SSL_KEY_STORE)).map(key -> "https").orElse("http");
-    String host = getServerIP();
-    String serverPort = Optional.ofNullable(environment.getProperty(SERVER_PORT)).orElse("8080");
-    String contextPath = Optional.ofNullable(environment.getProperty(SERVER_SERVLET_CONTEXT_PATH)).orElse("");
-    String[] activeProfiles = Optional.of(environment.getActiveProfiles()).orElse(new String[0]);
-    String activeProfile = (activeProfiles.length > 0) ? String.join(",", activeProfiles) : DEFAULT_PROFILE;
-    String swaggerUI = Optional.ofNullable(environment.getProperty(SPRINGDOC_SWAGGER_UI_PATH)).orElse("/swagger-ui/index.html");
+    String serverSslKeyStore = "server.ssl.key-store";
+    String serverPortKey = "server.port";
+    String serverServletContextPath = "server.servlet.context-path";
+    String springdocSwaggerUiPath = "springdoc.swagger-ui.path";
+    String defaultProfile = "default";
 
-    // Get H2 Console URL if H2 is configured and the console is enabled
-    String h2ConsoleUrl = getH2ConsoleUrlIfEnabled(protocol, host, serverPort, contextPath);
+
+    String protocol = Optional.ofNullable(environment.getProperty(serverSslKeyStore)).map(key -> "https").orElse("http");
+    String host = getServerIP();
+    String serverPort = Optional.ofNullable(environment.getProperty(serverPortKey)).orElse("8080");
+    String contextPath = Optional.ofNullable(environment.getProperty(serverServletContextPath)).orElse("");
+    String[] activeProfiles = Optional.of(environment.getActiveProfiles()).orElse(new String[0]);
+    String activeProfile = (activeProfiles.length > 0) ? String.join(",", activeProfiles) : defaultProfile;
+    String swaggerUI = Optional.ofNullable(environment.getProperty(springdocSwaggerUiPath)).orElse("/swagger-ui/index.html");
 
     log.info(
             """
                     
+                    
                     Access Swagger UI URL: {}://{}:{}{}{}
-                    Active Profile: {}{}
+                    Active Profile: {}
                     """,
             protocol, host, serverPort, contextPath, swaggerUI,
-            activeProfile,
-            h2ConsoleUrl
+            activeProfile
     );
   }
 
@@ -2062,30 +2126,6 @@ public class ServerDetails {
       log.error("Error resolving host address", e);
       return "unknown";
     }
-  }
-
-  private String getH2ConsoleUrlIfEnabled(String protocol, String host, String port, String contextPath) {
-
-    if (isH2DatabaseConfigured() && isH2ConsoleEnabled()) {
-      String h2ConsolePath = Optional.ofNullable(environment.getProperty(SPRING_H2_CONSOLE_PATH)).orElse("/h2-console");
-      return String.format("%nAccess H2 Console URL: %s://%s:%s%s%s", protocol, host, port, contextPath, h2ConsolePath);
-    }
-
-    return "";
-  }
-
-  private boolean isH2DatabaseConfigured() {
-    // Check if the driver class name is related to H2
-    String driverClassName = environment.getProperty(SPRING_DATASOURCE_DRIVER_CLASS_NAME);
-    return Optional.ofNullable(driverClassName)
-            .map(driver -> driver.equals("org.h2.Driver"))
-            .orElse(false);
-  }
-
-  private boolean isH2ConsoleEnabled() {
-    return Optional.ofNullable(environment.getProperty(SPRING_H2_CONSOLE_ENABLED))
-            .map(Boolean::parseBoolean)
-            .orElse(false);
   }
 }
 ```
@@ -2299,8 +2339,6 @@ package com.ainigma100.customerapi.service.impl;
 import com.ainigma100.customerapi.dto.CustomerDTO;
 import com.ainigma100.customerapi.dto.CustomerEmailUpdateDTO;
 import com.ainigma100.customerapi.entity.Customer;
-import com.ainigma100.customerapi.exception.ResourceAlreadyExistException;
-import com.ainigma100.customerapi.exception.ResourceNotFoundException;
 import com.ainigma100.customerapi.mapper.CustomerMapper;
 import com.ainigma100.customerapi.repository.CustomerRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -2396,16 +2434,16 @@ class CustomerServiceImplTest {
     }
 
     @Test
-    @DisplayName("Test creating a customer with existing email throws ResourceAlreadyExistException")
-    void givenExistingEmail_whenCreateCustomer_thenThrowResourceAlreadyExistException() {
+    @DisplayName("Test creating a customer with existing email throws EntityExistsException")
+    void givenExistingEmail_whenCreateCustomer_thenThrowEntityExistsException() {
 
         // given - precondition or setup
         String email = customerDTO.getEmail();
         given(customerRepository.findByEmail(email)).willReturn(Optional.of(customer));
 
-        // when/then - verify that the ResourceAlreadyExistException is thrown
+        // when/then - verify that the EntityExistsException is thrown
         assertThatThrownBy(() -> customerService.createCustomer(customerDTO))
-                .isInstanceOf(ResourceAlreadyExistException.class)
+                .isInstanceOf(EntityExistsException.class)
                 .hasMessageContaining("Resource Customer with email : '" + email + "' already exist");
 
 
@@ -2443,16 +2481,16 @@ class CustomerServiceImplTest {
 
 
     @Test
-    @DisplayName("Test retrieving a customer by invalid ID throws ResourceNotFoundException")
-    void givenInvalidId_whenGetCustomerById_thenThrowResourceNotFoundException() {
+    @DisplayName("Test retrieving a customer by invalid ID throws EntityNotFoundException")
+    void givenInvalidId_whenGetCustomerById_thenThrowEntityNotFoundException() {
 
         // given - precondition or setup
         Long id = 100L;
         given(customerRepository.findById(id)).willReturn(Optional.empty());
 
-        // when/then - verify that the ResourceNotFoundException is thrown
+        // when/then - verify that the EntityNotFoundException is thrown
         assertThatThrownBy(() -> customerService.getCustomerById(id))
-                .isInstanceOf(ResourceNotFoundException.class)
+                .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("Customer with id : '" + id + "' not found");
 
 
@@ -2491,16 +2529,16 @@ class CustomerServiceImplTest {
     }
 
     @Test
-    @DisplayName("Test updating a customer by invalid ID throws ResourceNotFoundException")
-    void givenInvalidIdAndCustomerDTO_whenUpdateCustomer_thenThrowResourceNotFoundException() {
+    @DisplayName("Test updating a customer by invalid ID throws EntityNotFoundException")
+    void givenInvalidIdAndCustomerDTO_whenUpdateCustomer_thenThrowEntityNotFoundException() {
 
         // given - precondition or setup
         Long id = 100L;
         given(customerRepository.findById(id)).willReturn(Optional.empty());
 
-        // when/then - verify that the ResourceNotFoundException is thrown
+        // when/then - verify that the EntityNotFoundException is thrown
         assertThatThrownBy(() -> customerService.updateCustomer(id, customerDTO))
-                .isInstanceOf(ResourceNotFoundException.class)
+                .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("Customer with id : '" + id + "' not found");
 
 
@@ -2542,8 +2580,8 @@ class CustomerServiceImplTest {
     }
 
     @Test
-    @DisplayName("Test updating a customer's email by invalid ID throws ResourceNotFoundException")
-    void givenInvalidIdAndCustomerEmailUpdateDTO_whenUpdateCustomerEmail_thenThrowResourceNotFoundException() {
+    @DisplayName("Test updating a customer's email by invalid ID throws EntityNotFoundException")
+    void givenInvalidIdAndCustomerEmailUpdateDTO_whenUpdateCustomerEmail_thenThrowEntityNotFoundException() {
 
         // given - precondition or setup
         Long id = 100L;
@@ -2553,9 +2591,9 @@ class CustomerServiceImplTest {
 
         given(customerRepository.findById(id)).willReturn(Optional.empty());
 
-        // when/then - verify that the ResourceNotFoundException is thrown
+        // when/then - verify that the EntityNotFoundException is thrown
         assertThatThrownBy(() -> customerService.updateCustomerEmail(id, customerEmailUpdateDTO))
-                .isInstanceOf(ResourceNotFoundException.class)
+                .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("Customer with id : '" + id + "' not found");
 
 
@@ -2585,16 +2623,16 @@ class CustomerServiceImplTest {
     }
 
     @Test
-    @DisplayName("Test deleting a customer by invalid ID throws ResourceNotFoundException")
-    void givenInvalidId_whenDeleteCustomer_thenThrowResourceNotFoundException() {
+    @DisplayName("Test deleting a customer by invalid ID throws EntityNotFoundException")
+    void givenInvalidId_whenDeleteCustomer_thenThrowEntityNotFoundException() {
 
         // given - precondition or setup
         Long id = 1L;
         given(customerRepository.findById(id)).willReturn(Optional.empty());
 
-        // when/then - verify that the ResourceNotFoundException is thrown
+        // when/then - verify that the EntityNotFoundException is thrown
         assertThatThrownBy(() -> customerService.deleteCustomer(id))
-                .isInstanceOf(ResourceNotFoundException.class)
+                .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("Customer with id : '" + id + "' not found");
 
         verify(customerRepository, times(1)).findById(id);
@@ -2621,7 +2659,7 @@ its dependencies, such as services and mappers.
   configures Spring’s testing support for MVC applications but does not load the full application context, making tests
   faster and more focused.
 
-- **`@MockBean`**: This annotation is used to create and inject mock instances of the service layer or other
+- **`MockitoBean`**: This annotation is used to create and inject mock instances of the service layer or other
   dependencies that the controller interacts with. Mocking these dependencies ensures that the test focuses solely on
   the behavior of the controller without involving actual business logic or database interactions.
 
@@ -2633,27 +2671,27 @@ its dependencies, such as services and mappers.
 ### Key Points:
 
 1. **Mocking Service and Mapper**:
-   - Mock the service and mapper beans to isolate the controller’s logic. By controlling the outputs of the service and
-     mapper methods, you can focus your tests on the controller's behavior and ensure that it processes requests and
-     responses correctly.
+    - Mock the service and mapper beans to isolate the controller’s logic. By controlling the outputs of the service and
+      mapper methods, you can focus your tests on the controller's behavior and ensure that it processes requests and
+      responses correctly.
 
 2. **Testing HTTP Methods**:
-   - Test different HTTP methods (e.g., GET, POST, PUT, DELETE) to ensure that the controller correctly processes
-     requests and returns the expected responses for each type of action.
+    - Test different HTTP methods (e.g., GET, POST, PUT, DELETE) to ensure that the controller correctly processes
+      requests and returns the expected responses for each type of action.
 
 3. **Argument Matchers**:
-   - When setting up mock interactions, use `ArgumentMatchers` like `any(Class.class)` to generalize the input
-     parameters, especially when you do not care about the specific value. Alternatively, use specific matchers like
-     `eq()` when you want to ensure that the method is called with exact values. Choosing the right matcher depends on
-     your test scenario. Understanding when to use each will make your tests more reliable.
+    - When setting up mock interactions, use `ArgumentMatchers` like `any(Class.class)` to generalize the input
+      parameters, especially when you do not care about the specific value. Alternatively, use specific matchers like
+      `eq()` when you want to ensure that the method is called with exact values. Choosing the right matcher depends on
+      your test scenario. Understanding when to use each will make your tests more reliable.
 
 4. **Validation of Responses**:
-   - Validate the status code, headers, and response body using methods like `andExpect()`. Ensure that the response
-     structure and content are what you expect. This step is crucial to verify that your API meets its contract.
+    - Validate the status code, headers, and response body using methods like `andExpect()`. Ensure that the response
+      structure and content are what you expect. This step is crucial to verify that your API meets its contract.
 
 5. **Use of `ResultActions`**:
-   - Capture the result of the `MockMvc` request using `ResultActions`. This allows you to chain further verifications
-     on the response, ensuring that all aspects of the response are as expected.
+    - Capture the result of the `MockMvc` request using `ResultActions`. This allows you to chain further verifications
+      on the response, ensuring that all aspects of the response are as expected.
 
 ### Note:
 
@@ -2670,6 +2708,7 @@ package com.ainigma100.customerapi.controller;
 import com.ainigma100.customerapi.dto.CustomerDTO;
 import com.ainigma100.customerapi.dto.CustomerEmailUpdateDTO;
 import com.ainigma100.customerapi.dto.CustomerRequestDTO;
+import com.ainigma100.customerapi.dto.CustomerSearchCriteriaDTO;
 import com.ainigma100.customerapi.enums.Status;
 import com.ainigma100.customerapi.mapper.CustomerMapper;
 import com.ainigma100.customerapi.service.CustomerService;
@@ -2678,12 +2717,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
@@ -2708,14 +2751,15 @@ class CustomerControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private CustomerService customerService;
 
-    @MockBean
+    @MockitoBean
     private CustomerMapper customerMapper;
 
     private CustomerRequestDTO customerRequestDTO;
     private CustomerDTO customerDTO;
+    private CustomerSearchCriteriaDTO customerSearchCriteriaDTO;
 
     @BeforeEach
     void setUp() {
@@ -2735,6 +2779,11 @@ class CustomerControllerTest {
         customerDTO.setEmail("jwick@tester.com");
         customerDTO.setPhoneNumber("0123456789");
         customerDTO.setDateOfBirth(LocalDate.now().minusYears(18));
+
+
+        customerSearchCriteriaDTO = new CustomerSearchCriteriaDTO();
+        customerSearchCriteriaDTO.setPage(0);
+        customerSearchCriteriaDTO.setSize(10);
 
     }
 
@@ -2764,7 +2813,7 @@ class CustomerControllerTest {
                 .andExpect(jsonPath("$.results.firstName", is("John")))
                 .andExpect(jsonPath("$.results.lastName", is("Wick")))
                 .andExpect(jsonPath("$.results.email", is("jwick@tester.com")))
-                .andExpect(jsonPath("$.results.phoneNumber", is("0123456789")))
+                .andExpect(jsonPath("$.results.phoneNumber", is("*******789")))
                 .andExpect(jsonPath("$.results.dateOfBirth", is(LocalDate.now().minusYears(18).toString())));
     }
 
@@ -2790,7 +2839,7 @@ class CustomerControllerTest {
                 .andExpect(jsonPath("$.results.firstName", is("John")))
                 .andExpect(jsonPath("$.results.lastName", is("Wick")))
                 .andExpect(jsonPath("$.results.email", is("jwick@tester.com")))
-                .andExpect(jsonPath("$.results.phoneNumber", is("0123456789")))
+                .andExpect(jsonPath("$.results.phoneNumber", is("*******789")))
                 .andExpect(jsonPath("$.results.dateOfBirth", is(LocalDate.now().minusYears(18).toString())));
     }
 
@@ -2820,7 +2869,7 @@ class CustomerControllerTest {
                 .andExpect(jsonPath("$.results.firstName", is("John")))
                 .andExpect(jsonPath("$.results.lastName", is("Wick")))
                 .andExpect(jsonPath("$.results.email", is("jwick@tester.com")))
-                .andExpect(jsonPath("$.results.phoneNumber", is("0123456789")))
+                .andExpect(jsonPath("$.results.phoneNumber", is("*******789")))
                 .andExpect(jsonPath("$.results.dateOfBirth", is(LocalDate.now().minusYears(18).toString())));
     }
 
@@ -2852,7 +2901,7 @@ class CustomerControllerTest {
                 .andExpect(jsonPath("$.results.firstName", is("John")))
                 .andExpect(jsonPath("$.results.lastName", is("Wick")))
                 .andExpect(jsonPath("$.results.email", is("loco@gmail.com")))
-                .andExpect(jsonPath("$.results.phoneNumber", is("0123456789")))
+                .andExpect(jsonPath("$.results.phoneNumber", is("*******789")))
                 .andExpect(jsonPath("$.results.dateOfBirth", is(LocalDate.now().minusYears(18).toString())));
     }
 
@@ -2876,6 +2925,34 @@ class CustomerControllerTest {
                 .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())));
     }
 
+
+    @Test
+    void givenCustomerSearchCriteriaDTO_whenGetAllCustomersUsingPagination_thenReturnCustomerDTOPage() throws Exception {
+
+        // given - precondition or setup
+        List<CustomerDTO> customerDTOList = Collections.singletonList(customerDTO);
+        Page<CustomerDTO> customerDTOPage = new PageImpl<>(customerDTOList);
+        given(customerService.getAllCustomersUsingPagination(any(CustomerSearchCriteriaDTO.class)))
+                .willReturn(customerDTOPage);
+
+        // when - action or behaviour that we are going to test
+        ResultActions response = mockMvc.perform(post("/api/v1/customers/search")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(customerSearchCriteriaDTO)));
+
+        // then - verify the output
+        response.andDo(print())
+                // verify the status code that is returned
+                .andExpect(status().isOk())
+                // verify the actual returned value and the expected value
+                // $ - root member of a JSON structure whether it is an object or array
+                .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())))
+                .andExpect(jsonPath("$.results.content.size()", is(customerDTOList.size())))
+                .andExpect(jsonPath("$.results.content[0].firstName", is(customerDTOList.get(0).getFirstName())))
+                .andExpect(jsonPath("$.results.content[0].lastName", is(customerDTOList.get(0).getLastName())))
+                .andExpect(jsonPath("$.results.content[0].email", is(customerDTOList.get(0).getEmail())))
+                .andExpect(jsonPath("$.results.content[0].phoneNumber", is("*******789")));
+    }
 
 }
 ```
@@ -3351,7 +3428,7 @@ in your application.
 ## 14. Appendix: Using `openapi-generator-maven-plugin` for API Client Generation
 
 **The configuration in this section is not part of the current project but is provided to share it with the community
-for educational purposes. You will not find it in the codebase, but you may find it useful if you need to generate 
+for educational purposes. You will not find it in the codebase, but you may find it useful if you need to generate
 client code for an external API.**
 
 ### Overview
@@ -3415,7 +3492,7 @@ properties and dependencies:
     <!-- other properties -->
 
     <!-- Add the latest versions -->
-    <springdoc-openapi-starter-webmvc-ui.version>2.7.0</springdoc-openapi-starter-webmvc-ui.version>
+    <springdoc-openapi-starter-webmvc-ui.version>2.8.4</springdoc-openapi-starter-webmvc-ui.version>
     <openapi-generator-maven-plugin.version>7.8.0</openapi-generator-maven-plugin.version>
     <jackson-databind-nullable.version>0.2.6</jackson-databind-nullable.version>
 </properties>

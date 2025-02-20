@@ -5,11 +5,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.web.client.RestClient;
 
@@ -27,6 +29,7 @@ import java.util.Optional;
  * JSON file based on the application's REST endpoints. The generated JSON file is then
  * stored in the root directory of the project for easy access and reference.</p>
  */
+@RequiredArgsConstructor
 @Slf4j
 @Configuration
 public class OpenApiConfig {
@@ -34,32 +37,32 @@ public class OpenApiConfig {
 
     private final Environment environment;
 
-    public OpenApiConfig(Environment environment) {
-        this.environment = environment;
-    }
 
     @Value("${server.port:8080}")
     private int serverPort;
 
-    @Value("${openapi.output.file}")
+    @Value("${openapi.output.file:openapi-default.json}")
     private String outputFileName;
 
-    private static final String SERVER_SSL_KEY_STORE = "server.ssl.key-store";
-    private static final String SERVER_SERVLET_CONTEXT_PATH = "server.servlet.context-path";
+    @Value("${spring.application.name:@project.name@}")
+    private String appName;
+
+    @Value("${springdoc.version:1.0}")
+    private String documentationVersion;
+
+    @Value("${springdoc.title:API Documentation}")
+    private String appTitle;
+
 
     @Bean
     public OpenAPI customOpenAPI() {
-
-        String documentationVersion = environment.getProperty("springdoc.version", "1.0");
-        String appTitle = environment.getProperty("springdoc.title", "API Documentation");
-
 
         String[] activeProfiles = environment.getActiveProfiles();
         String profileInfo = activeProfiles.length > 0
                 ? String.join(", ", activeProfiles).toUpperCase()
                 : "DEFAULT";
 
-        String description = String.format("Active profile: %s", profileInfo);
+        String description = String.format("Active profile: <b>%s</b>", profileInfo);
 
         return new OpenAPI()
                 .info(new Info()
@@ -69,13 +72,18 @@ public class OpenApiConfig {
     }
 
 
-
     @Bean
+    @Profile("!test")
     public CommandLineRunner generateOpenApiJson() {
+
+        String serverSslKeyStore = "server.ssl.key-store";
+        String serverServletContextPath = "server.servlet.context-path";
+
+
         return args -> {
-            String protocol = Optional.ofNullable(environment.getProperty(SERVER_SSL_KEY_STORE)).map(key -> "https").orElse("http");
+            String protocol = Optional.ofNullable(environment.getProperty(serverSslKeyStore)).map(key -> "https").orElse("http");
             String host = getServerIP();
-            String contextPath = Optional.ofNullable(environment.getProperty(SERVER_SERVLET_CONTEXT_PATH)).orElse("");
+            String contextPath = Optional.ofNullable(environment.getProperty(serverServletContextPath)).orElse("");
 
             // Define the API docs URL
             String apiDocsUrl = String.format("%s://%s:%d%s/v3/api-docs", protocol, host, serverPort, contextPath);
@@ -91,6 +99,9 @@ public class OpenApiConfig {
                         .uri(apiDocsUrl)
                         .retrieve()
                         .body(String.class);
+
+                // Delete all previous Swagger files in the root directory before saving the new one
+                deletePreviousSwaggerFiles();
 
                 // Format and save the JSON to a file
                 formatAndSaveToFile(response, outputFileName);
@@ -129,4 +140,19 @@ public class OpenApiConfig {
             log.error("Error while saving JSON to file", e);
         }
     }
+
+    private void deletePreviousSwaggerFiles() {
+
+        File rootDir = new File(System.getProperty("user.dir"));
+        File[] swaggerFiles = rootDir.listFiles((dir, name) -> name.startsWith("openapi-") && name.endsWith(".json"));
+
+        if (swaggerFiles != null) {
+            for (File file : swaggerFiles) {
+                if (file.getName().contains(appName) && file.delete()) {
+                    log.info("Deleted old OpenAPI file: {}", file.getName());
+                }
+            }
+        }
+    }
+
 }

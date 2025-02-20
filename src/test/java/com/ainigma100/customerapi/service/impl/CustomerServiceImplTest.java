@@ -4,10 +4,10 @@ import com.ainigma100.customerapi.dto.CustomerDTO;
 import com.ainigma100.customerapi.dto.CustomerEmailUpdateDTO;
 import com.ainigma100.customerapi.dto.CustomerSearchCriteriaDTO;
 import com.ainigma100.customerapi.entity.Customer;
-import com.ainigma100.customerapi.exception.ResourceAlreadyExistException;
-import com.ainigma100.customerapi.exception.ResourceNotFoundException;
 import com.ainigma100.customerapi.mapper.CustomerMapper;
 import com.ainigma100.customerapi.repository.CustomerRepository;
+import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -112,17 +112,17 @@ class CustomerServiceImplTest {
     }
 
     @Test
-    @DisplayName("Test creating a customer with existing email throws ResourceAlreadyExistException")
-    void givenExistingEmail_whenCreateCustomer_thenThrowResourceAlreadyExistException() {
+    @DisplayName("Test creating a customer with existing email throws EntityExistsException")
+    void givenExistingEmail_whenCreateCustomer_thenThrowEntityExistsException() {
 
         // given - precondition or setup
         String email = customerDTO.getEmail();
         given(customerRepository.findByEmail(email)).willReturn(Optional.of(customer));
 
-        // when/then - verify that the ResourceAlreadyExistException is thrown
+        // when/then - verify that the EntityExistsException is thrown
         assertThatThrownBy(() -> customerService.createCustomer(customerDTO))
-                .isInstanceOf(ResourceAlreadyExistException.class)
-                .hasMessageContaining("Resource Customer with email : '" + email + "' already exist");
+                .isInstanceOf(EntityExistsException.class)
+                .hasMessageContaining("A customer with email '" + customerDTO.getEmail() + "' already exists");
 
 
         verify(customerRepository, times(1)).findByEmail(customerDTO.getEmail());
@@ -159,16 +159,16 @@ class CustomerServiceImplTest {
 
 
     @Test
-    @DisplayName("Test retrieving a customer by invalid ID throws ResourceNotFoundException")
-    void givenInvalidId_whenGetCustomerById_thenThrowResourceNotFoundException() {
+    @DisplayName("Test retrieving a customer by invalid ID throws EntityNotFoundException")
+    void givenInvalidId_whenGetCustomerById_thenThrowEntityNotFoundException() {
 
         // given - precondition or setup
         Long id = 100L;
         given(customerRepository.findById(id)).willReturn(Optional.empty());
 
-        // when/then - verify that the ResourceNotFoundException is thrown
+        // when/then - verify that the EntityNotFoundException is thrown
         assertThatThrownBy(() -> customerService.getCustomerById(id))
-                .isInstanceOf(ResourceNotFoundException.class)
+                .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("Customer with id : '" + id + "' not found");
 
 
@@ -207,16 +207,16 @@ class CustomerServiceImplTest {
     }
 
     @Test
-    @DisplayName("Test updating a customer by invalid ID throws ResourceNotFoundException")
-    void givenInvalidIdAndCustomerDTO_whenUpdateCustomer_thenThrowResourceNotFoundException() {
+    @DisplayName("Test updating a customer by invalid ID throws EntityNotFoundException")
+    void givenInvalidIdAndCustomerDTO_whenUpdateCustomer_thenThrowEntityNotFoundException() {
 
         // given - precondition or setup
         Long id = 100L;
         given(customerRepository.findById(id)).willReturn(Optional.empty());
 
-        // when/then - verify that the ResourceNotFoundException is thrown
+        // when/then - verify that the EntityNotFoundException is thrown
         assertThatThrownBy(() -> customerService.updateCustomer(id, customerDTO))
-                .isInstanceOf(ResourceNotFoundException.class)
+                .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("Customer with id : '" + id + "' not found");
 
 
@@ -258,8 +258,8 @@ class CustomerServiceImplTest {
     }
 
     @Test
-    @DisplayName("Test updating a customer's email by invalid ID throws ResourceNotFoundException")
-    void givenInvalidIdAndCustomerEmailUpdateDTO_whenUpdateCustomerEmail_thenThrowResourceNotFoundException() {
+    @DisplayName("Test updating a customer's email by invalid ID throws EntityNotFoundException")
+    void givenInvalidIdAndCustomerEmailUpdateDTO_whenUpdateCustomerEmail_thenThrowEntityNotFoundException() {
 
         // given - precondition or setup
         Long id = 100L;
@@ -269,9 +269,9 @@ class CustomerServiceImplTest {
 
         given(customerRepository.findById(id)).willReturn(Optional.empty());
 
-        // when/then - verify that the ResourceNotFoundException is thrown
+        // when/then - verify that the EntityNotFoundException is thrown
         assertThatThrownBy(() -> customerService.updateCustomerEmail(id, customerEmailUpdateDTO))
-                .isInstanceOf(ResourceNotFoundException.class)
+                .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("Customer with id : '" + id + "' not found");
 
 
@@ -301,16 +301,16 @@ class CustomerServiceImplTest {
     }
 
     @Test
-    @DisplayName("Test deleting a customer by invalid ID throws ResourceNotFoundException")
-    void givenInvalidId_whenDeleteCustomer_thenThrowResourceNotFoundException() {
+    @DisplayName("Test deleting a customer by invalid ID throws EntityNotFoundException")
+    void givenInvalidId_whenDeleteCustomer_thenThrowEntityNotFoundException() {
 
         // given - precondition or setup
         Long id = 1L;
         given(customerRepository.findById(id)).willReturn(Optional.empty());
 
-        // when/then - verify that the ResourceNotFoundException is thrown
+        // when/then - verify that the EntityNotFoundException is thrown
         assertThatThrownBy(() -> customerService.deleteCustomer(id))
-                .isInstanceOf(ResourceNotFoundException.class)
+                .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("Customer with id : '" + id + "' not found");
 
         verify(customerRepository, times(1)).findById(id);

@@ -4,14 +4,14 @@ import com.ainigma100.customerapi.dto.CustomerDTO;
 import com.ainigma100.customerapi.dto.CustomerEmailUpdateDTO;
 import com.ainigma100.customerapi.dto.CustomerSearchCriteriaDTO;
 import com.ainigma100.customerapi.entity.Customer;
-import com.ainigma100.customerapi.exception.ResourceAlreadyExistException;
-import com.ainigma100.customerapi.exception.ResourceNotFoundException;
 import com.ainigma100.customerapi.mapper.CustomerMapper;
 import com.ainigma100.customerapi.repository.CustomerRepository;
 import com.ainigma100.customerapi.service.CustomerService;
 import com.ainigma100.customerapi.utils.SortItem;
 import com.ainigma100.customerapi.utils.Utils;
 import com.ainigma100.customerapi.utils.annotation.ExecutionTime;
+import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -36,7 +36,7 @@ public class CustomerServiceImpl implements CustomerService {
 
         customerRepository.findByEmail(customerDTO.getEmail())
                 .ifPresent(customer -> {
-                    throw new ResourceAlreadyExistException("Customer", "email", customerDTO.getEmail());
+                    throw new EntityExistsException("A customer with email '" + customerDTO.getEmail() + "' already exists");
                 });
 
         Customer recordToBeSaved = customerMapper.customerDTOToCustomer(customerDTO);
@@ -52,7 +52,7 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerDTO getCustomerById(Long id) {
 
         Customer recordFromDB = customerRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Customer", "id", id));
+                .orElseThrow(() -> new EntityNotFoundException("Customer with id : '" + id + "' not found"));
 
         return customerMapper.customerToCustomerDTO(recordFromDB);
     }
@@ -63,7 +63,7 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerDTO updateCustomer(Long id, CustomerDTO customerDTO) {
 
         Customer recordFromDB = customerRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Customer", "id", id));
+                .orElseThrow(() -> new EntityNotFoundException("Customer with id : '" + id + "' not found"));
 
         // just to be safe that the object does not have another id
         customerDTO.setId(recordFromDB.getId());
@@ -80,7 +80,7 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerDTO updateCustomerEmail(Long id, CustomerEmailUpdateDTO emailUpdateDTO) {
 
         Customer recordFromDB = customerRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Customer", "id", id));
+                .orElseThrow(() -> new EntityNotFoundException("Customer with id : '" + id + "' not found"));
 
         recordFromDB.setEmail(emailUpdateDTO.getEmail());
 
@@ -96,7 +96,7 @@ public class CustomerServiceImpl implements CustomerService {
     public void deleteCustomer(Long id) {
 
         Customer recordFromDB = customerRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Customer", "id", id));
+                .orElseThrow(() -> new EntityNotFoundException("Customer with id : '" + id + "' not found"));
 
         customerRepository.delete(recordFromDB);
     }

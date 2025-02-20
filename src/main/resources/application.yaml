@@ -20,8 +20,8 @@ spring:
 springdoc:
   swagger-ui:
     path: /ui
-  title: 'Customer API'
+  title: 'Customer API - v@project.version@'
   version: '@springdoc-openapi-starter-webmvc-ui.version@'
 openapi:
   output:
-    file: 'openapi-@project.name@.json'
+    file: 'openapi-@project.name@_v@project.version@.json'

@@ -154,7 +154,7 @@ running tests, and packaging the application. They are specified in the `<build>
 
   <groupId>com.ainigma100</groupId>
   <artifactId>customer-api</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.0.0</version> <!-- TODO: Update this when you develop new version -->
   <name>customer-api</name>
   <description>customer-api</description>
 

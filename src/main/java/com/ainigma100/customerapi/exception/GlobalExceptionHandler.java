@@ -63,7 +63,9 @@ public class GlobalExceptionHandler {
 
         APIResponse<ErrorDTO> response = new APIResponse<>();
         response.setStatus(Status.FAILED.getValue());
-        response.setErrors(Collections.singletonList(new ErrorDTO("", "The requested URL does not support this method")));
+
+        String errorMessage = isProduction() ? "Method not supported" : "The requested URL does not support this method";
+        response.setErrors(Collections.singletonList(new ErrorDTO("", errorMessage)));
 
         log.error("HttpRequestMethodNotSupportedException occurred {}", exception.getMessage());
 
@@ -108,7 +110,9 @@ public class GlobalExceptionHandler {
 
         APIResponse<ErrorDTO> response = new APIResponse<>();
         response.setStatus(Status.FAILED.getValue());
-        response.setErrors(Collections.singletonList(new ErrorDTO("", "Malformed JSON request")));
+
+        String errorMessage = isProduction() ? "Invalid request format" : "Malformed JSON request";
+        response.setErrors(Collections.singletonList(new ErrorDTO("", errorMessage)));
 
         log.error("Malformed JSON request: {}", ex.getMessage());
 

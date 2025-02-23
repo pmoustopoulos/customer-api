@@ -1631,138 +1631,142 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class GlobalExceptionHandler {
 
-    private final Environment environment;
+  private final Environment environment;
 
-    /**
-     * Checks if the application is running in production mode.
-     * Returns true if the active profile is 'prod' or 'production'.
-     */
-    private boolean isProduction() {
-        return Stream.of(environment.getActiveProfiles())
-                .anyMatch(profile -> profile.equalsIgnoreCase("prod") || profile.equalsIgnoreCase("production"));
+  /**
+   * Checks if the application is running in production mode.
+   * Returns true if the active profile is 'prod' or 'production'.
+   */
+  private boolean isProduction() {
+    return Stream.of(environment.getActiveProfiles())
+            .anyMatch(profile -> profile.equalsIgnoreCase("prod") || profile.equalsIgnoreCase("production"));
+  }
+
+
+  @ExceptionHandler({RuntimeException.class, NullPointerException.class})
+  public ResponseEntity<Object> handleRuntimeExceptions(RuntimeException exception) {
+
+    APIResponse<ErrorDTO> response = new APIResponse<>();
+    response.setStatus(Status.FAILED.getValue());
+
+    String errorMessage = isProduction() ? "An internal server error occurred" : exception.getMessage();
+    response.setErrors(Collections.singletonList(new ErrorDTO("", errorMessage)));
+
+    log.error("RuntimeException or NullPointerException occurred {}", exception.getMessage());
+
+    return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+
+  @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+  public ResponseEntity<Object> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException exception) {
+
+    APIResponse<ErrorDTO> response = new APIResponse<>();
+    response.setStatus(Status.FAILED.getValue());
+
+    String errorMessage = isProduction() ? "Method not supported" : "The requested URL does not support this method";
+    response.setErrors(Collections.singletonList(new ErrorDTO("", errorMessage)));
+
+    log.error("HttpRequestMethodNotSupportedException occurred {}", exception.getMessage());
+
+    return new ResponseEntity<>(response, HttpStatus.METHOD_NOT_ALLOWED);
+  }
+
+
+  @ExceptionHandler({MethodArgumentNotValidException.class, MissingServletRequestParameterException.class, MissingPathVariableException.class})
+  public ResponseEntity<Object> handleValidationExceptions(Exception exception) {
+
+    APIResponse<ErrorDTO> response = new APIResponse<>();
+    response.setStatus(Status.FAILED.getValue());
+
+    List<ErrorDTO> errors = new ArrayList<>();
+    if (exception instanceof MethodArgumentNotValidException ex) {
+
+      ex.getBindingResult().getAllErrors().forEach(error -> {
+        String fieldName = ((FieldError) error).getField();
+        String errorMessage = isProduction() ? "Invalid input value" : error.getDefaultMessage();
+        errors.add(new ErrorDTO(fieldName, errorMessage));
+      });
+
+    } else if (exception instanceof MissingServletRequestParameterException ex) {
+
+      String errorMessage = isProduction() ? "Required parameter is missing" : "Missing parameter: " + ex.getParameterName();
+      errors.add(new ErrorDTO("", errorMessage));
+
+    } else if (exception instanceof MissingPathVariableException ex) {
+      String errorMessage = isProduction() ? "Missing path variable" : "Missing path variable: " + ex.getVariableName();
+      errors.add(new ErrorDTO("", errorMessage));
     }
 
+    log.error("Validation errors: {}", errors);
 
-    @ExceptionHandler({RuntimeException.class, NullPointerException.class})
-    public ResponseEntity<Object> handleRuntimeExceptions(RuntimeException exception) {
+    response.setErrors(errors);
+    return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+  }
 
-        APIResponse<ErrorDTO> response = new APIResponse<>();
-        response.setStatus(Status.FAILED.getValue());
 
-        String errorMessage = isProduction() ? "An internal server error occurred" : exception.getMessage();
-        response.setErrors(Collections.singletonList(new ErrorDTO("", errorMessage)));
+  @ExceptionHandler(HttpMessageNotReadableException.class)
+  public ResponseEntity<APIResponse<ErrorDTO>> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
 
-        log.error("RuntimeException or NullPointerException occurred {}", exception.getMessage());
+    APIResponse<ErrorDTO> response = new APIResponse<>();
+    response.setStatus(Status.FAILED.getValue());
 
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    String errorMessage = isProduction() ? "Invalid request format" : "Malformed JSON request";
+    response.setErrors(Collections.singletonList(new ErrorDTO("", errorMessage)));
+
+    log.error("Malformed JSON request: {}", ex.getMessage());
+
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+  }
+
+
+  @ExceptionHandler(ConstraintViolationException.class)
+  public ResponseEntity<APIResponse<ErrorDTO>> handleConstraintViolationException(ConstraintViolationException ex) {
+
+    List<ErrorDTO> errors = new ArrayList<>();
+
+    for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
+      errors.add(new ErrorDTO(violation.getPropertyPath().toString(),
+              isProduction() ? "Invalid input data" : violation.getMessage()));
     }
 
+    APIResponse<ErrorDTO> response = new APIResponse<>();
+    response.setStatus(Status.FAILED.getValue());
+    response.setErrors(errors);
 
-    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<Object> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException exception) {
+    log.error("Constraint violation errors: {}", errors);
 
-        APIResponse<ErrorDTO> response = new APIResponse<>();
-        response.setStatus(Status.FAILED.getValue());
-        response.setErrors(Collections.singletonList(new ErrorDTO("", "The requested URL does not support this method")));
-
-        log.error("HttpRequestMethodNotSupportedException occurred {}", exception.getMessage());
-
-        return new ResponseEntity<>(response, HttpStatus.METHOD_NOT_ALLOWED);
-    }
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+  }
 
 
-    @ExceptionHandler({MethodArgumentNotValidException.class, MissingServletRequestParameterException.class, MissingPathVariableException.class})
-    public ResponseEntity<Object> handleValidationExceptions(Exception exception) {
+  @ExceptionHandler(EntityNotFoundException.class)
+  public ResponseEntity<Object> handleEntityNotFoundExceptions(EntityNotFoundException exception) {
 
-        APIResponse<ErrorDTO> response = new APIResponse<>();
-        response.setStatus(Status.FAILED.getValue());
+    APIResponse<ErrorDTO> response = new APIResponse<>();
+    response.setStatus(Status.FAILED.getValue());
 
-        List<ErrorDTO> errors = new ArrayList<>();
-        if (exception instanceof MethodArgumentNotValidException ex) {
+    String errorMessage = isProduction() ? "The requested resource was not found" : exception.getMessage();
+    response.setErrors(Collections.singletonList(new ErrorDTO("", errorMessage)));
 
-            ex.getBindingResult().getAllErrors().forEach(error -> {
-                String fieldName = ((FieldError) error).getField();
-                String errorMessage = isProduction() ? "Invalid input value" : error.getDefaultMessage();
-                errors.add(new ErrorDTO(fieldName, errorMessage));
-            });
+    log.error("EntityNotFoundException occurred {}", exception.getMessage());
 
-        } else if (exception instanceof MissingServletRequestParameterException ex) {
+    return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+  }
 
-            String errorMessage = isProduction() ? "Required parameter is missing" : "Missing parameter: " + ex.getParameterName();
-            errors.add(new ErrorDTO("", errorMessage));
+  @ExceptionHandler(EntityExistsException.class)
+  public ResponseEntity<APIResponse<ErrorDTO>> handleEntityExistsException(EntityExistsException exception) {
 
-        } else if (exception instanceof MissingPathVariableException ex) {
-            String errorMessage = isProduction() ? "Missing path variable" : "Missing path variable: " + ex.getVariableName();
-            errors.add(new ErrorDTO("", errorMessage));
-        }
+    APIResponse<ErrorDTO> response = new APIResponse<>();
+    response.setStatus(Status.FAILED.getValue());
 
-        log.error("Validation errors: {}", errors);
+    String errorMessage = isProduction() ? "The entity already exists" : exception.getMessage();
+    response.setErrors(Collections.singletonList(new ErrorDTO("", errorMessage)));
 
-        response.setErrors(errors);
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
+    log.error("EntityExistsException occurred: {}", exception.getMessage());
 
-
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<APIResponse<ErrorDTO>> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
-
-        APIResponse<ErrorDTO> response = new APIResponse<>();
-        response.setStatus(Status.FAILED.getValue());
-        response.setErrors(Collections.singletonList(new ErrorDTO("", "Malformed JSON request")));
-
-        log.error("Malformed JSON request: {}", ex.getMessage());
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-    }
-
-
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<APIResponse<ErrorDTO>> handleConstraintViolationException(ConstraintViolationException ex) {
-
-        List<ErrorDTO> errors = new ArrayList<>();
-
-        for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
-            errors.add(new ErrorDTO(violation.getPropertyPath().toString(),
-                    isProduction() ? "Invalid input data" : violation.getMessage()));
-        }
-
-        APIResponse<ErrorDTO> response = new APIResponse<>();
-        response.setStatus(Status.FAILED.getValue());
-        response.setErrors(errors);
-
-        log.error("Constraint violation errors: {}", errors);
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-    }
-
-
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<Object> handleEntityNotFoundExceptions(EntityNotFoundException exception) {
-
-        APIResponse<ErrorDTO> response = new APIResponse<>();
-        response.setStatus(Status.FAILED.getValue());
-
-        String errorMessage = isProduction() ? "The requested resource was not found" : exception.getMessage();
-        response.setErrors(Collections.singletonList(new ErrorDTO("", errorMessage)));
-
-        log.error("EntityNotFoundException occurred {}", exception.getMessage());
-
-        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(EntityExistsException.class)
-    public ResponseEntity<APIResponse<ErrorDTO>> handleEntityExistsException(EntityExistsException exception) {
-
-        APIResponse<ErrorDTO> response = new APIResponse<>();
-        response.setStatus(Status.FAILED.getValue());
-
-        String errorMessage = isProduction() ? "The entity already exists" : exception.getMessage();
-        response.setErrors(Collections.singletonList(new ErrorDTO("", errorMessage)));
-
-        log.error("EntityExistsException occurred: {}", exception.getMessage());
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-    }
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+  }
 
 }
 ```

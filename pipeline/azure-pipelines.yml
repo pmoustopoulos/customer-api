@@ -1,0 +1,15 @@
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    exclude:
+      - pipeline/*
+
+variables:
+  dockerRegistryServiceConnection: 'ServiceConnection-acrainigma100'
+  acrRepoName: 'acr-customer-api'
+#  deployPoolName: 'Default'
+
+stages:
+  - template: build-template.yml  # Reference to a separate build YAML file

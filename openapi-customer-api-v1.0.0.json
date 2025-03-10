@@ -1,0 +1,477 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "Customer API - v1.0.0",
+    "description" : "Active profile: <b>DEV</b>",
+    "version" : "2.8.4"
+  },
+  "servers" : [ {
+    "url" : "http://192.168.1.63:8088/customer-api",
+    "description" : "Generated server url"
+  } ],
+  "paths" : {
+    "/api/v1/customers/{id}" : {
+      "get" : {
+        "tags" : [ "customer-controller" ],
+        "summary" : "Find customer by ID",
+        "description" : "Returns a single customer",
+        "operationId" : "getCustomerById",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/APIResponseCustomerDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "customer-controller" ],
+        "summary" : "Update an existing customer",
+        "operationId" : "updateCustomer",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CustomerRequestDTO"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/APIResponseCustomerDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "customer-controller" ],
+        "summary" : "Delete a customer by ID",
+        "operationId" : "deleteCustomer",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/APIResponseString"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/customers" : {
+      "post" : {
+        "tags" : [ "customer-controller" ],
+        "summary" : "Add a new customer",
+        "operationId" : "createCustomer",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CustomerRequestDTO"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/APIResponseCustomerDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/customers/search" : {
+      "post" : {
+        "tags" : [ "customer-controller" ],
+        "summary" : "Search customers with pagination",
+        "description" : "Returns a paginated list of customers based on the search criteria",
+        "operationId" : "getAllCustomersUsingPagination",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CustomerSearchCriteriaDTO"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/APIResponsePageCustomerDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/customers/{id}/email" : {
+      "patch" : {
+        "tags" : [ "customer-controller" ],
+        "summary" : "Partially update a customer's email",
+        "operationId" : "updateCustomerEmail",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CustomerEmailUpdateDTO"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/APIResponseCustomerDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "CustomerRequestDTO" : {
+        "type" : "object",
+        "properties" : {
+          "firstName" : {
+            "type" : "string",
+            "description" : "Customer's first name",
+            "example" : "John",
+            "maxLength" : 2147483647,
+            "minLength" : 2
+          },
+          "lastName" : {
+            "type" : "string",
+            "description" : "Customer's last name",
+            "example" : "Wick",
+            "maxLength" : 2147483647,
+            "minLength" : 2
+          },
+          "email" : {
+            "type" : "string",
+            "description" : "Customer's email address",
+            "example" : "jwick@tester.com"
+          },
+          "phoneNumber" : {
+            "type" : "string",
+            "description" : "Customer's phone number, must be exactly 10 characters",
+            "example" : 6981234567,
+            "maxLength" : 10,
+            "minLength" : 10
+          },
+          "dateOfBirth" : {
+            "type" : "string",
+            "format" : "date",
+            "description" : "Customer's date of birth in format YYYY-MM-DD. Must not be in the future and the customer should meet the minimum age requirement.",
+            "example" : "1989-01-02"
+          }
+        },
+        "required" : [ "dateOfBirth", "email", "firstName", "lastName" ]
+      },
+      "APIResponseCustomerDTO" : {
+        "type" : "object",
+        "properties" : {
+          "status" : {
+            "type" : "string"
+          },
+          "errors" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ErrorDTO"
+            }
+          },
+          "results" : {
+            "$ref" : "#/components/schemas/CustomerDTO"
+          }
+        }
+      },
+      "CustomerDTO" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "firstName" : {
+            "type" : "string"
+          },
+          "lastName" : {
+            "type" : "string"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "phoneNumber" : {
+            "type" : "string"
+          },
+          "dateOfBirth" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }
+      },
+      "ErrorDTO" : {
+        "type" : "object",
+        "properties" : {
+          "field" : {
+            "type" : "string"
+          },
+          "errorMessage" : {
+            "type" : "string"
+          }
+        }
+      },
+      "CustomerSearchCriteriaDTO" : {
+        "type" : "object",
+        "properties" : {
+          "firstName" : {
+            "type" : "string"
+          },
+          "lastName" : {
+            "type" : "string"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "phoneNumber" : {
+            "type" : "string"
+          },
+          "dateOfBirth" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "page" : {
+            "type" : "integer",
+            "format" : "int32",
+            "example" : 0
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32",
+            "example" : 10
+          },
+          "sortList" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SortItem"
+            }
+          }
+        },
+        "required" : [ "page", "size" ]
+      },
+      "SortItem" : {
+        "type" : "object",
+        "properties" : {
+          "field" : {
+            "type" : "string",
+            "example" : "id"
+          },
+          "direction" : {
+            "type" : "string",
+            "enum" : [ "ASC", "DESC" ]
+          }
+        }
+      },
+      "APIResponsePageCustomerDTO" : {
+        "type" : "object",
+        "properties" : {
+          "status" : {
+            "type" : "string"
+          },
+          "errors" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ErrorDTO"
+            }
+          },
+          "results" : {
+            "$ref" : "#/components/schemas/PageObject"
+          }
+        }
+      },
+      "PageObject" : {
+        "type" : "object",
+        "properties" : {
+          "totalElements" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "first" : {
+            "type" : "boolean"
+          },
+          "last" : {
+            "type" : "boolean"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "content" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CustomerDTO"
+            }
+          },
+          "number" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "sort" : {
+            "$ref" : "#/components/schemas/SortObject"
+          },
+          "numberOfElements" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pageable" : {
+            "$ref" : "#/components/schemas/PageableObject"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "PageableObject" : {
+        "type" : "object",
+        "properties" : {
+          "offset" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "sort" : {
+            "$ref" : "#/components/schemas/SortObject"
+          },
+          "unpaged" : {
+            "type" : "boolean"
+          },
+          "paged" : {
+            "type" : "boolean"
+          },
+          "pageNumber" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pageSize" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "SortObject" : {
+        "type" : "object",
+        "properties" : {
+          "empty" : {
+            "type" : "boolean"
+          },
+          "unsorted" : {
+            "type" : "boolean"
+          },
+          "sorted" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "CustomerEmailUpdateDTO" : {
+        "type" : "object",
+        "properties" : {
+          "email" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "email" ]
+      },
+      "APIResponseString" : {
+        "type" : "object",
+        "properties" : {
+          "status" : {
+            "type" : "string"
+          },
+          "errors" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ErrorDTO"
+            }
+          },
+          "results" : {
+            "type" : "string"
+          }
+        }
+      }
+    }
+  }
+}

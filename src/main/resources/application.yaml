@@ -6,7 +6,7 @@ server:
 
 spring:
   profiles:
-    active: dev # Specify the active profile
+    active: ${SPRING_PROFILES_ACTIVE:dev} # Specify the active profile
 
   application:
     name: '@project.name@'
@@ -24,4 +24,4 @@ springdoc:
   version: '@springdoc-openapi-starter-webmvc-ui.version@'
 openapi:
   output:
-    file: 'openapi-@project.name@_v@project.version@.json'
+    file: 'openapi-@project.name@-v@project.version@.json'

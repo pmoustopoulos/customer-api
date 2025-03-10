@@ -1,0 +1,41 @@
+stages:
+  - stage: Build
+    displayName: Build and publish stage
+    jobs:
+      - job: Build
+        displayName: Build job
+        pool:
+          vmImage: 'ubuntu-latest'  # ✅ Use a Microsoft-hosted agent
+
+#        pool:
+#          name: Default  # ✅ Use the correct agent pool
+#          demands:
+#            - Agent.Name -equals MacBookPro-002  # ✅ Ensures job runs on your MacBook Pro because you run the agent on your local pc as self-hosted agent
+        steps:
+#          - task: DockerInstaller@0
+#            displayName: Install Docker
+#            inputs:
+#              dockerVersion: '27.5.1'
+
+          - task: Docker@2
+            displayName: Build and publish image to Azure Container Registry
+            inputs:
+              command: buildAndPush
+              containerRegistry: $(dockerRegistryServiceConnection)
+              repository: $(acrRepoName)
+              Dockerfile: 'Dockerfile'
+              tags: |
+                latest
+                $(Build.BuildId)
+
+          - script: |
+              echo "🔍 Before Cleanup:"
+              docker image ls
+              
+              echo "🧹 Cleaning up unused Docker resources..."
+              docker system prune -af --volumes
+              
+              echo "✅ After Cleanup:"
+              docker image ls
+            displayName: Clean up unused Docker images
+            condition: always()  # ✅ Runs even if build fails

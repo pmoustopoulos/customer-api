@@ -1,15 +1,14 @@
 spring:
   datasource:
-    url: jdbc:h2:file:./data/customer-db;AUTO_SERVER=true
-    username: sa
-    password:
+    url: "${SPRING_DATASOURCE_URL:jdbc:h2:file:./data/customer-db;AUTO_SERVER=true}"
+    username: "${SPRING_DATASOURCE_USERNAME:sa}"
+    password: "${SPRING_DATASOURCE_PASSWORD:pass}"
     driver-class-name: org.h2.Driver
   jpa:
 #    show-sql: true
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.H2Dialect
     generate-ddl: true
     hibernate:
       ddl-auto: update

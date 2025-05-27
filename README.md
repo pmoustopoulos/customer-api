@@ -148,7 +148,7 @@ running tests, and packaging the application. They are specified in the `<build>
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.4.4</version>
+    <version>3.5.0</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
@@ -160,7 +160,7 @@ running tests, and packaging the application. They are specified in the `<build>
 
   <properties>
     <java.version>21</java.version>
-    <springdoc-openapi-starter-webmvc-ui.version>2.8.6</springdoc-openapi-starter-webmvc-ui.version>
+    <springdoc-openapi-starter-webmvc-ui.version>2.8.8</springdoc-openapi-starter-webmvc-ui.version>
     <org.mapstruct.version>1.6.3</org.mapstruct.version>
     <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
   </properties>

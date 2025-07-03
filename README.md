@@ -1316,11 +1316,11 @@ appropriate data. **Note**: Do not add business logic in this class.
       @JsonInclude(JsonInclude.Include.NON_NULL)
       @Builder
       public class APIResponse<T> {
-      
+
           private String status;
           private List<ErrorDTO> errors;
           private T results;
-      
+
       }
       ```
 
@@ -1547,7 +1547,7 @@ consistent error responses across the entire application.
 The class has a private method, `isProduction()`, that checks active Spring profiles to determine if the application is
 running in production mode. In production, detailed exception messages are hidden from clients, and a generic error
 message is returned instead. However, the original exception details are logged for internal use, enhancing security by
-preventing exposure of sensitive information.
+preventing exposure of sensitive information. Full stack traces are also logged to facilitate debugging and troubleshooting.
 
 #### Global Exception Handler
 
@@ -1652,7 +1652,7 @@ public class GlobalExceptionHandler {
     String errorMessage = isProduction() ? "An internal server error occurred" : exception.getMessage();
     response.setErrors(Collections.singletonList(new ErrorDTO("", errorMessage)));
 
-    log.error("RuntimeException or NullPointerException occurred {}", exception.getMessage());
+    log.error("RuntimeException or NullPointerException occurred: {}", exception.getMessage(), exception);
 
     return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
   }
@@ -1667,7 +1667,7 @@ public class GlobalExceptionHandler {
     String errorMessage = isProduction() ? "Method not supported" : "The requested URL does not support this method";
     response.setErrors(Collections.singletonList(new ErrorDTO("", errorMessage)));
 
-    log.error("HttpRequestMethodNotSupportedException occurred {}", exception.getMessage());
+    log.error("HttpRequestMethodNotSupportedException occurred: {}", exception.getMessage(), exception);
 
     return new ResponseEntity<>(response, HttpStatus.METHOD_NOT_ALLOWED);
   }
@@ -1698,7 +1698,7 @@ public class GlobalExceptionHandler {
       errors.add(new ErrorDTO("", errorMessage));
     }
 
-    log.error("Validation errors: {}", errors);
+    log.error("Validation errors: {}", errors, exception);
 
     response.setErrors(errors);
     return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
@@ -1714,7 +1714,7 @@ public class GlobalExceptionHandler {
     String errorMessage = isProduction() ? "Invalid request format" : "Malformed JSON request";
     response.setErrors(Collections.singletonList(new ErrorDTO("", errorMessage)));
 
-    log.error("Malformed JSON request: {}", ex.getMessage());
+    log.error("Malformed JSON request: {}", ex.getMessage(), ex);
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
   }
@@ -1734,7 +1734,7 @@ public class GlobalExceptionHandler {
     response.setStatus(Status.FAILED.getValue());
     response.setErrors(errors);
 
-    log.error("Constraint violation errors: {}", errors);
+    log.error("Constraint violation errors: {}", errors, ex);
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
   }
@@ -1749,7 +1749,7 @@ public class GlobalExceptionHandler {
     String errorMessage = isProduction() ? "The requested resource was not found" : exception.getMessage();
     response.setErrors(Collections.singletonList(new ErrorDTO("", errorMessage)));
 
-    log.error("EntityNotFoundException occurred {}", exception.getMessage());
+    log.error("EntityNotFoundException occurred: {}", exception.getMessage(), exception);
 
     return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
   }
@@ -1763,7 +1763,7 @@ public class GlobalExceptionHandler {
     String errorMessage = isProduction() ? "The entity already exists" : exception.getMessage();
     response.setErrors(Collections.singletonList(new ErrorDTO("", errorMessage)));
 
-    log.error("EntityExistsException occurred: {}", exception.getMessage());
+    log.error("EntityExistsException occurred: {}", exception.getMessage(), exception);
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
   }
@@ -2113,8 +2113,8 @@ public class ServerDetails {
 
     log.info(
             """
-                    
-                    
+
+
                     Access Swagger UI URL: {}://{}:{}{}{}
                     Active Profile: {}
                     """,
@@ -3604,4 +3604,3 @@ frequently call external services based on OpenAPI specifications.
 
 Feedback and contributions are welcome! If you have suggestions, improvements, or additional insights, please feel free
 to share. Together, we can make this a valuable resource for anyone learning Spring Boot 3.
-

@@ -2,12 +2,15 @@
   "openapi" : "3.1.0",
   "info" : {
     "title" : "Customer API - v1.0.0",
-    "description" : "Active profile: <b>DEV</b>",
-    "version" : "2.8.4"
+    "description" : "Active Profile: <b>DEV</b><br/>Spring Boot: <b>3.5.7</b>",
+    "version" : "2.8.13"
   },
   "servers" : [ {
-    "url" : "http://192.168.1.63:8088/customer-api",
+    "url" : "http://127.0.0.1:8088/customer-api",
     "description" : "Generated server url"
+  } ],
+  "security" : [ {
+    "bearerAuth" : [ ]
   } ],
   "paths" : {
     "/api/v1/customers/{id}" : {
@@ -220,8 +223,10 @@
           },
           "email" : {
             "type" : "string",
+            "format" : "email",
             "description" : "Customer's email address",
-            "example" : "jwick@tester.com"
+            "example" : "jwick@tester.com",
+            "minLength" : 1
           },
           "phoneNumber" : {
             "type" : "string",
@@ -450,7 +455,9 @@
         "type" : "object",
         "properties" : {
           "email" : {
-            "type" : "string"
+            "type" : "string",
+            "format" : "email",
+            "minLength" : 1
           }
         },
         "required" : [ "email" ]
@@ -471,6 +478,15 @@
             "type" : "string"
           }
         }
+      }
+    },
+    "securitySchemes" : {
+      "bearerAuth" : {
+        "type" : "http",
+        "description" : "Paste a test token like `admin-token` or `user-token`",
+        "name" : "bearerAuth",
+        "scheme" : "bearer",
+        "bearerFormat" : "JWT"
       }
     }
   }

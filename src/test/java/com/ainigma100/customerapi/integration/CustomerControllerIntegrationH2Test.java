@@ -18,7 +18,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -31,12 +30,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-// use random port for integration testing. the server will start on a random port
+/**
+ * Integration tests using in-memory H2 database.
+ * Note: Normally during integration tests we do not use H2. We use a real database (via Testcontainers)
+ * identical to production. This H2-based test exists only so people without Docker can still run
+ * the integration tests locally. For the real setup, see CustomerControllerIntegrationTest.
+ * Uses the `test` Spring profile which is configured in src/test/resources/application-test.yaml
+ */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-@Testcontainers(disabledWithoutDocker = true)
-@ActiveProfiles("testcontainers")
-class CustomerControllerIntegrationTest extends AbstractContainerBaseTest {
+@ActiveProfiles("test")
+class CustomerControllerIntegrationH2Test {
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -53,13 +57,11 @@ class CustomerControllerIntegrationTest extends AbstractContainerBaseTest {
     @Autowired
     private CustomerRepository customerRepository;
 
-
     @BeforeEach
     void setUp() {
         // clean the database before we start each test
         customerRepository.deleteAll();
     }
-
 
     @Test
     void givenCustomerDTO_whenCreateCustomer_thenReturnCustomerDTO() throws Exception {
@@ -72,7 +74,6 @@ class CustomerControllerIntegrationTest extends AbstractContainerBaseTest {
         customerRequestDTO.setPhoneNumber("0123456789");
         customerRequestDTO.setDateOfBirth(LocalDate.now().minusYears(18));
 
-
         // when - action or behaviour that we are going to test
         ResultActions response = mockMvc.perform(post("/api/v1/customers")
                 .header("Authorization", "Bearer user-token")
@@ -81,10 +82,7 @@ class CustomerControllerIntegrationTest extends AbstractContainerBaseTest {
 
         // then - verify the output
         response.andDo(print())
-                // verify the status code that is returned
                 .andExpect(status().isCreated())
-                // verify the actual returned value and the expected value
-                // $ - root member of a JSON structure whether it is an object or array
                 .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())))
                 .andExpect(jsonPath("$.results.firstName", is(customerRequestDTO.getFirstName())))
                 .andExpect(jsonPath("$.results.lastName", is(customerRequestDTO.getLastName())))
@@ -92,7 +90,6 @@ class CustomerControllerIntegrationTest extends AbstractContainerBaseTest {
                 .andExpect(jsonPath("$.results.phoneNumber", is("*******789")))
                 .andExpect(jsonPath("$.results.dateOfBirth", is(customerRequestDTO.getDateOfBirth().toString())));
     }
-
 
     @Test
     void givenCustomerDTO_whenGetCustomerById_thenReturnCustomerDTO() throws Exception {
@@ -114,10 +111,7 @@ class CustomerControllerIntegrationTest extends AbstractContainerBaseTest {
 
         // then - verify the output
         response.andDo(print())
-                // verify the status code that is returned
                 .andExpect(status().isOk())
-                // verify the actual returned value and the expected value
-                // $ - root member of a JSON structure whether it is an object or array
                 .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())))
                 .andExpect(jsonPath("$.results.id", equalTo(Math.toIntExact(customer.getId()))))
                 .andExpect(jsonPath("$.results.firstName", is(customer.getFirstName())))
@@ -126,7 +120,6 @@ class CustomerControllerIntegrationTest extends AbstractContainerBaseTest {
                 .andExpect(jsonPath("$.results.phoneNumber", is("*******789")))
                 .andExpect(jsonPath("$.results.dateOfBirth", is(customer.getDateOfBirth().toString())));
     }
-
 
     @Test
     void givenCustomerDTO_whenUpdateCustomer_thenReturnCustomerDTO() throws Exception {
@@ -141,33 +134,29 @@ class CustomerControllerIntegrationTest extends AbstractContainerBaseTest {
 
         customerRepository.save(customer);
 
-        CustomerRequestDTO customerRequestDTO = new CustomerRequestDTO();
-        customerRequestDTO.setFirstName("Johnathan");
-        customerRequestDTO.setLastName("Wick");
-        customerRequestDTO.setEmail("jw@gmail.com");
-        customerRequestDTO.setPhoneNumber("4444444444");
-        customerRequestDTO.setDateOfBirth(LocalDate.now().minusYears(21));
-
+        CustomerRequestDTO customerUpdateRequestDTO = new CustomerRequestDTO();
+        customerUpdateRequestDTO.setFirstName("Mark");
+        customerUpdateRequestDTO.setLastName("Kent");
+        customerUpdateRequestDTO.setEmail("mkent@tester.com");
+        customerUpdateRequestDTO.setPhoneNumber("0123456700");
+        customerUpdateRequestDTO.setDateOfBirth(LocalDate.now().minusYears(18));
 
         // when - action or behaviour that we are going to test
         ResultActions response = mockMvc.perform(put("/api/v1/customers/{id}", customer.getId())
                 .header("Authorization", "Bearer user-token")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(customerRequestDTO)));
+                .content(objectMapper.writeValueAsString(customerUpdateRequestDTO)));
 
         // then - verify the output
         response.andDo(print())
-                // verify the status code that is returned
                 .andExpect(status().isOk())
-                // verify the actual returned value and the expected value
-                // $ - root member of a JSON structure whether it is an object or array
                 .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())))
                 .andExpect(jsonPath("$.results.id", equalTo(Math.toIntExact(customer.getId()))))
-                .andExpect(jsonPath("$.results.firstName", is(customerRequestDTO.getFirstName())))
-                .andExpect(jsonPath("$.results.lastName", is(customerRequestDTO.getLastName())))
-                .andExpect(jsonPath("$.results.email", is(customerRequestDTO.getEmail())))
-                .andExpect(jsonPath("$.results.phoneNumber", is("*******444")))
-                .andExpect(jsonPath("$.results.dateOfBirth", is(customerRequestDTO.getDateOfBirth().toString())));
+                .andExpect(jsonPath("$.results.firstName", is(customerUpdateRequestDTO.getFirstName())))
+                .andExpect(jsonPath("$.results.lastName", is(customerUpdateRequestDTO.getLastName())))
+                .andExpect(jsonPath("$.results.email", is(customerUpdateRequestDTO.getEmail())))
+                .andExpect(jsonPath("$.results.phoneNumber", is("*******700")))
+                .andExpect(jsonPath("$.results.dateOfBirth", is(customerUpdateRequestDTO.getDateOfBirth().toString())));
     }
 
     @Test
@@ -184,30 +173,25 @@ class CustomerControllerIntegrationTest extends AbstractContainerBaseTest {
         customerRepository.save(customer);
 
         CustomerEmailUpdateDTO customerEmailUpdateDTO = new CustomerEmailUpdateDTO();
-        customerEmailUpdateDTO.setEmail("loco@gmail.com");
-
+        customerEmailUpdateDTO.setEmail("test@test.com");
 
         // when - action or behaviour that we are going to test
-        ResultActions response = mockMvc.perform(patch("/api/v1/customers/{id}/email", 1L)
+        ResultActions response = mockMvc.perform(patch("/api/v1/customers/{id}/email", customer.getId())
                 .header("Authorization", "Bearer user-token")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(customerEmailUpdateDTO)));
 
         // then - verify the output
         response.andDo(print())
-                // verify the status code that is returned
                 .andExpect(status().isOk())
-                // verify the actual returned value and the expected value
-                // $ - root member of a JSON structure whether it is an object or array
                 .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())))
-                .andExpect(jsonPath("$.results.id", is(1)))
-                .andExpect(jsonPath("$.results.firstName", is("John")))
-                .andExpect(jsonPath("$.results.lastName", is("Wick")))
-                .andExpect(jsonPath("$.results.email", is("loco@gmail.com")))
+                .andExpect(jsonPath("$.results.id", equalTo(Math.toIntExact(customer.getId()))))
+                .andExpect(jsonPath("$.results.firstName", is(customer.getFirstName())))
+                .andExpect(jsonPath("$.results.lastName", is(customer.getLastName())))
+                .andExpect(jsonPath("$.results.email", is("test@test.com")))
                 .andExpect(jsonPath("$.results.phoneNumber", is("*******789")))
-                .andExpect(jsonPath("$.results.dateOfBirth", is(LocalDate.now().minusYears(18).toString())));
+                .andExpect(jsonPath("$.results.dateOfBirth", is(customer.getDateOfBirth().toString())));
     }
-
 
     @Test
     void givenCustomerDTO_whenDeleteCustomer_thenReturnCustomerDTO() throws Exception {
@@ -229,10 +213,7 @@ class CustomerControllerIntegrationTest extends AbstractContainerBaseTest {
 
         // then - verify the output
         response.andDo(print())
-                // verify the status code that is returned
                 .andExpect(status().isOk())
-                // verify the actual returned value and the expected value
-                // $ - root member of a JSON structure whether it is an object or array
                 .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())));
     }
 
@@ -255,7 +236,6 @@ class CustomerControllerIntegrationTest extends AbstractContainerBaseTest {
                 .andExpect(status().isForbidden());
     }
 
-
     @Test
     void givenCustomerSearchCriteriaDTO_whenGetAllCustomersUsingPagination_thenReturnCustomerDTOPage() throws Exception {
 
@@ -263,9 +243,20 @@ class CustomerControllerIntegrationTest extends AbstractContainerBaseTest {
         Customer customer = new Customer();
         customer.setFirstName("John");
         customer.setLastName("Wick");
-        customer.setEmail("jwick@gmail.com");
+        customer.setEmail("jwick@tester.com");
         customer.setPhoneNumber("0123456789");
-        customer.setDateOfBirth(LocalDate.now().minusYears(21));
+        customer.setDateOfBirth(LocalDate.now().minusYears(18));
+
+        customerRepository.save(customer);
+
+        Customer customer1 = new Customer();
+        customer1.setFirstName("Sarah");
+        customer1.setLastName("Wick");
+        customer1.setEmail("swick@tester.com");
+        customer1.setPhoneNumber("0123458881");
+        customer1.setDateOfBirth(LocalDate.now().minusYears(18));
+
+        customerRepository.save(customer1);
 
         Customer customer2 = new Customer();
         customer2.setFirstName("Maria");
@@ -282,7 +273,6 @@ class CustomerControllerIntegrationTest extends AbstractContainerBaseTest {
         customerSearchCriteriaDTO.setSize(10);
         customerSearchCriteriaDTO.setFirstName("Maria");
 
-
         // when - action or behaviour that we are going to test
         ResultActions response = mockMvc.perform(post("/api/v1/customers/search")
                 .header("Authorization", "Bearer user-token")
@@ -291,10 +281,7 @@ class CustomerControllerIntegrationTest extends AbstractContainerBaseTest {
 
         // then - verify the output
         response.andDo(print())
-                // verify the status code that is returned
                 .andExpect(status().isOk())
-                // verify the actual returned value and the expected value
-                // $ - root member of a JSON structure whether it is an object or array
                 .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())))
                 .andExpect(jsonPath("$.results.content.size()", is(1)))
                 .andExpect(jsonPath("$.results.content[0].firstName", is(customer2.getFirstName())))
@@ -303,11 +290,10 @@ class CustomerControllerIntegrationTest extends AbstractContainerBaseTest {
                 .andExpect(jsonPath("$.results.content[0].phoneNumber", is("*******881")));
     }
 
-
     @Test
-    void givenNoAuth_whenGetCustomerById_thenUnauthorized() throws Exception {
-        // given - precondition or setup
-        // no preconditions
+    void givenNoAuthentication_whenGetCustomer_thenUnauthorized() throws Exception {
+        // given - unauthenticated request (no Authorization header)
+        
         // when - action or behaviour that we are going to test
         ResultActions responseNoAuth = mockMvc.perform(get("/api/v1/customers/{id}", 1L)
                 .contentType(MediaType.APPLICATION_JSON));
@@ -318,9 +304,9 @@ class CustomerControllerIntegrationTest extends AbstractContainerBaseTest {
     }
 
     @Test
-    void givenAuthWithoutRequiredRoles_whenGetCustomerById_thenForbidden() throws Exception {
-        // given - precondition or setup
-        // no preconditions
+    void givenAuthWithoutRoles_whenGetCustomer_thenForbidden() throws Exception {
+        // given - authenticated request without roles
+        
         // when - action or behaviour that we are going to test
         ResultActions responseForbidden = mockMvc.perform(get("/api/v1/customers/{id}", 1L)
                 .header("Authorization", "Bearer no-roles-token")
@@ -331,3 +317,4 @@ class CustomerControllerIntegrationTest extends AbstractContainerBaseTest {
                 .andExpect(status().isForbidden());
     }
 }
+

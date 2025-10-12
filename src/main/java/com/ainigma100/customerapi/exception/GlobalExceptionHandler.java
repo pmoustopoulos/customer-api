@@ -20,6 +20,8 @@ import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,6 +42,21 @@ public class GlobalExceptionHandler {
     private boolean isProduction() {
         return Stream.of(environment.getActiveProfiles())
                 .anyMatch(profile -> profile.equalsIgnoreCase("prod") || profile.equalsIgnoreCase("production"));
+    }
+
+
+    @ExceptionHandler({AuthorizationDeniedException.class, AccessDeniedException.class})
+    public ResponseEntity<APIResponse<ErrorDTO>> handleAccessDeniedExceptions(Exception exception) {
+
+        APIResponse<ErrorDTO> response = new APIResponse<>();
+        response.setStatus(Status.FAILED.getValue());
+
+        String errorMessage = isProduction() ? "Access denied" : exception.getMessage();
+        response.setErrors(Collections.singletonList(new ErrorDTO("", errorMessage)));
+
+        log.error("Access denied: {}", exception.getMessage(), exception);
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
 

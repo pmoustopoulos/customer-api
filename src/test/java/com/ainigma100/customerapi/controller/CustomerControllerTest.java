@@ -6,18 +6,24 @@ import com.ainigma100.customerapi.dto.CustomerRequestDTO;
 import com.ainigma100.customerapi.dto.CustomerSearchCriteriaDTO;
 import com.ainigma100.customerapi.enums.Status;
 import com.ainigma100.customerapi.mapper.CustomerMapper;
+import com.ainigma100.customerapi.security.config.SecurityDevMockConfig;
 import com.ainigma100.customerapi.service.CustomerService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -27,6 +33,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -38,6 +45,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * to test the Controller layer. It will not load the service or repository layer components
  */
 @WebMvcTest(CustomerController.class)
+@AutoConfigureMockMvc // keep security filters enabled
+@Tag("unit")
+@ActiveProfiles("test")
+@Import(SecurityDevMockConfig.class)
 class CustomerControllerTest {
 
     @Autowired
@@ -83,6 +94,7 @@ class CustomerControllerTest {
     }
 
 
+    @WithMockUser(roles = "USER")
     @Test
     void givenCustomerDTO_whenCreateCustomer_thenReturnCustomerDTO() throws Exception {
 
@@ -93,7 +105,7 @@ class CustomerControllerTest {
         given(customerService.createCustomer(any(CustomerDTO.class))).willReturn(customerDTO);
 
         // when - action or behaviour that we are going to test
-        ResultActions response = mockMvc.perform(post("/api/v1/customers")
+        ResultActions response = mockMvc.perform(post("/api/v1/customers").with(csrf()) // add CSRF token at usage; harmless for stateless JWT
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(customerRequestDTO)));
 
@@ -113,6 +125,7 @@ class CustomerControllerTest {
     }
 
 
+    @WithMockUser(roles = "USER")
     @Test
     void givenCustomerDTO_whenGetCustomerById_thenReturnCustomerDTO() throws Exception {
 
@@ -139,6 +152,7 @@ class CustomerControllerTest {
     }
 
 
+    @WithMockUser(roles = "USER")
     @Test
     void givenCustomerDTO_whenUpdateCustomer_thenReturnCustomerDTO() throws Exception {
 
@@ -149,7 +163,7 @@ class CustomerControllerTest {
         given(customerService.updateCustomer(any(Long.class), any(CustomerDTO.class))).willReturn(customerDTO);
 
         // when - action or behaviour that we are going to test
-        ResultActions response = mockMvc.perform(put("/api/v1/customers/{id}", 1L)
+        ResultActions response = mockMvc.perform(put("/api/v1/customers/{id}", 1L).with(csrf()) // add CSRF token at usage; harmless for stateless JWT
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(customerRequestDTO)));
 
@@ -169,6 +183,7 @@ class CustomerControllerTest {
     }
 
 
+    @WithMockUser(roles = "USER")
     @Test
     void givenCustomerEmailUpdateDTO_whenUpdateCustomerEmail_thenReturnCustomerDTO() throws Exception {
 
@@ -181,7 +196,7 @@ class CustomerControllerTest {
                 .willReturn(customerDTO);
 
         // when - action or behaviour that we are going to test
-        ResultActions response = mockMvc.perform(patch("/api/v1/customers/{id}/email", 1L)
+        ResultActions response = mockMvc.perform(patch("/api/v1/customers/{id}/email", 1L).with(csrf()) // add CSRF token at usage; harmless for stateless JWT
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(customerEmailUpdateDTO)));
 
@@ -202,13 +217,14 @@ class CustomerControllerTest {
 
 
     @Test
+    @WithMockUser(roles = {"ADMIN"})
     void givenCustomerDTO_whenDeleteCustomer_thenReturnCustomerDTO() throws Exception {
 
         // given - precondition or setup
         willDoNothing().given(customerService).deleteCustomer(any(Long.class));
 
         // when - action or behaviour that we are going to test
-        ResultActions response = mockMvc.perform(delete("/api/v1/customers/{id}", 1L)
+        ResultActions response = mockMvc.perform(delete("/api/v1/customers/{id}", 1L).with(csrf()) // add CSRF token at usage; harmless for stateless JWT
                 .contentType(MediaType.APPLICATION_JSON));
 
         // then - verify the output
@@ -220,7 +236,17 @@ class CustomerControllerTest {
                 .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())));
     }
 
+    @Test
+    @WithMockUser(roles = "USER")
+    void givenUserRole_whenDeleteCustomer_thenForbidden() throws Exception {
+        // when - a USER attempts to delete
+        mockMvc.perform(delete("/api/v1/customers/{id}", 1L)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isForbidden());
+    }
 
+    @WithMockUser(roles = "USER")
     @Test
     void givenCustomerSearchCriteriaDTO_whenGetAllCustomersUsingPagination_thenReturnCustomerDTOPage() throws Exception {
 
@@ -231,7 +257,7 @@ class CustomerControllerTest {
                 .willReturn(customerDTOPage);
 
         // when - action or behaviour that we are going to test
-        ResultActions response = mockMvc.perform(post("/api/v1/customers/search")
+        ResultActions response = mockMvc.perform(post("/api/v1/customers/search").with(csrf()) // add CSRF token at usage; harmless for stateless JWT
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(customerSearchCriteriaDTO)));
 
@@ -247,6 +273,33 @@ class CustomerControllerTest {
                 .andExpect(jsonPath("$.results.content[0].lastName", is(customerDTOList.get(0).getLastName())))
                 .andExpect(jsonPath("$.results.content[0].email", is(customerDTOList.get(0).getEmail())))
                 .andExpect(jsonPath("$.results.content[0].phoneNumber", is("*******789")));
+    }
+
+
+
+    @Test
+    void givenNoAuth_whenGetCustomerById_thenUnauthorized() throws Exception {
+        // given - precondition or setup
+        // no preconditions
+        // when - action or behaviour that we are going to test
+        ResultActions response = mockMvc.perform(get("/api/v1/customers/{id}", 1L)
+                .contentType(MediaType.APPLICATION_JSON));
+        // then - verify the output
+        response.andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @WithMockUser(roles = "GUEST")
+    @Test
+    void givenAuthWithoutRequiredRoles_whenGetCustomerById_thenForbidden() throws Exception {
+        // given - precondition or setup
+        // no preconditions
+        // when - action or behaviour that we are going to test
+        ResultActions response = mockMvc.perform(get("/api/v1/customers/{id}", 1L)
+                .contentType(MediaType.APPLICATION_JSON));
+        // then - verify the output
+        response.andDo(print())
+                .andExpect(status().isForbidden());
     }
 
 }

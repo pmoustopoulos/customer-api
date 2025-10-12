@@ -3,8 +3,11 @@ package com.ainigma100.customerapi.config;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -64,16 +67,34 @@ public class OpenApiConfig {
 
         String description = String.format("Active profile: <b>%s</b>", profileInfo);
 
+        boolean isLocalOrH2 = profileInfo.contains("LOCAL") || profileInfo.contains("H2") || profileInfo.contains("DEV");
+
+        final String securitySchemeName = "bearerAuth";
+
+
         return new OpenAPI()
                 .info(new Info()
                         .title(appTitle)
                         .version(documentationVersion)
-                        .description(description));
+                        .description(description))
+                .components(new Components()
+                        .addSecuritySchemes(securitySchemeName,
+                                new SecurityScheme()
+                                        .name(securitySchemeName)
+                                        .type(SecurityScheme.Type.HTTP)
+                                        .scheme("bearer")
+                                        .bearerFormat("JWT")
+                                        .description(isLocalOrH2
+                                                ? "Paste a test token like `admin-token` or `user-token`"
+                                                : null)))
+                .addSecurityItem(new SecurityRequirement().addList(securitySchemeName)
+                );
+
     }
 
 
     @Bean
-    @Profile("!test")
+    @Profile({"dev"})
     public CommandLineRunner generateOpenApiJson() {
 
         String serverSslKeyStore = "server.ssl.key-store";

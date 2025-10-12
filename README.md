@@ -39,11 +39,12 @@ approach is the best, it is simply one I assembled based on things I have read a
     - [Exception Handling](#exception-handling)
 10. [Helper Classes](#10-helper-classes)
 11. [Testing](#11-testing)
-12. [Best Practices](#12-best-practices)
-13. [Enhanced Pagination Example](#13-enhanced-pagination-example)
-14. [Appendix: Using
+12. [Security overview](#security-overview)
+13. [Best Practices](#12-best-practices)
+14. [Enhanced Pagination Example](#13-enhanced-pagination-example)
+15. [Appendix: Using
     `openapi-generator-maven-plugin` for API Client Generation](#14-appendix-using-openapi-generator-maven-plugin-for-api-client-generation)
-15. [Feedback and Contributions](#15-feedback-and-contributions)
+16. [Feedback and Contributions](#15-feedback-and-contributions)
 
 ## 1. Introduction
 
@@ -149,161 +150,196 @@ running tests, and packaging the application. They are specified in the `<build>
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.5.6</version>
-    <relativePath/> <!-- lookup parent from repository -->
-  </parent>
-
-  <groupId>com.ainigma100</groupId>
-  <artifactId>customer-api</artifactId>
-  <version>1.0.0</version> <!-- TODO: Update this when you develop new version -->
-  <name>customer-api</name>
-  <description>customer-api</description>
-
-  <properties>
-    <java.version>21</java.version>
-    <springdoc-openapi-starter-webmvc-ui.version>2.8.13</springdoc-openapi-starter-webmvc-ui.version>
-    <org.mapstruct.version>1.6.3</org.mapstruct.version>
-    <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
-  </properties>
-
-  <dependencies>
-
-    <!-- Spring Boot Starter for Web -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-
-    <!-- Spring Boot Starter for JPA -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-data-jpa</artifactId>
-    </dependency>
-
-    <!-- Spring Boot Starter for Actuator -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-actuator</artifactId>
-    </dependency>
-
-    <!-- Spring Boot Starter for Validation -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-validation</artifactId>
-    </dependency>
-
-    <!-- H2 Database for Development -->
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-
-    <!-- Lombok for Reducing Boilerplate Code -->
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-      <optional>true</optional>
-    </dependency>
-
-    <!-- MapStruct for DTO Mapping -->
-    <dependency>
-      <groupId>org.mapstruct</groupId>
-      <artifactId>mapstruct</artifactId>
-      <version>${org.mapstruct.version}</version>
-    </dependency>
-
-    <!-- SpringDoc OpenAPI for API Documentation -->
-    <dependency>
-      <groupId>org.springdoc</groupId>
-      <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-      <version>${springdoc-openapi-starter-webmvc-ui.version}</version>
-    </dependency>
-
-    <!-- Spring Boot Starter for Testing -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-
-    <!-- Test Containers -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-testcontainers</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>junit-jupiter</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>postgresql</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <!-- This connector will be used by the testcontainers -->
-    <dependency>
-      <groupId>org.postgresql</groupId>
-      <artifactId>postgresql</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-  </dependencies>
-
-  <build>
-    <finalName>${project.artifactId}-v${project.version}</finalName>
-    <plugins>
-      <!-- Spring Boot Maven Plugin -->
-      <plugin>
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
         <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-maven-plugin</artifactId>
-        <configuration>
-          <excludes>
-            <exclude>
-              <groupId>org.projectlombok</groupId>
-              <artifactId>lombok</artifactId>
-            </exclude>
-          </excludes>
-        </configuration>
-      </plugin>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.5.6</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
 
-      <!-- Maven Compiler Plugin -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>${java.version}</source>
-          <target>${java.version}</target>
-          <annotationProcessorPaths>
-            <path>
-              <groupId>org.mapstruct</groupId>
-              <artifactId>mapstruct-processor</artifactId>
-              <version>${org.mapstruct.version}</version>
-            </path>
-            <path>
-              <groupId>org.projectlombok</groupId>
-              <artifactId>lombok</artifactId>
-              <version>${lombok.version}</version>
-            </path>
-            <path>
-              <groupId>org.projectlombok</groupId>
-              <artifactId>lombok-mapstruct-binding</artifactId>
-              <version>${lombok-mapstruct-binding.version}</version>
-            </path>
-          </annotationProcessorPaths>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+    <groupId>com.ainigma100</groupId>
+    <artifactId>customer-api</artifactId>
+    <version>1.0.0</version> <!-- TODO: Update this when you develop new version -->
+    <name>customer-api</name>
+    <description>customer-api</description>
+
+    <properties>
+        <java.version>21</java.version>
+        <springdoc-openapi-starter-webmvc-ui.version>2.8.13</springdoc-openapi-starter-webmvc-ui.version>
+        <org.mapstruct.version>1.6.3</org.mapstruct.version>
+        <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
+        <spring-cloud-azure.version>5.21.0</spring-cloud-azure.version>
+    </properties>
+
+    <dependencies>
+
+        <!-- Spring Boot Starter for Web -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- Spring Boot Starter for JPA -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <!-- Spring Boot Starter for Actuator -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- Spring Boot Starter for Validation -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!-- H2 Database for Development -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Lombok for Reducing Boilerplate Code -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- MapStruct for DTO Mapping -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${org.mapstruct.version}</version>
+        </dependency>
+
+        <!-- SpringDoc OpenAPI for API Documentation -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${springdoc-openapi-starter-webmvc-ui.version}</version>
+        </dependency>
+
+        <!-- Spring Boot Starter for Testing -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+
+        <!-- Test Containers -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-testcontainers</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- This connector will be used by the testcontainers -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Security -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Azure -->
+        <dependency>
+            <groupId>com.azure.spring</groupId>
+            <artifactId>spring-cloud-azure-starter-active-directory</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+        </dependency>
+
+    </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.azure.spring</groupId>
+                <artifactId>spring-cloud-azure-dependencies</artifactId>
+                <version>${spring-cloud-azure.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <finalName>${project.artifactId}-v${project.version}</finalName>
+        <plugins>
+            <!-- Spring Boot Maven Plugin -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <!-- Maven Compiler Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${org.mapstruct.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok-mapstruct-binding</artifactId>
+                            <version>${lombok-mapstruct-binding.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
+
 ```
 
 </details>
@@ -2145,6 +2181,19 @@ public class ServerDetails {
 
 ## 11. Testing
 
+Note on security in tests
+- In dev and test profiles we use a mocked JwtDecoder, so no real Identity Provider is needed.
+- When calling secured endpoints in tests (MockMvc, RestTemplate) or from curl/Postman, include an Authorization header:
+  - Authorization: Bearer user-token  → role USER
+  - Authorization: Bearer admin-token → role ADMIN
+- Example (MockMvc):
+  mockMvc.perform(get("/api/v1/customers/1")
+      .header("Authorization", "Bearer user-token"));
+- Example (curl):
+  curl -H "Authorization: Bearer user-token" http://localhost:8080/api/v1/customers/1
+
+For production, real JWTs are required (Azure Entra ID in this project). See the Security overview section below for details and environment variables.
+
 Testing is essential to ensure your application works as expected. This section will cover how to effectively test your
 Spring Boot application using both unit testing and integration testing strategies, including Behavior Driven
 Development (BDD).
@@ -2723,12 +2772,15 @@ import com.ainigma100.customerapi.mapper.CustomerMapper;
 import com.ainigma100.customerapi.service.CustomerService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -2752,6 +2804,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * to test the Controller layer. It will not load the service or repository layer components
  */
 @WebMvcTest(CustomerController.class)
+@AutoConfigureMockMvc(addFilters = false)
+@Tag("unit")
+@ActiveProfiles("test")
 class CustomerControllerTest {
 
     @Autowired
@@ -3005,6 +3060,44 @@ setting up your environment.
 If you need to run the integration tests, just make sure Docker is installed and running on your machine.
 
 ---
+
+## Security overview
+
+There are many ways to secure a Spring Boot app: Azure Entra ID (Azure AD), Auth0, Keycloak, Okta, or even a simple in-memory setup for demos. Keep it simple:
+
+- Dev and tests (any profile except "prod"): no real Identity Provider is needed. We use a mock security config.
+  - Use one of these tokens in the Authorization header:
+    - Bearer user-token → gives role USER
+    - Bearer admin-token → gives role ADMIN
+- Production (profile "prod"): we use Azure Entra ID as an OAuth 2.0 Resource Server. Real JWTs are required.
+
+What you need to do
+- Dev/tests: nothing special. Just send one of the tokens above when calling the API.
+- Prod: set these environment variables (or put the same values in application-prod.yaml):
+  - AZURE_ISSUER_URI
+  - AZURE_TENANT_ID
+  - AZURE_CLIENT_ID
+  - AZURE_CLIENT_SECRET
+
+Where this lives in the code
+- SecurityDevMockConfig: active for non-prod profiles (dev, test, testcontainers).
+- SecurityProdConfig: active for the prod profile.
+- application-dev.yaml shows sample Azure settings with placeholders so you can see how it looks.
+- application-test.yaml and application-testcontainers.yaml rely on the mock decoder; no real IdP needed.
+
+Security configs used (quick list)
+- Profiles: non-prod uses mock JWT; prod uses OAuth2 Resource Server (Azure Entra ID).
+- Public URLs permitted: /api/auth/**, /ui/**, /swagger-ui/**, /v3/api-docs/**, /webjars/**, /error, /h2-console/**.
+- Roles: USER or ADMIN required for other endpoints; mock tokens map to roles.
+
+What you might need (prod)
+- Environment variables: AZURE_ISSUER_URI, AZURE_TENANT_ID, AZURE_CLIENT_ID, AZURE_CLIENT_SECRET.
+- Or configure equivalent properties in application-prod.yaml.
+
+TODO
+- Replace the placeholder Azure values with your real tenant/app credentials before deploying to prod.
+- If you use a different provider (Keycloak/Auth0/Okta), remove the Azure block and configure your provider instead.
+
 
 ## 12. Best Practices
 

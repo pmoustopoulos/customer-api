@@ -9,12 +9,15 @@ import com.ainigma100.customerapi.mapper.CustomerMapper;
 import com.ainigma100.customerapi.service.CustomerService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -38,6 +41,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * to test the Controller layer. It will not load the service or repository layer components
  */
 @WebMvcTest(CustomerController.class)
+@AutoConfigureMockMvc(addFilters = false)
+@Tag("unit")
+@ActiveProfiles("test")
 class CustomerControllerTest {
 
     @Autowired

@@ -266,6 +266,7 @@ class CustomerControllerIntegrationTest extends AbstractContainerBaseTest {
 
         // when - action or behaviour that we are going to test
         ResultActions response = mockMvc.perform(post("/api/v1/customers/search")
+                .header("Authorization", "Bearer user-token")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(customerSearchCriteriaDTO)));
 
@@ -285,20 +286,28 @@ class CustomerControllerIntegrationTest extends AbstractContainerBaseTest {
 
 
     @Test
-    void whenNoAuth_thenUnauthorized() throws Exception {
+    void givenNoAuth_whenGetCustomerById_thenUnauthorized() throws Exception {
+        // given - precondition or setup
+        // no preconditions
+        // when - action or behaviour that we are going to test
         ResultActions responseNoAuth = mockMvc.perform(get("/api/v1/customers/{id}", 1L)
                 .contentType(MediaType.APPLICATION_JSON));
 
+        // then - verify the output
         responseNoAuth.andDo(print())
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void whenAuthWithoutRoles_thenForbidden() throws Exception {
+    void givenAuthWithoutRequiredRoles_whenGetCustomerById_thenForbidden() throws Exception {
+        // given - precondition or setup
+        // no preconditions
+        // when - action or behaviour that we are going to test
         ResultActions responseForbidden = mockMvc.perform(get("/api/v1/customers/{id}", 1L)
                 .header("Authorization", "Bearer no-roles-token")
                 .contentType(MediaType.APPLICATION_JSON));
 
+        // then - verify the output
         responseForbidden.andDo(print())
                 .andExpect(status().isForbidden());
     }

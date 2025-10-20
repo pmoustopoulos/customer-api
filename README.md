@@ -15,6 +15,11 @@ practices and tools may evolve. I encourage you to explore other perspectives an
 or additional insights, please feel free to share. Together, we can make this a valuable resource for anyone learning
 Spring Boot 3.
 
+**Note on Spring Security example**: If you want to see an example setup with Spring Security, please check the branch
+`feature/security-setup-docs`. I intentionally did not include security in this main branch because it can be complex
+and there are many valid ways to implement it; I did not want to cause confusion. Also, I am not claiming that my
+approach is the best, it is simply one I assembled based on things I have read and seen online.
+
 ## Table of Contents
 
 1. [Introduction](#1-introduction)

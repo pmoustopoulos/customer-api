@@ -208,13 +208,32 @@ class CustomerControllerIntegrationH2Test {
 
         // when - action or behaviour that we are going to test
         ResultActions response = mockMvc.perform(delete("/api/v1/customers/{id}", customer.getId())
-                .header("Authorization", "Bearer user-token")
+                .header("Authorization", "Bearer admin-token")
                 .contentType(MediaType.APPLICATION_JSON));
 
         // then - verify the output
         response.andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())));
+    }
+
+    @Test
+    void givenUserRole_whenDeleteCustomer_thenForbidden() throws Exception {
+        // given
+        Customer customer = new Customer();
+        customer.setFirstName("John");
+        customer.setLastName("Wick");
+        customer.setEmail("jwick@tester.com");
+        customer.setPhoneNumber("0123456789");
+        customer.setDateOfBirth(LocalDate.now().minusYears(18));
+        customerRepository.save(customer);
+
+        // when - user role attempts delete
+        mockMvc.perform(delete("/api/v1/customers/{id}", customer.getId())
+                        .header("Authorization", "Bearer user-token")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -272,20 +291,28 @@ class CustomerControllerIntegrationH2Test {
     }
 
     @Test
-    void whenNoAuth_thenUnauthorized() throws Exception {
+    void givenNoAuthentication_whenGetCustomer_thenUnauthorized() throws Exception {
+        // given - unauthenticated request (no Authorization header)
+        
+        // when - action or behaviour that we are going to test
         ResultActions responseNoAuth = mockMvc.perform(get("/api/v1/customers/{id}", 1L)
                 .contentType(MediaType.APPLICATION_JSON));
 
+        // then - verify the output
         responseNoAuth.andDo(print())
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void whenAuthWithoutRoles_thenForbidden() throws Exception {
+    void givenAuthWithoutRoles_whenGetCustomer_thenForbidden() throws Exception {
+        // given - authenticated request without roles
+        
+        // when - action or behaviour that we are going to test
         ResultActions responseForbidden = mockMvc.perform(get("/api/v1/customers/{id}", 1L)
                 .header("Authorization", "Bearer no-roles-token")
                 .contentType(MediaType.APPLICATION_JSON));
 
+        // then - verify the output
         responseForbidden.andDo(print())
                 .andExpect(status().isForbidden());
     }

@@ -224,7 +224,7 @@ class CustomerControllerIntegrationTest extends AbstractContainerBaseTest {
 
         // when - action or behaviour that we are going to test
         ResultActions response = mockMvc.perform(delete("/api/v1/customers/{id}", customer.getId())
-                .header("Authorization", "Bearer user-token")
+                .header("Authorization", "Bearer admin-token")
                 .contentType(MediaType.APPLICATION_JSON));
 
         // then - verify the output
@@ -234,6 +234,25 @@ class CustomerControllerIntegrationTest extends AbstractContainerBaseTest {
                 // verify the actual returned value and the expected value
                 // $ - root member of a JSON structure whether it is an object or array
                 .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())));
+    }
+
+    @Test
+    void givenUserRole_whenDeleteCustomer_thenForbidden() throws Exception {
+        // given
+        Customer customer = new Customer();
+        customer.setFirstName("John");
+        customer.setLastName("Wick");
+        customer.setEmail("jwick@tester.com");
+        customer.setPhoneNumber("0123456789");
+        customer.setDateOfBirth(LocalDate.now().minusYears(18));
+        customerRepository.save(customer);
+
+        // when - user role attempts delete
+        mockMvc.perform(delete("/api/v1/customers/{id}", customer.getId())
+                        .header("Authorization", "Bearer user-token")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isForbidden());
     }
 
 

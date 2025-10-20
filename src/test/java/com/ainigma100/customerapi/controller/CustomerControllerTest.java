@@ -216,8 +216,8 @@ class CustomerControllerTest {
     }
 
 
-    @WithMockUser(roles = "USER")
     @Test
+    @WithMockUser(roles = {"ADMIN"})
     void givenCustomerDTO_whenDeleteCustomer_thenReturnCustomerDTO() throws Exception {
 
         // given - precondition or setup
@@ -236,6 +236,15 @@ class CustomerControllerTest {
                 .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())));
     }
 
+    @Test
+    @WithMockUser(roles = "USER")
+    void givenUserRole_whenDeleteCustomer_thenForbidden() throws Exception {
+        // when - a USER attempts to delete
+        mockMvc.perform(delete("/api/v1/customers/{id}", 1L)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isForbidden());
+    }
 
     @WithMockUser(roles = "USER")
     @Test

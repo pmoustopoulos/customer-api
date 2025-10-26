@@ -153,7 +153,7 @@ running tests, and packaging the application. They are specified in the `<build>
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.5.6</version>
+    <version>3.5.7</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
 

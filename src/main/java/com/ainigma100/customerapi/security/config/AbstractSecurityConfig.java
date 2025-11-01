@@ -22,8 +22,13 @@ public abstract class AbstractSecurityConfig {
             "/swagger-ui-custom.html", "/swagger-ui.html",
             "/swagger-ui/**", "/v3/api-docs/**", "/webjars/**",
             "/swagger-ui/index.html", "/swagger-resources/**", "/api-docs/**",
-            "/error", "/h2-console/**"
+            "/error"
     };
+
+    // Accessor so profiles can safely extend PUBLIC_URLS (prod uses defaults).
+    protected String[] publicUrls() {
+        return PUBLIC_URLS;
+    }
 
     /**
      * Configures the security filter chain with common settings.
@@ -37,17 +42,19 @@ public abstract class AbstractSecurityConfig {
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(new AzureRoleConverter());
 
+        String[] permittedUrls = publicUrls();
+
         http
                 // Configure CORS with default settings
                 .cors(Customizer.withDefaults())
-                
+
                 // Disable CSRF for REST APIs
                 // This is acceptable for stateless REST APIs using JWT tokens
                 .csrf(csrf -> csrf.disable())
-                
+
                 // Configure authorization rules
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(PUBLIC_URLS).permitAll()
+                        .requestMatchers(permittedUrls).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Allow preflight requests
                         // All authenticated requests must have either Admin or User role
                         .anyRequest().hasAnyRole("ADMIN", "USER")

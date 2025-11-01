@@ -1,5 +1,6 @@
 package com.ainigma100.customerapi.security.config;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -28,6 +29,11 @@ public class SecurityDevMockConfig extends AbstractSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return configureCommonSecurity(http);
+    }
+
+    @Override
+    protected String[] publicUrls() {
+        return ArrayUtils.add(PUBLIC_URLS, "/h2-console/**");
     }
 
     @Bean

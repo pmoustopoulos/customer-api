@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringBootVersion;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -65,7 +66,8 @@ public class OpenApiConfig {
                 ? String.join(", ", activeProfiles).toUpperCase()
                 : "DEFAULT";
 
-        String description = String.format("Active profile: <b>%s</b>", profileInfo);
+        String springBootVersion = Optional.of(SpringBootVersion.getVersion()).orElse("unknown");
+        String description = String.format("Active Profile: <b>%s</b><br/>Spring Boot: <b>%s</b>", profileInfo, springBootVersion);
 
         boolean isLocalOrH2 = profileInfo.contains("LOCAL") || profileInfo.contains("H2") || profileInfo.contains("DEV");
 
@@ -94,7 +96,7 @@ public class OpenApiConfig {
 
 
     @Bean
-    @Profile({"dev"})
+    @Profile("!test & !prod")
     public CommandLineRunner generateOpenApiJson() {
 
         String serverSslKeyStore = "server.ssl.key-store";

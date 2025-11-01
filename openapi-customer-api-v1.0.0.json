@@ -2,11 +2,11 @@
   "openapi" : "3.1.0",
   "info" : {
     "title" : "Customer API - v1.0.0",
-    "description" : "Active profile: <b>DEV</b>",
+    "description" : "Active Profile: <b>DEV</b><br/>Spring Boot: <b>3.5.7</b>",
     "version" : "2.8.13"
   },
   "servers" : [ {
-    "url" : "http://192.168.1.254:8088/customer-api",
+    "url" : "http://127.0.0.1:8088/customer-api",
     "description" : "Generated server url"
   } ],
   "security" : [ {
@@ -376,6 +376,12 @@
             "type" : "integer",
             "format" : "int32"
           },
+          "first" : {
+            "type" : "boolean"
+          },
+          "last" : {
+            "type" : "boolean"
+          },
           "size" : {
             "type" : "integer",
             "format" : "int32"
@@ -397,12 +403,6 @@
             "type" : "integer",
             "format" : "int32"
           },
-          "first" : {
-            "type" : "boolean"
-          },
-          "last" : {
-            "type" : "boolean"
-          },
           "pageable" : {
             "$ref" : "#/components/schemas/PageableObject"
           },
@@ -421,19 +421,19 @@
           "sort" : {
             "$ref" : "#/components/schemas/SortObject"
           },
-          "pageSize" : {
-            "type" : "integer",
-            "format" : "int32"
+          "unpaged" : {
+            "type" : "boolean"
+          },
+          "paged" : {
+            "type" : "boolean"
           },
           "pageNumber" : {
             "type" : "integer",
             "format" : "int32"
           },
-          "paged" : {
-            "type" : "boolean"
-          },
-          "unpaged" : {
-            "type" : "boolean"
+          "pageSize" : {
+            "type" : "integer",
+            "format" : "int32"
           }
         }
       },
@@ -443,10 +443,10 @@
           "empty" : {
             "type" : "boolean"
           },
-          "sorted" : {
+          "unsorted" : {
             "type" : "boolean"
           },
-          "unsorted" : {
+          "sorted" : {
             "type" : "boolean"
           }
         }

@@ -46,9 +46,16 @@ public class LoggingFilter implements Filter {
 
     private boolean shouldLogRequest(HttpServletRequest request) {
 
+        // Exclude developer portal root and index page from logging
+        String path = request.getServletPath();
+        if (path == null || path.isEmpty() || "/".equals(path) || "/index.html".equalsIgnoreCase(path)
+                || "/logs.html".equalsIgnoreCase(path)) {
+            return false;
+        }
+
         // (?i) enables case-insensitive matching, \b matched as whole words
         // reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions
-        return !request.getServletPath().matches("(?i).*\\b(actuator|swagger|api-docs|favicon|ui)\\b.*");
+        return !path.matches("(?i).*\\b(actuator|swagger|api-docs|favicon|ui|logs)\\b.*");
     }
 
     private String getClientIP(HttpServletRequest request) {

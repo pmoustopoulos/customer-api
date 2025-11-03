@@ -45,15 +45,19 @@ public class ServerDetails {
         String[] activeProfiles = Optional.of(environment.getActiveProfiles()).orElse(new String[0]);
         String activeProfile = (activeProfiles.length > 0) ? String.join(",", activeProfiles) : defaultProfile;
         String swaggerUI = Optional.ofNullable(environment.getProperty(springdocSwaggerUiPath)).orElse("/swagger-ui/index.html");
+        String baseUrl = String.format("%s://%s:%s%s/", protocol, host, serverPort, contextPath);
 
         log.info(
                 """
-                        
-                        
-                        Access Swagger UI URL: {}://{}:{}{}{}
-                        Active Profile: {}
-                        """,
-                protocol, host, serverPort, contextPath, swaggerUI,
+                
+                --- Application Startup -----------------
+                Developer Portal : {}
+                Swagger UI       : {}{}{}
+                Active Profile   : {}
+                -----------------------------------------
+                """,
+                baseUrl,
+                protocol + "://", host, ":" + serverPort + contextPath + swaggerUI,
                 activeProfile
         );
     }

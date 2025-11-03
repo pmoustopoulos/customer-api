@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Live Application Logs</title>
+    <style>
+        body {
+            background: #0f172a;
+            color: #e5e7eb;
+            font-family: "JetBrains Mono", "Fira Code", monospace;
+            margin: 0;
+            padding: 1rem;
+            overflow-y: scroll;
+        }
+
+        h2 {
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+
+        #logs {
+            white-space: pre-wrap;
+            line-height: 1.45;
+            font-size: 13px;
+        }
+
+        #logs div:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        /* === Color palette === */
+        .error   { color: #ef4444; }   /* vivid red */
+        .warn    { color: #eab308; }   /* amber yellow */
+        .info    { color: #38bdf8; }   /* bright cyan-blue */
+        .debug   { color: #94a3b8; }   /* soft gray-blue */
+        .success { color: #22c55e; }   /* emerald green */
+        .timestamp { color: #64748b; } /* slate gray */
+        .thread { color: #a78bfa; }    /* violet */
+    </style>
+</head>
+<body>
+<h2>📜 Application Logs</h2>
+<div id="logs"></div>
+
+<script>
+    const logsDiv = document.getElementById('logs');
+
+    // Detect context path (handles both / and /customer-api/)
+    function contextPath() {
+        const path = window.location.pathname;
+        const parts = path.split('/');
+        return parts.length > 1 ? '/' + parts[1] : '';
+    }
+
+    const base = contextPath();
+
+    // === Colorize log lines ===
+    function colorize(line) {
+        line = line.replace(/^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/, '<span class="timestamp">$1</span>');
+        line = line.replace(/\[(.*?)\]/, '<span class="thread">[$1]</span>');
+
+        if (line.includes('ERROR')) return `<div class="error">${line}</div>`;
+        if (line.includes('WARN'))  return `<div class="warn">${line}</div>`;
+        if (line.includes('INFO'))  return `<div class="info">${line}</div>`;
+        if (line.includes('DEBUG')) return `<div class="debug">${line}</div>`;
+        if (line.includes('SUCCESS')) return `<div class="success">${line}</div>`;
+        return `<div>${line}</div>`;
+    }
+
+    // === Load historical logs ===
+    fetch(base + '/api/logs/history')
+        .then(res => res.text())
+        .then(data => {
+            logsDiv.innerHTML = data
+                .split('\n')
+                .filter(line => line.trim() !== '')
+                .map(colorize)
+                .join('');
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+
+    // === Live log stream with reconnection logic ===
+    let source;
+    let retryCount = 0;
+    const maxRetries = 5;
+
+    function startSSE() {
+        if (source) source.close();
+        source = new EventSource(base + '/api/logs/stream');
+
+        source.onmessage = e => {
+            logsDiv.insertAdjacentHTML('beforeend', colorize(e.data) + '\n');
+            window.scrollTo(0, document.body.scrollHeight);
+        };
+
+        source.onopen = () => {
+            if (retryCount > 0) {
+                logsDiv.insertAdjacentHTML('beforeend', '<div class="success">[✅ Reconnected to log stream]</div>');
+            }
+            retryCount = 0;
+        };
+
+        source.onerror = () => {
+            source.close();
+            if (retryCount < maxRetries) {
+                retryCount++;
+                const delay = 2000 * retryCount;
+                logsDiv.insertAdjacentHTML(
+                    'beforeend',
+                    `<div class="warn">[Stream disconnected — retrying in ${delay / 1000}s...]</div>`
+                );
+                setTimeout(startSSE, delay);
+            } else {
+                logsDiv.insertAdjacentHTML(
+                    'beforeend',
+                    '<div class="error">[❌ Stream permanently disconnected. Please refresh the page.]</div>'
+                );
+            }
+        };
+    }
+
+    startSSE();
+</script>
+</body>
+</html>

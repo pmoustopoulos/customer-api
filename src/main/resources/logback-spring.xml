@@ -1,0 +1,40 @@
+<configuration>
+  <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+  <property name="LOG_DIR" value="logs"/>
+
+
+  <!-- Console appender to print logs to STDOUT with colors -->
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder charset="UTF-8">
+      <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+    </encoder>
+  </appender>
+
+  <!-- Rolling file appender with a fixed window policy to cap archives at 5 files -->
+  <appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!-- Current (active) log file -->
+    <file>${LOG_DIR}/app.log</file>
+
+    <encoder charset="UTF-8">
+      <pattern>${FILE_LOG_PATTERN}</pattern>
+    </encoder>
+
+    <!-- Time and size-based rolling policy to keep max 10 days of history -->
+    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <fileNamePattern>${LOG_DIR}/app-%d{yyyy-MM-dd_HH-mm}.%i.log.gz</fileNamePattern>
+      <maxHistory>10</maxHistory>
+      <maxFileSize>5MB</maxFileSize>
+      <totalSizeCap>100MB</totalSizeCap>
+      <cleanHistoryOnStart>true</cleanHistoryOnStart>
+    </rollingPolicy>
+
+    <append>true</append>
+    <prudent>false</prudent>
+  </appender>
+
+  <!-- Set your desired default log level here -->
+  <root level="INFO">
+    <appender-ref ref="CONSOLE"/>
+    <appender-ref ref="ROLLING"/>
+  </root>
+</configuration>

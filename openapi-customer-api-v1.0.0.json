@@ -2,11 +2,11 @@
   "openapi" : "3.1.0",
   "info" : {
     "title" : "Customer API - v1.0.0",
-    "description" : "Active profile: <b>DEV</b>",
-    "version" : "2.8.4"
+    "description" : "Active Profile: <b>DEV</b><br/>Spring Boot: <b>3.5.7</b>",
+    "version" : "2.8.13"
   },
   "servers" : [ {
-    "url" : "http://192.168.1.63:8088/customer-api",
+    "url" : "http://127.0.0.1:8088/customer-api",
     "description" : "Generated server url"
   } ],
   "paths" : {
@@ -197,6 +197,42 @@
           }
         }
       }
+    },
+    "/api/logs/stream" : {
+      "get" : {
+        "tags" : [ "developer-portal-controller" ],
+        "operationId" : "streamLogs",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "text/event-stream" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SseEmitter"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/logs/history" : {
+      "get" : {
+        "tags" : [ "developer-portal-controller" ],
+        "operationId" : "getLogHistory",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components" : {
@@ -220,8 +256,10 @@
           },
           "email" : {
             "type" : "string",
+            "format" : "email",
             "description" : "Customer's email address",
-            "example" : "jwick@tester.com"
+            "example" : "jwick@tester.com",
+            "minLength" : 1
           },
           "phoneNumber" : {
             "type" : "string",
@@ -416,9 +454,6 @@
           "sort" : {
             "$ref" : "#/components/schemas/SortObject"
           },
-          "unpaged" : {
-            "type" : "boolean"
-          },
           "paged" : {
             "type" : "boolean"
           },
@@ -429,6 +464,9 @@
           "pageSize" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "unpaged" : {
+            "type" : "boolean"
           }
         }
       },
@@ -438,10 +476,10 @@
           "empty" : {
             "type" : "boolean"
           },
-          "unsorted" : {
+          "sorted" : {
             "type" : "boolean"
           },
-          "sorted" : {
+          "unsorted" : {
             "type" : "boolean"
           }
         }
@@ -450,10 +488,21 @@
         "type" : "object",
         "properties" : {
           "email" : {
-            "type" : "string"
+            "type" : "string",
+            "format" : "email",
+            "minLength" : 1
           }
         },
         "required" : [ "email" ]
+      },
+      "SseEmitter" : {
+        "type" : "object",
+        "properties" : {
+          "timeout" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }
       },
       "APIResponseString" : {
         "type" : "object",

@@ -12,8 +12,6 @@
 
   <!-- Rolling file appender with a fixed window policy to cap archives at 5 files -->
   <appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <!-- Current (active) log file -->
-    <file>${LOG_DIR}/app.log</file>
 
     <encoder charset="UTF-8">
       <pattern>${FILE_LOG_PATTERN}</pattern>
@@ -24,7 +22,7 @@
       <fileNamePattern>${LOG_DIR}/app-%d{yyyy-MM-dd_HH-mm}.%i.log.gz</fileNamePattern>
       <maxHistory>10</maxHistory>
       <maxFileSize>5MB</maxFileSize>
-      <totalSizeCap>100MB</totalSizeCap>
+      <totalSizeCap>50MB</totalSizeCap>
       <cleanHistoryOnStart>true</cleanHistoryOnStart>
     </rollingPolicy>
 

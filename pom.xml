@@ -24,6 +24,12 @@
 
     <dependencies>
 
+        <!-- Liquibase for database migrations -->
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+        </dependency>
+
         <!-- Spring Boot Starter for Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

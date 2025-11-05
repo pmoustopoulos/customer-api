@@ -5,6 +5,10 @@ server:
   shutdown: graceful
 
 spring:
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/changelog-master.xml
+
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev} # Specify the active profile
 

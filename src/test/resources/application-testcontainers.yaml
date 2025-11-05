@@ -8,3 +8,5 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: create-drop
+  liquibase:
+    enabled: false

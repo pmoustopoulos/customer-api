@@ -9,9 +9,9 @@ spring:
     properties:
       hibernate:
         format_sql: true
-    generate-ddl: true
+    generate-ddl: false
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
   h2:
     console:
       enabled: true

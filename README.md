@@ -149,159 +149,165 @@ running tests, and packaging the application. They are specified in the `<build>
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.5.7</version>
-    <relativePath/> <!-- lookup parent from repository -->
-  </parent>
-
-  <groupId>com.ainigma100</groupId>
-  <artifactId>customer-api</artifactId>
-  <version>1.0.0</version> <!-- TODO: Update this when you develop new version -->
-  <name>customer-api</name>
-  <description>customer-api</description>
-
-  <properties>
-    <java.version>21</java.version>
-    <springdoc-openapi-starter-webmvc-ui.version>2.8.13</springdoc-openapi-starter-webmvc-ui.version>
-    <org.mapstruct.version>1.6.3</org.mapstruct.version>
-    <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
-  </properties>
-
-  <dependencies>
-
-    <!-- Spring Boot Starter for Web -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-
-    <!-- Spring Boot Starter for JPA -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-data-jpa</artifactId>
-    </dependency>
-
-    <!-- Spring Boot Starter for Actuator -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-actuator</artifactId>
-    </dependency>
-
-    <!-- Spring Boot Starter for Validation -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-validation</artifactId>
-    </dependency>
-
-    <!-- H2 Database for Development -->
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-
-    <!-- Lombok for Reducing Boilerplate Code -->
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-      <optional>true</optional>
-    </dependency>
-
-    <!-- MapStruct for DTO Mapping -->
-    <dependency>
-      <groupId>org.mapstruct</groupId>
-      <artifactId>mapstruct</artifactId>
-      <version>${org.mapstruct.version}</version>
-    </dependency>
-
-    <!-- SpringDoc OpenAPI for API Documentation -->
-    <dependency>
-      <groupId>org.springdoc</groupId>
-      <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-      <version>${springdoc-openapi-starter-webmvc-ui.version}</version>
-    </dependency>
-
-    <!-- Spring Boot Starter for Testing -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-
-    <!-- Test Containers -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-testcontainers</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>junit-jupiter</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>postgresql</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <!-- This connector will be used by the testcontainers -->
-    <dependency>
-      <groupId>org.postgresql</groupId>
-      <artifactId>postgresql</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-  </dependencies>
-
-  <build>
-    <finalName>${project.artifactId}-v${project.version}</finalName>
-    <plugins>
-      <!-- Spring Boot Maven Plugin -->
-      <plugin>
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
         <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-maven-plugin</artifactId>
-        <configuration>
-          <excludes>
-            <exclude>
-              <groupId>org.projectlombok</groupId>
-              <artifactId>lombok</artifactId>
-            </exclude>
-          </excludes>
-        </configuration>
-      </plugin>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.5.7</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
 
-      <!-- Maven Compiler Plugin -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>${java.version}</source>
-          <target>${java.version}</target>
-          <annotationProcessorPaths>
-            <path>
-              <groupId>org.mapstruct</groupId>
-              <artifactId>mapstruct-processor</artifactId>
-              <version>${org.mapstruct.version}</version>
-            </path>
-            <path>
-              <groupId>org.projectlombok</groupId>
-              <artifactId>lombok</artifactId>
-              <version>${lombok.version}</version>
-            </path>
-            <path>
-              <groupId>org.projectlombok</groupId>
-              <artifactId>lombok-mapstruct-binding</artifactId>
-              <version>${lombok-mapstruct-binding.version}</version>
-            </path>
-          </annotationProcessorPaths>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+    <groupId>com.ainigma100</groupId>
+    <artifactId>customer-api</artifactId>
+    <version>1.0.0</version> <!-- TODO: Update this when you develop new version -->
+    <name>customer-api</name>
+    <description>customer-api</description>
+
+    <properties>
+        <java.version>21</java.version>
+        <springdoc-openapi-starter-webmvc-ui.version>2.8.13</springdoc-openapi-starter-webmvc-ui.version>
+        <org.mapstruct.version>1.6.3</org.mapstruct.version>
+        <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
+    </properties>
+
+    <dependencies>
+
+        <!-- Liquibase for database migrations -->
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+        </dependency>
+
+        <!-- Spring Boot Starter for Web -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- Spring Boot Starter for JPA -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <!-- Spring Boot Starter for Actuator -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- Spring Boot Starter for Validation -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!-- H2 Database for Development -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Lombok for Reducing Boilerplate Code -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- MapStruct for DTO Mapping -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${org.mapstruct.version}</version>
+        </dependency>
+
+        <!-- SpringDoc OpenAPI for API Documentation -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${springdoc-openapi-starter-webmvc-ui.version}</version>
+        </dependency>
+
+        <!-- Spring Boot Starter for Testing -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+
+        <!-- Test Containers -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-testcontainers</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- This connector will be used by the testcontainers -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <finalName>${project.artifactId}-v${project.version}</finalName>
+        <plugins>
+            <!-- Spring Boot Maven Plugin -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <!-- Maven Compiler Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${org.mapstruct.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok-mapstruct-binding</artifactId>
+                            <version>${lombok-mapstruct-binding.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
 ```
@@ -3136,20 +3142,32 @@ scalable. Below are some key practices to keep in mind:
 
 ### 10. Database Migrations with Liquibase or Flyway
 
-- **Purpose**: Database migration tools like Liquibase and Flyway help manage schema changes in a consistent and
-  controlled manner. They are particularly useful in environments where the database schema evolves over time.
-- **When to Use**:
-    - **Use Case**: If your application requires frequent schema changes, or if you work in a team where multiple
-      developers are modifying the database, using a migration tool is essential. It ensures that all changes are
-      versioned, documented, and applied consistently across different environments (development, testing, production).
-    - **When Not Needed**: If your application uses a fixed schema that rarely changes, or if you're using a database
-      with a predefined schema where you don't manage the tables (e.g., a third-party service), you might not need a
-      migration tool. In such cases, focusing on data access rather than schema management is more appropriate.
-- **Best Practices**:
-    - **Version Control for Migrations**: Always check your migration scripts into version control alongside your
-      application code. This ensures that schema changes are versioned with the corresponding application changes.
-    - **Automate Migrations**: Integrate your migration tool into your CI/CD pipeline to ensure that migrations are
-      applied automatically during deployment, reducing the risk of human error.
+- Purpose: Database migration tools (Liquibase, Flyway) manage schema changes consistently and safely as your application evolves.
+- When to use:
+  - If schema changes are frequent or multiple developers contribute, use a migration tool to version, review, and apply changes across environments.
+- When it may not be needed:
+  - If the schema is fixed/externally managed (e.g., a third-party database you don’t control), you can skip migrations and focus on data access.
+- Best practices:
+  - Keep migration scripts in version control with the application code.
+  - Make scripts idempotent when possible (e.g., `CREATE TABLE IF NOT EXISTS`, `DROP INDEX IF EXISTS`).
+
+This repository uses Liquibase by default, but you are free to choose another tool (e.g., Flyway) if it better fits your standards or preference.
+
+How this project is configured (Liquibase). Please note that you may want a different structure:
+- Master changelog (XML): `src/main/resources/db/changelog/changelog-master.xml`
+- SQL changesets: `src/main/resources/db/changelog/changeset/`
+- Spring Boot loads Liquibase at startup (see liquibase section inside `application.yaml`). 
+  The path you specify in for the changelog-master.xml should match the file location
+- Tests: Liquibase is disabled in Testcontainers tests (see `src/test/resources/application-testcontainers.yaml`), and Hibernate uses a temporary schema.
+  If your tests depend on prefilled data, you can enable Liquibase during testing as well
+
+Add a new change:
+1. Create a new SQL file under `src/main/resources/db/changelog/changeset/`, e.g., `002-add-index.sql`.
+2. Reference it from the master changelog by adding a new `<include>` entry.
+3. Commit both files, and Liquibase will apply the change on the next application start.
+
+Troubleshooting:
+- Checksum mismatches after editing an already-applied changeset can occur. Prefer adding a new changeset rather than modifying old ones.
 
 ### 11. Static Code Analysis with SonarQube
 

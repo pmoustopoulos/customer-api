@@ -1352,10 +1352,14 @@ different layers. It also makes your API more robust, secure, and easier to main
     - **Purpose**: Maps HTTP POST requests to a specific handler method. It is used to create new resources on the
       server.
     - **Usage**: Use `@RequestBody` to pass data in the request body when creating a new resource.
+    - Additionally: Accept a `UriComponentsBuilder` parameter to build the resource URI and return HTTP 201 Created with 
+      a `Location` header that points to the newly created resource.
     - **Example**:
       ```java
       @PostMapping
-      public ResponseEntity<APIResponse<CustomerDTO>> createCustomer(@Valid @RequestBody CustomerRequestDTO customerRequestDTO) {
+      public ResponseEntity<APIResponse<CustomerDTO>> createCustomer(
+            @Valid @RequestBody CustomerRequestDTO customerRequestDTO,
+            UriComponentsBuilder uriComponentsBuilder) {
           // You will have your implementation
       }
       ```
@@ -3180,6 +3184,36 @@ Troubleshooting:
     - **Manage Technical Debt**: Use SonarQube to track and reduce technical debt by identifying areas that need
       refactoring.
 
+### 12. Return 201 Created with Location header on resource creation
+
+- Purpose: When creating a resource via POST, respond with HTTP 201 and include a Location header pointing to the URI of 
+  the newly created resource. This follows REST conventions enabling clients to discover 
+  and fetch the resource directly.
+- Implementation in this project:
+  - The POST /api/v1/customers endpoint returns 201 Created and sets Location: /api/v1/customers/{id}.
+  - We build the URI using a method-injected UriComponentsBuilder
+  ```java
+  @PostMapping
+  public ResponseEntity<APIResponse<CustomerDTO>> createCustomer(
+          @Valid @RequestBody CustomerRequestDTO req,
+          UriComponentsBuilder uriComponentsBuilder) {
+  
+      CustomerDTO result = customerService.createCustomer(customerMapper.customerRequestDTOToCustomerDTO(req));
+  
+      APIResponse<CustomerDTO> body = APIResponse.<CustomerDTO>builder()
+              .status(Status.SUCCESS.getValue())
+              .results(result)
+              .build();
+  
+      java.net.URI location = uriComponentsBuilder
+              .path("/api/v1/customers/{id}")
+              .buildAndExpand(result.getId())
+              .toUri();
+  
+      return ResponseEntity.created(location).body(body);
+  }
+  ```
+  
 ---
 
 ## 13. Enhanced Pagination Example

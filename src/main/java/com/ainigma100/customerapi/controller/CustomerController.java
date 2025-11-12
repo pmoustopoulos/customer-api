@@ -12,6 +12,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.net.URI;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/customers")
@@ -25,7 +28,8 @@ public class CustomerController {
     @Operation(summary = "Add a new customer")
     @PostMapping
     public ResponseEntity<APIResponse<CustomerDTO>> createCustomer(
-            @Valid @RequestBody CustomerRequestDTO customerRequestDTO) {
+            @Valid @RequestBody CustomerRequestDTO customerRequestDTO,
+            UriComponentsBuilder uriComponentsBuilder) {
 
         CustomerDTO customerDTO = customerMapper.customerRequestDTOToCustomerDTO(customerRequestDTO);
 
@@ -38,7 +42,12 @@ public class CustomerController {
                 .results(result)
                 .build();
 
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        URI location = uriComponentsBuilder
+                .path("/api/v1/customers/{id}")
+                .buildAndExpand(result.getId())
+                .toUri();
+
+        return ResponseEntity.created(location).body(response);
     }
 
 

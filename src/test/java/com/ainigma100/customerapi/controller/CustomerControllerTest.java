@@ -8,6 +8,7 @@ import com.ainigma100.customerapi.enums.Status;
 import com.ainigma100.customerapi.mapper.CustomerMapper;
 import com.ainigma100.customerapi.service.CustomerService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -101,6 +103,8 @@ class CustomerControllerTest {
         response.andDo(print())
                 // verify the status code that is returned
                 .andExpect(status().isCreated())
+                // verify the Location header
+                .andExpect(MockMvcResultMatchers.header().string("Location", Matchers.endsWith("/api/v1/customers/1")))
                 // verify the actual returned value and the expected value
                 // $ - root member of a JSON structure whether it is an object or array
                 .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())))

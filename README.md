@@ -153,7 +153,7 @@ running tests, and packaging the application. They are specified in the `<build>
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.7</version>
+        <version>3.5.8</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -784,7 +784,9 @@ openapi:
 This file contains settings specific to the development environment. Here's what each setting does:
 
 - **`datasource.url`**: Configures the JDBC URL for the H2 database. In this example, the database is stored in a local
-  file (`./data/customer-db`) with `AUTO_SERVER=true` to allow remote connections.
+  file (`./data/customer-db`) with `AUTO_SERVER=true` to allow remote connections. Additionally, we enable
+  `MODE=PostgreSQL` so that H2 behaves closer to PostgreSQL during development. This reduces SQL/dialect differences
+  between the local H2 setup and the PostgreSQL database used in integration tests (Testcontainers) or production.
 - **`datasource.username` and `datasource.password`**: Set the database username and password. The default username (
   `sa`) is used with no password.
 - **`datasource.driver-class-name`**: Specifies the JDBC driver class for the H2 database.
@@ -808,7 +810,7 @@ refining this guide and making it a valuable resource for all developers.
 
 ```yaml
 datasource:
-  url: jdbc:h2:file:./data/notification-manager-db;AUTO_SERVER=true
+  url: jdbc:h2:file:./data/customer-db;AUTO_SERVER=true;MODE=PostgreSQL
   username: sa
   password:
   driver-class-name: org.h2.Driver

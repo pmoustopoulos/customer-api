@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: "${SPRING_DATASOURCE_URL:jdbc:h2:file:./data/customer-db;AUTO_SERVER=true}"
+    url: "${SPRING_DATASOURCE_URL:jdbc:h2:file:./data/customer-db;AUTO_SERVER=true;MODE=PostgreSQL}"
     username: "${SPRING_DATASOURCE_USERNAME:sa}"
     password: "${SPRING_DATASOURCE_PASSWORD:pass}"
     driver-class-name: org.h2.Driver

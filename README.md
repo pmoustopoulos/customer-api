@@ -1,7 +1,7 @@
-# Spring Boot 3 Knowledge Sharing
+# Spring Boot 4 Knowledge Sharing
 
 This document is designed to help new Spring Boot developers understand the basics of building applications using Spring
-Boot 3. It covers the structure of a sample project [Customer API](https://github.com/pmoustopoulos/customer-api),
+Boot 4. It covers the structure of a sample project [Customer API](https://github.com/pmoustopoulos/customer-api),
 explains the purpose of key annotations, and provides insights
 into best practices. **Note**: You have also to check the code example and not only this markdown file because some
 parts
@@ -13,7 +13,7 @@ practices and tools may evolve. I encourage you to explore other perspectives an
 
 **Feedback and Contributions**: I am always open to feedback and contributions. If you have suggestions for improvement
 or additional insights, please feel free to share. Together, we can make this a valuable resource for anyone learning
-Spring Boot 3.
+Spring Boot 4.
 
 **Note on Spring Security example**: If you want to see an example setup with Spring Security, please check the branch
 `feature/security-setup-docs`. I intentionally did not include security in this main branch because it can be complex
@@ -66,8 +66,7 @@ complex frameworks.
 ## 2. Project Structure Overview
 
 Understanding the structure of a Spring Boot project is crucial for effective development. Below is the typical
-structure
-of a sample Spring Boot 3 project. Please note this is something I follow based on the knowledge I gained from other
+structure of a sample Spring Boot 4 project. Please note this is something I follow based on the knowledge I gained from other
 developers.
 Furthermore, some packages can be skipped in case based on your use case you do not need them.
 
@@ -142,177 +141,7 @@ running tests, and packaging the application. They are specified in the `<build>
 
 ### Example `pom.xml` file for Customer API
 
-<details>
-  <summary>View pom file</summary>
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.10</version>
-        <relativePath/> <!-- lookup parent from repository -->
-    </parent>
-
-    <groupId>com.ainigma100</groupId>
-    <artifactId>customer-api</artifactId>
-    <version>1.0.0</version> <!-- TODO: Update this when you develop new version -->
-    <name>customer-api</name>
-    <description>customer-api</description>
-
-    <properties>
-        <java.version>21</java.version>
-        <springdoc-openapi-starter-webmvc-ui.version>2.8.15</springdoc-openapi-starter-webmvc-ui.version>
-        <org.mapstruct.version>1.6.3</org.mapstruct.version>
-        <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
-    </properties>
-
-    <dependencies>
-
-        <!-- Liquibase for database migrations -->
-        <dependency>
-            <groupId>org.liquibase</groupId>
-            <artifactId>liquibase-core</artifactId>
-        </dependency>
-
-        <!-- Spring Boot Starter for Web -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-
-        <!-- Spring Boot Starter for JPA -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
-
-        <!-- Spring Boot Starter for Actuator -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-
-        <!-- Spring Boot Starter for Validation -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-validation</artifactId>
-        </dependency>
-
-        <!-- H2 Database for Development -->
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-
-        <!-- Lombok for Reducing Boilerplate Code -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-        </dependency>
-
-        <!-- MapStruct for DTO Mapping -->
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct</artifactId>
-            <version>${org.mapstruct.version}</version>
-        </dependency>
-
-        <!-- SpringDoc OpenAPI for API Documentation -->
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>${springdoc-openapi-starter-webmvc-ui.version}</version>
-        </dependency>
-
-        <!-- Spring Boot Starter for Testing -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-
-        <!-- Test Containers -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-testcontainers</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>postgresql</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <!-- This connector will be used by the testcontainers -->
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-    </dependencies>
-
-    <build>
-        <finalName>${project.artifactId}-v${project.version}</finalName>
-        <plugins>
-            <!-- Spring Boot Maven Plugin -->
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
-
-            <!-- Maven Compiler Plugin -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.mapstruct</groupId>
-                            <artifactId>mapstruct-processor</artifactId>
-                            <version>${org.mapstruct.version}</version>
-                        </path>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>${lombok.version}</version>
-                        </path>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok-mapstruct-binding</artifactId>
-                            <version>${lombok-mapstruct-binding.version}</version>
-                        </path>
-                    </annotationProcessorPaths>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
-</project>
-```
-
-</details>
+> **Full source:** [`pom.xml`](pom.xml)
 
 ### Dependencies Included
 
@@ -845,74 +674,7 @@ jpa:
     - `@Id`: Indicates the primary key of the entity.
     - `@GeneratedValue(strategy = GenerationType.IDENTITY)`: Defines the strategy for primary key generation.
 
-<details>
-  <summary>View Customer code</summary>
-
-```java
-package com.ainigma100.customerapi.entity;
-
-import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.hibernate.proxy.HibernateProxy;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Objects;
-
-@Getter
-@Setter
-@ToString
-@NoArgsConstructor
-@AllArgsConstructor
-@Entity
-@Table(name = "customers")
-public class Customer {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false)
-    private String firstName;
-
-    @Column(nullable = false)
-    private String lastName;
-
-    @Column(nullable = false, unique = true)
-    private String email;
-
-    private String phoneNumber;
-
-    private LocalDate dateOfBirth;
-
-    @CreationTimestamp
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdDate;
-
-    @UpdateTimestamp
-    private LocalDateTime updatedDate;
-
-    @Override
-    public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        Class<?> oEffectiveClass = o instanceof HibernateProxy hibernateProxy ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy hibernateProxy ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass() : this.getClass();
-        if (thisEffectiveClass != oEffectiveClass) return false;
-        Customer customer = (Customer) o;
-        return getId() != null && Objects.equals(getId(), customer.getId());
-    }
-
-    @Override
-    public final int hashCode() {
-        return this instanceof HibernateProxy hibernateProxy ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
-    }
-}
-```
-
-</details>
+> **Full source:** [`Customer.java`](src/main/java/com/ainigma100/customerapi/entity/Customer.java)
 
 ### Why Not Use `@Data`?
 
@@ -953,6 +715,58 @@ private String firstName;
 converted to snake_case in most databases. For example, if your entity has a field named `firstName`, it will be mapped
 to a column named `first_name` by default.
 
+### Optimistic Locking with `@Version`
+
+The `Customer` entity has one more field worth explaining on its own:
+
+```java
+@Version
+@Column(nullable = false)
+private Long version;
+```
+
+**The problem it solves.** Imagine two users open the same customer at the same time. User A changes the phone
+number and saves; a moment later User B (who loaded the record *before* A's change) saves their own edit. Without
+any protection, B's save silently overwrites A's change — a classic **lost update**.
+
+**How `@Version` prevents it.** With a version field, Hibernate adds the version to the `UPDATE` statement and
+increments it every time:
+
+```sql
+UPDATE customers SET phone_number = ?, version = version + 1
+WHERE id = ? AND version = ?   -- the version the row had when we loaded it
+```
+
+If someone already modified the row in the meantime, its version no longer matches, `0` rows are updated, and
+Hibernate throws an `OptimisticLockException` instead of quietly losing data. This is called **optimistic**
+locking because it assumes conflicts are rare: it takes **no database locks** and only checks for a clash at
+save time, which scales far better than locking rows up front.
+
+**You never manage the value yourself.** Hibernate sets `version` to `0` when the row is first inserted and
+increments it on every update. That is why the field is *not* mapped from request DTOs (just like `createdDate`
+and `updatedDate`) — the framework owns it.
+
+**Entity and migration must agree.** Because this project runs with `spring.jpa.hibernate.ddl-auto: validate`,
+the column has to actually exist in the database, or startup fails. It is created by a Liquibase changeset
+(`002-add-version-to-customers.sql`) that is wired into the master changelog:
+
+```sql
+--comment: Add version column for optimistic locking (JPA @Version)
+ALTER TABLE customers
+    ADD COLUMN version BIGINT NOT NULL DEFAULT 0;
+```
+
+`BIGINT` matches the Java `Long`, and `DEFAULT 0` gives any existing rows a valid starting version when the
+column is added to a table that already has data.
+
+> **Optimistic vs. pessimistic locking.** Optimistic locking (what we use here) detects conflicts *at save time*
+> and is ideal when collisions are uncommon. Pessimistic locking instead *locks the row in the database*
+> (e.g. `SELECT … FOR UPDATE`) so no one else can touch it until you are done — safer under heavy contention, but
+> it holds database locks and hurts throughput. Spring Data exposes both via `@Lock`.
+>
+> **Tip:** in a REST API you would typically catch `OptimisticLockException` in your global exception handler and
+> return **HTTP 409 Conflict**, signalling the client to reload the latest data and retry.
+
 <br><br>
 
 ### Repository Layer
@@ -969,23 +783,8 @@ to a column named `first_name` by default.
       necessary CRUD operations and query methods for the `Customer` entity. No need for `@Repository` or `@Component`
       annotations—Spring handles the configuration.
 
-<details>
-  <summary>View CustomerRepository code</summary>
+> **Full source:** [`CustomerRepository.java`](src/main/java/com/ainigma100/customerapi/repository/CustomerRepository.java)
 
-```java
-package com.ainigma100.customerapi.repository;
-
-import com.ainigma100.customerapi.entity.Customer;
-import org.springframework.data.jpa.repository.JpaRepository;
-
-public interface CustomerRepository extends JpaRepository<Customer, Long> {
-
-    Customer findByEmail(String email);
-
-}
-```
-
-</details>
 
 ### Query Methods Overview
 
@@ -1082,63 +881,9 @@ entity models from the external API contract.
 Below is an example of a DTO and a corresponding MapStruct mapper interface:
 
 
-<details>
-  <summary>View CustomerDTO code</summary>
+> **Full source:** [`CustomerDTO.java`](src/main/java/com/ainigma100/customerapi/dto/CustomerDTO.java)
 
-```java
-package com.ainigma100.customerapi.dto;
-
-import lombok.*;
-
-import java.time.LocalDate;
-
-@Getter
-@Setter
-@ToString
-@NoArgsConstructor
-@AllArgsConstructor
-public class CustomerDTO {
-
-    private Long id;
-    private String firstName;
-    private String lastName;
-    private String email;
-    private String phoneNumber;
-    private LocalDate dateOfBirth;
-
-}
-```
-
-</details>
-
-<details>
-  <summary>View CustomerMapper code</summary>
-
-```java
-package com.ainigma100.customerapi.mapper;
-
-import com.ainigma100.customerapi.dto.CustomerDTO;
-import com.ainigma100.customerapi.entity.Customer;
-import org.mapstruct.Mapper;
-
-import java.util.List;
-
-@Mapper(componentModel = "spring")
-public interface CustomerMapper {
-
-    Customer toCustomer(CustomerDTO customerDTO);
-
-    CustomerDTO toCustomerDTO(Customer customer);
-
-    List<Customer> toCustomerList(List<CustomerDTO> customerDTOList);
-
-    List<CustomerDTO> toCustomerDTOList(List<Customer> customerList);
-
-}
-```
-
-</details>
-
+> **Full source:** [`CustomerMapper.java`](src/main/java/com/ainigma100/customerapi/mapper/CustomerMapper.java)
 
 <br><br>
 
@@ -1166,124 +911,9 @@ between the controller layer (handling HTTP requests) and the repository layer (
   DTOs are simple objects that carry data between layers. They are particularly useful for exposing only the necessary
   data to the client and for avoiding exposing the internal structure of your entities.
 
-<details>
-  <summary>View CustomerService code</summary>
+> **Full source:** [`CustomerService.java`](src/main/java/com/ainigma100/customerapi/service/CustomerService.java)
 
-```java
-package com.ainigma100.customerapi.service;
-
-import com.ainigma100.customerapi.dto.CustomerDTO;
-import com.ainigma100.customerapi.dto.CustomerEmailUpdateDTO;
-import com.ainigma100.customerapi.dto.CustomerSearchCriteriaDTO;
-import org.springframework.data.domain.Page;
-
-public interface CustomerService {
-
-    CustomerDTO createCustomer(CustomerDTO customerDTO);
-
-    CustomerDTO getCustomerById(Long id);
-
-    CustomerDTO updateCustomer(Long id, CustomerDTO customerDTO);
-
-    CustomerDTO updateCustomerEmail(Long id, CustomerEmailUpdateDTO emailUpdateDTO);
-
-    void deleteCustomer(Long id);
-
-}
-```
-
-</details>
-
-<details>
-  <summary>View CustomerServiceImpl code</summary>
-
-```java
-package com.ainigma100.customerapi.service.impl;
-
-import com.ainigma100.customerapi.dto.CustomerDTO;
-import com.ainigma100.customerapi.dto.CustomerEmailUpdateDTO;
-import com.ainigma100.customerapi.entity.Customer;
-import com.ainigma100.customerapi.mapper.CustomerMapper;
-import com.ainigma100.customerapi.repository.CustomerRepository;
-import com.ainigma100.customerapi.service.CustomerService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
-@Slf4j
-@RequiredArgsConstructor
-@Service
-public class CustomerServiceImpl implements CustomerService {
-
-    private final CustomerRepository customerRepository;
-    private final CustomerMapper customerMapper;
-
-    @Override
-    public CustomerDTO createCustomer(CustomerDTO customerDTO) {
-
-        customerRepository.findByEmail(customerDTO.getEmail())
-                .ifPresent(customer -> {
-                    throw new EntityExistsException("Customer", "email", customerDTO.getEmail());
-                });
-
-        Customer recordToBeSaved = customerMapper.customerDTOToCustomer(customerDTO);
-
-        Customer savedRecord = customerRepository.save(recordToBeSaved);
-
-        return customerMapper.customerToCustomerDTO(savedRecord);
-    }
-
-    @Override
-    public CustomerDTO getCustomerById(Long id) {
-
-        Customer recordFromDB = customerRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Customer", "id", id));
-
-        return customerMapper.toCustomerDTO(recordFromDB);
-    }
-
-    @Override
-    public CustomerDTO updateCustomer(Long id, CustomerDTO customerDTO) {
-
-        Customer recordFromDB = customerRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Customer", "id", id));
-
-        // just to be safe that the object does not have another id
-        customerDTO.setId(recordFromDB.getId());
-
-        Customer recordToBeSaved = customerMapper.toCustomer(customerDTO);
-
-        Customer savedRecord = customerRepository.save(recordToBeSaved);
-
-        return customerMapper.toCustomerDTO(savedRecord);
-    }
-
-    @Override
-    public CustomerDTO updateCustomerEmail(Long id, CustomerEmailUpdateDTO emailUpdateDTO) {
-
-        Customer recordFromDB = customerRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Customer", "id", id));
-
-        recordFromDB.setEmail(emailUpdateDTO.getEmail());
-
-        Customer savedRecord = customerRepository.save(recordFromDB);
-
-        return customerMapper.customerToCustomerDTO(savedRecord);
-
-    }
-
-    @Override
-    public void deleteCustomer(Long id) {
-
-        Customer recordFromDB = customerRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Customer", "id", id));
-
-        customerRepository.delete(recordFromDB);
-    }
-}
-```
-
-</details>
+> **Full source:** [`CustomerServiceImpl.java`](src/main/java/com/ainigma100/customerapi/service/impl/CustomerServiceImpl.java)
 
 
 <br><br>
@@ -1415,139 +1045,7 @@ different layers. It also makes your API more robust, secure, and easier to main
     - **PATCH**: Applies partial updates to a resource. Only the fields provided in the request body will be updated,
       leaving the other fields unchanged.
 
-<details>
-  <summary>View CustomerController code</summary>
-
-```java
-package com.ainigma100.customerapi.controller;
-
-
-import com.ainigma100.customerapi.dto.*;
-import com.ainigma100.customerapi.enums.Status;
-import com.ainigma100.customerapi.mapper.CustomerMapper;
-import com.ainigma100.customerapi.service.CustomerService;
-import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-@RequiredArgsConstructor
-@RequestMapping("/api/v1/customers")
-@RestController
-public class CustomerController {
-
-    private final CustomerService customerService;
-    private final CustomerMapper customerMapper;
-
-
-    @Operation(summary = "Add a new customer")
-    @PostMapping
-    public ResponseEntity<APIResponse<CustomerDTO>> createCustomer(
-            @Valid @RequestBody CustomerRequestDTO customerRequestDTO) {
-
-        CustomerDTO customerDTO = customerMapper.customerRequestDTOToCustomerDTO(customerRequestDTO);
-
-        CustomerDTO result = customerService.createCustomer(customerDTO);
-
-        // Builder Design pattern
-        APIResponse<CustomerDTO> response = APIResponse
-                .<CustomerDTO>builder()
-                .status(Status.SUCCESS.getValue())
-                .results(result)
-                .build();
-
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
-    }
-
-
-    @Operation(summary = "Find customer by ID",
-            description = "Returns a single customer")
-    @GetMapping("/{id}")
-    public ResponseEntity<APIResponse<CustomerDTO>> getCustomerById(@PathVariable("id") Long id) {
-
-        CustomerDTO result = customerService.getCustomerById(id);
-
-        // Builder Design pattern
-        APIResponse<CustomerDTO> responseDTO = APIResponse
-                .<CustomerDTO>builder()
-                .status(Status.SUCCESS.getValue())
-                .results(result)
-                .build();
-
-
-        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-
-    }
-
-
-    @Operation(summary = "Update an existing customer")
-    @PutMapping("/{id}")
-    public ResponseEntity<APIResponse<CustomerDTO>> updateCustomer(
-            @PathVariable("id") Long id,
-            @Valid @RequestBody CustomerRequestDTO customerRequestDTO) {
-
-        CustomerDTO customerDTO = customerMapper.customerRequestDTOToCustomerDTO(customerRequestDTO);
-
-        CustomerDTO result = customerService.updateCustomer(id, customerDTO);
-
-        // Builder Design pattern
-        APIResponse<CustomerDTO> responseDTO = APIResponse
-                .<CustomerDTO>builder()
-                .status(Status.SUCCESS.getValue())
-                .results(result)
-                .build();
-
-
-        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-
-    }
-
-    @Operation(summary = "Partially update a customer's email")
-    @PatchMapping("/{id}/email")
-    public ResponseEntity<APIResponse<CustomerDTO>> updateCustomerEmail(
-            @PathVariable("id") Long id,
-            @Valid @RequestBody CustomerEmailUpdateDTO emailUpdateDTO) {
-
-        CustomerDTO result = customerService.updateCustomerEmail(id, emailUpdateDTO);
-
-        // Builder Design pattern
-        APIResponse<CustomerDTO> response = APIResponse
-                .<CustomerDTO>builder()
-                .status(Status.SUCCESS.getValue())
-                .results(result)
-                .build();
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-
-    @Operation(summary = "Delete a customer by ID")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<APIResponse<String>> deleteCustomer(@PathVariable("id") Long id) {
-
-        customerService.deleteCustomer(id);
-
-        String result = "Customer deleted successfully";
-
-        // Builder Design pattern
-        APIResponse<String> responseDTO = APIResponse
-                .<String>builder()
-                .status(Status.SUCCESS.getValue())
-                .results(result)
-                .build();
-
-
-        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-
-    }
-
-}
-```
-
-</details>
+> **Full source:** [`CustomerController.java`](src/main/java/com/ainigma100/customerapi/controller/CustomerController.java)
 
 
 <br><br>
@@ -1611,184 +1109,7 @@ and user-friendly. For more details on how to implement and extend this global e
 additional resources or documentation available online.
 
 
-<details>
-  <summary>View GlobalExceptionHandler code</summary>
-
-```java
-package com.ainigma100.customerapi.exception;
-
-import com.ainigma100.customerapi.dto.APIResponse;
-import com.ainigma100.customerapi.dto.ErrorDTO;
-import com.ainigma100.customerapi.enums.Status;
-import jakarta.persistence.EntityExistsException;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.env.Environment;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.validation.FieldError;
-import org.springframework.web.HttpRequestMethodNotSupportedException;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.MissingPathVariableException;
-import org.springframework.web.bind.MissingServletRequestParameterException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Stream;
-
-@Slf4j
-@ControllerAdvice
-@RequiredArgsConstructor
-public class GlobalExceptionHandler {
-
-  private final Environment environment;
-
-  /**
-   * Checks if the application is running in production mode.
-   * Returns true if the active profile is 'prod' or 'production'.
-   */
-  private boolean isProduction() {
-    return Stream.of(environment.getActiveProfiles())
-            .anyMatch(profile -> profile.equalsIgnoreCase("prod") || profile.equalsIgnoreCase("production"));
-  }
-
-
-  @ExceptionHandler({RuntimeException.class, NullPointerException.class})
-  public ResponseEntity<Object> handleRuntimeExceptions(RuntimeException exception) {
-
-    APIResponse<ErrorDTO> response = new APIResponse<>();
-    response.setStatus(Status.FAILED.getValue());
-
-    String errorMessage = isProduction() ? "An internal server error occurred" : exception.getMessage();
-    response.setErrors(Collections.singletonList(new ErrorDTO("", errorMessage)));
-
-    log.error("RuntimeException or NullPointerException occurred: {}", exception.getMessage(), exception);
-
-    return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-  }
-
-
-  @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-  public ResponseEntity<Object> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException exception) {
-
-    APIResponse<ErrorDTO> response = new APIResponse<>();
-    response.setStatus(Status.FAILED.getValue());
-
-    String errorMessage = isProduction() ? "Method not supported" : "The requested URL does not support this method";
-    response.setErrors(Collections.singletonList(new ErrorDTO("", errorMessage)));
-
-    log.error("HttpRequestMethodNotSupportedException occurred: {}", exception.getMessage(), exception);
-
-    return new ResponseEntity<>(response, HttpStatus.METHOD_NOT_ALLOWED);
-  }
-
-
-  @ExceptionHandler({MethodArgumentNotValidException.class, MissingServletRequestParameterException.class, MissingPathVariableException.class})
-  public ResponseEntity<Object> handleValidationExceptions(Exception exception) {
-
-    APIResponse<ErrorDTO> response = new APIResponse<>();
-    response.setStatus(Status.FAILED.getValue());
-
-    List<ErrorDTO> errors = new ArrayList<>();
-    if (exception instanceof MethodArgumentNotValidException ex) {
-
-      ex.getBindingResult().getAllErrors().forEach(error -> {
-        String fieldName = ((FieldError) error).getField();
-        String errorMessage = isProduction() ? "Invalid input value" : error.getDefaultMessage();
-        errors.add(new ErrorDTO(fieldName, errorMessage));
-      });
-
-    } else if (exception instanceof MissingServletRequestParameterException ex) {
-
-      String errorMessage = isProduction() ? "Required parameter is missing" : "Missing parameter: " + ex.getParameterName();
-      errors.add(new ErrorDTO("", errorMessage));
-
-    } else if (exception instanceof MissingPathVariableException ex) {
-      String errorMessage = isProduction() ? "Missing path variable" : "Missing path variable: " + ex.getVariableName();
-      errors.add(new ErrorDTO("", errorMessage));
-    }
-
-    log.error("Validation errors: {}", errors, exception);
-
-    response.setErrors(errors);
-    return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-  }
-
-
-  @ExceptionHandler(HttpMessageNotReadableException.class)
-  public ResponseEntity<APIResponse<ErrorDTO>> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
-
-    APIResponse<ErrorDTO> response = new APIResponse<>();
-    response.setStatus(Status.FAILED.getValue());
-
-    String errorMessage = isProduction() ? "Invalid request format" : "Malformed JSON request";
-    response.setErrors(Collections.singletonList(new ErrorDTO("", errorMessage)));
-
-    log.error("Malformed JSON request: {}", ex.getMessage(), ex);
-
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-  }
-
-
-  @ExceptionHandler(ConstraintViolationException.class)
-  public ResponseEntity<APIResponse<ErrorDTO>> handleConstraintViolationException(ConstraintViolationException ex) {
-
-    List<ErrorDTO> errors = new ArrayList<>();
-
-    for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
-      errors.add(new ErrorDTO(violation.getPropertyPath().toString(),
-              isProduction() ? "Invalid input data" : violation.getMessage()));
-    }
-
-    APIResponse<ErrorDTO> response = new APIResponse<>();
-    response.setStatus(Status.FAILED.getValue());
-    response.setErrors(errors);
-
-    log.error("Constraint violation errors: {}", errors, ex);
-
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-  }
-
-
-  @ExceptionHandler(EntityNotFoundException.class)
-  public ResponseEntity<Object> handleEntityNotFoundExceptions(EntityNotFoundException exception) {
-
-    APIResponse<ErrorDTO> response = new APIResponse<>();
-    response.setStatus(Status.FAILED.getValue());
-
-    String errorMessage = isProduction() ? "The requested resource was not found" : exception.getMessage();
-    response.setErrors(Collections.singletonList(new ErrorDTO("", errorMessage)));
-
-    log.error("EntityNotFoundException occurred: {}", exception.getMessage(), exception);
-
-    return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-  }
-
-  @ExceptionHandler(EntityExistsException.class)
-  public ResponseEntity<APIResponse<ErrorDTO>> handleEntityExistsException(EntityExistsException exception) {
-
-    APIResponse<ErrorDTO> response = new APIResponse<>();
-    response.setStatus(Status.FAILED.getValue());
-
-    String errorMessage = isProduction() ? "The entity already exists" : exception.getMessage();
-    response.setErrors(Collections.singletonList(new ErrorDTO("", errorMessage)));
-
-    log.error("EntityExistsException occurred: {}", exception.getMessage(), exception);
-
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-  }
-
-}
-```
-
-</details>
+> **Full source:** [`GlobalExceptionHandler.java`](src/main/java/com/ainigma100/customerapi/exception/GlobalExceptionHandler.java)
 
 
 
@@ -1812,144 +1133,7 @@ JSON from the application's endpoints and saves it as a formatted file.
   `application.yaml` file.
 - Handles both HTTP and HTTPS protocols based on the server configuration.
 
-<details>
-  <summary>View OpenApiConfig code</summary>
-
-```java
-package com.ainigma100.customerapi.config;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Info;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
-import org.springframework.web.client.RestClient;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Optional;
-
-/**
- * Configuration class for generating OpenAPI documentation.
- *
- * <p>This class configures and generates the OpenAPI documentation for the application
- * using the springdoc-openapi library. It automatically generates and formats the OpenAPI
- * JSON file based on the application's REST endpoints. The generated JSON file is then
- * stored in the root directory of the project for easy access and reference.</p>
- */
-@Slf4j
-@Configuration
-public class OpenApiConfig {
-
-
-    private final Environment environment;
-
-    public OpenApiConfig(Environment environment) {
-        this.environment = environment;
-    }
-
-    @Value("${server.port:8080}")
-    private int serverPort;
-
-    @Value("${openapi.output.file}")
-    private String outputFileName;
-
-    private static final String SERVER_SSL_KEY_STORE = "server.ssl.key-store";
-    private static final String SERVER_SERVLET_CONTEXT_PATH = "server.servlet.context-path";
-
-    @Bean
-    public OpenAPI customOpenAPI() {
-
-        String documentationVersion = environment.getProperty("springdoc.version", "1.0");
-        String appTitle = environment.getProperty("springdoc.title", "API Documentation");
-
-
-        String[] activeProfiles = environment.getActiveProfiles();
-        String profileInfo = activeProfiles.length > 0
-                ? String.join(", ", activeProfiles).toUpperCase()
-                : "DEFAULT";
-
-        String description = String.format("Active profile: %s", profileInfo);
-
-        return new OpenAPI()
-                .info(new Info()
-                        .title(appTitle)
-                        .version(documentationVersion)
-                        .description(description));
-    }
-
-
-    @Bean
-    public CommandLineRunner generateOpenApiJson() {
-        return args -> {
-            String protocol = Optional.ofNullable(environment.getProperty(SERVER_SSL_KEY_STORE)).map(key -> "https").orElse("http");
-            String host = getServerIP();
-            String contextPath = Optional.ofNullable(environment.getProperty(SERVER_SERVLET_CONTEXT_PATH)).orElse("");
-
-            // Define the API docs URL
-            String apiDocsUrl = String.format("%s://%s:%d%s/v3/api-docs", protocol, host, serverPort, contextPath);
-
-            log.info("Attempting to fetch OpenAPI docs from URL: {}", apiDocsUrl);
-
-            try {
-                // Create RestClient instance
-                RestClient restClient = RestClient.create();
-
-                // Fetch the OpenAPI JSON
-                String response = restClient.get()
-                        .uri(apiDocsUrl)
-                        .retrieve()
-                        .body(String.class);
-
-                // Format and save the JSON to a file
-                formatAndSaveToFile(response, outputFileName);
-
-                log.info("OpenAPI documentation generated successfully at {}", outputFileName);
-
-            } catch (Exception e) {
-                log.error("Failed to generate OpenAPI documentation from URL: {}", apiDocsUrl, e);
-            }
-        };
-    }
-
-    private String getServerIP() {
-        try {
-            return InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            log.error("Error resolving host address", e);
-            return "unknown";
-        }
-    }
-
-    private void formatAndSaveToFile(String content, String fileName) {
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-
-            // Enable pretty-print
-            objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-
-            // Read the JSON content as a JsonNode
-            JsonNode jsonNode = objectMapper.readTree(content);
-
-            // Write the formatted JSON to a file
-            objectMapper.writeValue(new File(fileName), jsonNode);
-
-        } catch (IOException e) {
-            log.error("Error while saving JSON to file", e);
-        }
-    }
-}
-```
-
-</details>
+> **Full source:** [`OpenApiConfig.java`](src/main/java/com/ainigma100/customerapi/config/OpenApiConfig.java)
 
 ### LoggingFilter
 
@@ -2090,68 +1274,29 @@ context path, and active profiles. It also provides the URL for accessing the Sw
 - Supports both HTTP and HTTPS protocols.
 - Displays the active Spring profiles.
 
-<details>
-  <summary>View ServerDetails code</summary>
+> **Full source:** [`ServerDetails.java`](src/main/java/com/ainigma100/customerapi/filter/ServerDetails.java)
+
+### Data Masking with a Custom Annotation (`@MaskData`)
+
+Sometimes you want to return a field in your API responses but hide most of it — a classic example is a
+phone number or a national ID. Instead of masking values by hand in every service method, we can attach the
+logic to the field itself with a small custom annotation. This keeps the controllers and services clean: the
+masking happens automatically while Jackson turns the object into JSON.
+
+**How you use it** — just annotate the DTO field you want to hide:
 
 ```java
-/**
- * Component for logging server details upon application startup.
- *
- * <p>This class listens for the ApplicationReadyEvent to log important server details such as
- * the protocol, host, port, context path, active profiles, and the URL for accessing Swagger UI.</p>
- */
-@AllArgsConstructor
-@Component
-public class ServerDetails {
-
-  private static final Logger log = LoggerFactory.getLogger(ServerDetails.class);
-
-
-  private final Environment environment;
-
-
-  @EventListener(ApplicationReadyEvent.class)
-  public void logServerDetails() {
-
-    String serverSslKeyStore = "server.ssl.key-store";
-    String serverPortKey = "server.port";
-    String serverServletContextPath = "server.servlet.context-path";
-    String springdocSwaggerUiPath = "springdoc.swagger-ui.path";
-    String defaultProfile = "default";
-
-
-    String protocol = Optional.ofNullable(environment.getProperty(serverSslKeyStore)).map(key -> "https").orElse("http");
-    String host = getServerIP();
-    String serverPort = Optional.ofNullable(environment.getProperty(serverPortKey)).orElse("8080");
-    String contextPath = Optional.ofNullable(environment.getProperty(serverServletContextPath)).orElse("");
-    String[] activeProfiles = Optional.of(environment.getActiveProfiles()).orElse(new String[0]);
-    String activeProfile = (activeProfiles.length > 0) ? String.join(",", activeProfiles) : defaultProfile;
-    String swaggerUI = Optional.ofNullable(environment.getProperty(springdocSwaggerUiPath)).orElse("/swagger-ui/index.html");
-
-    log.info(
-            """
-
-
-                    Access Swagger UI URL: {}://{}:{}{}{}
-                    Active Profile: {}
-                    """,
-            protocol, host, serverPort, contextPath, swaggerUI,
-            activeProfile
-    );
-  }
-
-  private String getServerIP() {
-    try {
-      return InetAddress.getLocalHost().getHostAddress();
-    } catch (UnknownHostException e) {
-      log.error("Error resolving host address", e);
-      return "unknown";
-    }
-  }
-}
+@MaskData(visibleCharactersAtEnd = 3, maskSymbol = "*")
+private String phoneNumber;
 ```
 
-</details>
+With that in place, a phone number like `0123456789` is serialized as `*******789` (only the last 3
+characters stay visible). Notice the controller tests assert exactly this (`"*******789"`) — the masking is
+applied transparently during serialization.
+
+`@MaskData` is a *meta-annotation*: `@JacksonAnnotationsInside` tells Jackson to treat it as if the Jackson
+annotations it wraps (here `@JsonSerialize`) were placed on the field directly. The serializer then reads the
+annotation's attributes (`visibleCharactersAtEnd`, `maskSymbol`) so each field can be masked differently.
 
 ---
 
@@ -2222,118 +1367,7 @@ any custom queries, you do not need to test this layer.
 - **`@Test`**: The most common annotation in JUnit, marking a method as a test method that will be executed when running
   the test suite.
 
-<details>
-  <summary>View CustomerRepositoryTest code</summary>
-
-```java
-package com.ainigma100.customerapi.repository;
-
-import com.ainigma100.customerapi.entity.Customer;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-
-import java.time.LocalDate;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-
-/*
- * @DataJpaTest will automatically configure in-memory database for testing
- * and, it will not load annotated beans into the Application Context.
- * It will only load the repository class. Tests annotated with @DataJpaTest
- * are by default transactional and roll back at the end of each test.
- */
-@DataJpaTest
-class CustomerRepositoryTest {
-
-    @Autowired
-    private CustomerRepository customerRepository;
-
-    private Customer customer;
-
-    /**
-     * This method will be executed before each and every test inside this class
-     */
-    @BeforeEach
-    void setUp() {
-
-        customer = new Customer();
-        customer.setFirstName("John");
-        customer.setLastName("Wick");
-        customer.setEmail("jwick@tester.com");
-        customer.setPhoneNumber("0123456789");
-        customer.setDateOfBirth(LocalDate.now().minusYears(18));
-
-    }
-
-    @Test
-    void givenValidEmail_whenFindByEmail_thenReturnCustomer() {
-
-        // given - precondition or setup
-        String email = "jwick@tester.com";
-        customerRepository.save(customer);
-
-        // when - action or behaviour that we are going to test
-        Customer customerFromDB = customerRepository.findByEmail(email).orElse(null);
-
-        // then - verify the output
-        assertNotNull(customerFromDB);
-        assertEquals(customer.getFirstName(), customerFromDB.getFirstName());
-        assertEquals(customer.getLastName(), customerFromDB.getLastName());
-        assertEquals(customer.getEmail(), customerFromDB.getEmail());
-        assertEquals(customer.getPhoneNumber(), customerFromDB.getPhoneNumber());
-        assertEquals(customer.getDateOfBirth(), customerFromDB.getDateOfBirth());
-    }
-
-    @Test
-    void givenInvalidEmail_whenFindByEmail_thenReturnNothing() {
-
-        // given - precondition or setup
-        String email = "abc@tester.com";
-        customerRepository.save(customer);
-
-        // when - action or behaviour that we are going to test
-        Customer customerFromDB = customerRepository.findByEmail(email).orElse(null);
-
-        // then - verify the output
-        assertNull(customerFromDB);
-    }
-
-    @Test
-    void givenNullEmail_whenFindByEmail_thenReturnNothing() {
-
-        // given - precondition or setup
-        String email = null;
-        customerRepository.save(customer);
-
-        // when - action or behaviour that we are going to test
-        Customer customerFromDB = customerRepository.findByEmail(email).orElse(null);
-
-        // then - verify the output
-        assertNull(customerFromDB);
-    }
-
-    @Test
-    void givenEmptyEmail_whenFindByEmail_thenReturnNothing() {
-
-        // given - precondition or setup
-        String email = "";
-        customerRepository.save(customer);
-
-        // when - action or behaviour that we are going to test
-        Customer customerFromDB = customerRepository.findByEmail(email).orElse(null);
-
-        // then - verify the output
-        assertNull(customerFromDB);
-    }
-
-
-}
-```
-
-</details>
+> **Full source:** [`CustomerRepositoryTest.java`](src/test/java/com/ainigma100/customerapi/repository/CustomerRepositoryTest.java)
 
 
 <br><br>
@@ -2351,320 +1385,7 @@ involves mocking the repository to isolate the service logic.
 - **`@DisplayName`**: Allows you to provide a custom name for your test methods, making them more descriptive and
   readable in test reports.
 
-<details>
-  <summary>View CustomerServiceImplTest code</summary>
-
-```java
-package com.ainigma100.customerapi.service.impl;
-
-import com.ainigma100.customerapi.dto.CustomerDTO;
-import com.ainigma100.customerapi.dto.CustomerEmailUpdateDTO;
-import com.ainigma100.customerapi.entity.Customer;
-import com.ainigma100.customerapi.mapper.CustomerMapper;
-import com.ainigma100.customerapi.repository.CustomerRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
-
-/*
- * @ExtendWith(MockitoExtension.class) informs Mockito that we are using
- * mockito annotations to mock the dependencies
- */
-@ExtendWith(MockitoExtension.class)
-class CustomerServiceImplTest {
-
-    // @InjectMocks creates the mock object of the class and injects the mocks
-    // that are marked with the annotations @Mock into it.
-    @InjectMocks
-    private CustomerServiceImpl customerService;
-
-    @Mock
-    private CustomerRepository customerRepository;
-
-    @Mock
-    private CustomerMapper customerMapper;
-
-    private Customer customer;
-    private CustomerDTO customerDTO;
-
-    /**
-     * This method will be executed before each and every test inside this class
-     */
-    @BeforeEach
-    void setUp() {
-
-        customer = new Customer();
-        customer.setId(1L);
-        customer.setFirstName("John");
-        customer.setLastName("Wick");
-        customer.setEmail("jwick@tester.com");
-        customer.setPhoneNumber("0123456789");
-        customer.setDateOfBirth(LocalDate.now().minusYears(18));
-        customer.setCreatedDate(LocalDateTime.now());
-        customer.setUpdatedDate(LocalDateTime.now());
-
-        customerDTO = new CustomerDTO();
-        customerDTO.setId(1L);
-        customerDTO.setFirstName("John");
-        customerDTO.setLastName("Wick");
-        customerDTO.setEmail("jwick@tester.com");
-        customerDTO.setPhoneNumber("0123456789");
-        customerDTO.setDateOfBirth(LocalDate.now().minusYears(18));
-    }
-
-
-    @Test
-    @DisplayName("Test creating a new customer")
-    void givenCustomerDTO_whenCreateCustomer_thenReturnCustomerDTO() {
-
-        // given - precondition or setup
-        String email = customerDTO.getEmail();
-        given(customerRepository.findByEmail(email)).willReturn(Optional.empty());
-        given(customerMapper.customerDTOToCustomer(customerDTO)).willReturn(customer);
-        given(customerRepository.save(customer)).willReturn(customer);
-        given(customerMapper.customerToCustomerDTO(customer)).willReturn(customerDTO);
-
-        // when - action or behaviour that we are going to test
-        CustomerDTO result = customerService.createCustomer(customerDTO);
-
-        // then - verify the output
-        assertThat(result).isNotNull();
-        assertThat(result.getFirstName()).isEqualTo(customerDTO.getFirstName());
-        assertThat(result.getLastName()).isEqualTo(customerDTO.getLastName());
-        assertThat(result.getEmail()).isEqualTo(customerDTO.getEmail());
-        assertThat(result.getPhoneNumber()).isEqualTo(customerDTO.getPhoneNumber());
-
-        verify(customerRepository, times(1)).findByEmail(email);
-        verify(customerMapper, times(1)).customerDTOToCustomer(customerDTO);
-        verify(customerRepository, times(1)).save(customer);
-        verify(customerMapper, times(1)).customerToCustomerDTO(customer);
-
-    }
-
-    @Test
-    @DisplayName("Test creating a customer with existing email throws EntityExistsException")
-    void givenExistingEmail_whenCreateCustomer_thenThrowEntityExistsException() {
-
-        // given - precondition or setup
-        String email = customerDTO.getEmail();
-        given(customerRepository.findByEmail(email)).willReturn(Optional.of(customer));
-
-        // when/then - verify that the EntityExistsException is thrown
-        assertThatThrownBy(() -> customerService.createCustomer(customerDTO))
-                .isInstanceOf(EntityExistsException.class)
-                .hasMessageContaining("Resource Customer with email : '" + email + "' already exist");
-
-
-        verify(customerRepository, times(1)).findByEmail(customerDTO.getEmail());
-        verify(customerMapper, never()).customerDTOToCustomer(any(CustomerDTO.class));
-        verify(customerRepository, never()).save(any(Customer.class));
-        verify(customerMapper, never()).customerToCustomerDTO(any(Customer.class));
-
-    }
-
-    @Test
-    @DisplayName("Test retrieving a customer by ID")
-    void givenValidId_whenGetCustomerById_thenReturnCustomerDTO() {
-
-        // given - precondition or setup
-        Long id = 1L;
-        given(customerRepository.findById(id)).willReturn(Optional.of(customer));
-        given(customerMapper.customerToCustomerDTO(customer)).willReturn(customerDTO);
-
-        // when - action or behaviour that we are going to test
-        CustomerDTO result = customerService.getCustomerById(id);
-
-        // then - verify the output
-        assertThat(result).isNotNull();
-        assertThat(result.getId()).isEqualTo(customerDTO.getId());
-        assertThat(result.getFirstName()).isEqualTo(customerDTO.getFirstName());
-        assertThat(result.getLastName()).isEqualTo(customerDTO.getLastName());
-        assertThat(result.getEmail()).isEqualTo(customerDTO.getEmail());
-        assertThat(result.getPhoneNumber()).isEqualTo(customerDTO.getPhoneNumber());
-
-        verify(customerRepository, times(1)).findById(id);
-        verify(customerMapper, times(1)).customerToCustomerDTO(customer);
-
-    }
-
-
-    @Test
-    @DisplayName("Test retrieving a customer by invalid ID throws EntityNotFoundException")
-    void givenInvalidId_whenGetCustomerById_thenThrowEntityNotFoundException() {
-
-        // given - precondition or setup
-        Long id = 100L;
-        given(customerRepository.findById(id)).willReturn(Optional.empty());
-
-        // when/then - verify that the EntityNotFoundException is thrown
-        assertThatThrownBy(() -> customerService.getCustomerById(id))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage("Customer with id : '" + id + "' not found");
-
-
-        verify(customerRepository, times(1)).findById(id);
-        verify(customerMapper, never()).customerToCustomerDTO(any(Customer.class));
-
-    }
-
-
-    @Test
-    @DisplayName("Test updating a customer by ID")
-    void givenValidIdAndCustomerDTO_whenUpdateCustomer_thenReturnUpdatedCustomerDTO() {
-
-        // given - precondition or setup
-        Long id = 1L;
-        given(customerRepository.findById(id)).willReturn(Optional.of(customer));
-        given(customerMapper.customerDTOToCustomer(customerDTO)).willReturn(customer);
-        given(customerRepository.save(customer)).willReturn(customer);
-        given(customerMapper.customerToCustomerDTO(customer)).willReturn(customerDTO);
-
-        // when - action or behaviour that we are going to test
-        CustomerDTO result = customerService.updateCustomer(id, customerDTO);
-
-        // then - verify the output
-        assertThat(result).isNotNull();
-        assertThat(result.getFirstName()).isEqualTo(customerDTO.getFirstName());
-        assertThat(result.getLastName()).isEqualTo(customerDTO.getLastName());
-        assertThat(result.getEmail()).isEqualTo(customerDTO.getEmail());
-        assertThat(result.getPhoneNumber()).isEqualTo(customerDTO.getPhoneNumber());
-
-        verify(customerRepository, times(1)).findById(id);
-        verify(customerMapper, times(1)).customerDTOToCustomer(customerDTO);
-        verify(customerRepository, times(1)).save(customer);
-        verify(customerMapper, times(1)).customerToCustomerDTO(customer);
-
-    }
-
-    @Test
-    @DisplayName("Test updating a customer by invalid ID throws EntityNotFoundException")
-    void givenInvalidIdAndCustomerDTO_whenUpdateCustomer_thenThrowEntityNotFoundException() {
-
-        // given - precondition or setup
-        Long id = 100L;
-        given(customerRepository.findById(id)).willReturn(Optional.empty());
-
-        // when/then - verify that the EntityNotFoundException is thrown
-        assertThatThrownBy(() -> customerService.updateCustomer(id, customerDTO))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage("Customer with id : '" + id + "' not found");
-
-
-        verify(customerRepository, times(1)).findById(id);
-        verify(customerMapper, never()).customerDTOToCustomer(any(CustomerDTO.class));
-        verify(customerRepository, never()).save(any(Customer.class));
-        verify(customerMapper, never()).customerToCustomerDTO(any(Customer.class));
-
-    }
-
-
-    @Test
-    @DisplayName("Test updating a customer's email by ID")
-    void givenValidIdAndCustomerEmailUpdateDTO_whenUpdateCustomerEmail_thenReturnCustomerDTO() {
-
-        // given - precondition or setup
-        Long id = 1L;
-        CustomerEmailUpdateDTO customerEmailUpdateDTO = new CustomerEmailUpdateDTO();
-        customerEmailUpdateDTO.setEmail("loco@gmail.com");
-        customer.setEmail(customerEmailUpdateDTO.getEmail());
-        given(customerRepository.findById(id)).willReturn(Optional.of(customer));
-        given(customerRepository.save(customer)).willReturn(customer);
-        given(customerMapper.customerToCustomerDTO(customer)).willReturn(customerDTO);
-
-        // when - action or behaviour that we are going to test
-        CustomerDTO result = customerService.updateCustomerEmail(id, customerEmailUpdateDTO);
-
-        // then - verify the output
-        assertThat(result).isNotNull();
-        assertThat(result.getFirstName()).isEqualTo(customerDTO.getFirstName());
-        assertThat(result.getLastName()).isEqualTo(customerDTO.getLastName());
-        assertThat(result.getEmail()).isEqualTo(customerDTO.getEmail());
-        assertThat(result.getPhoneNumber()).isEqualTo(customerDTO.getPhoneNumber());
-
-        verify(customerRepository, times(1)).findById(id);
-        verify(customerRepository, times(1)).save(customer);
-        verify(customerMapper, times(1)).customerToCustomerDTO(customer);
-
-    }
-
-    @Test
-    @DisplayName("Test updating a customer's email by invalid ID throws EntityNotFoundException")
-    void givenInvalidIdAndCustomerEmailUpdateDTO_whenUpdateCustomerEmail_thenThrowEntityNotFoundException() {
-
-        // given - precondition or setup
-        Long id = 100L;
-        CustomerEmailUpdateDTO customerEmailUpdateDTO = new CustomerEmailUpdateDTO();
-        customerEmailUpdateDTO.setEmail("loco@gmail.com");
-        customer.setEmail(customerEmailUpdateDTO.getEmail());
-
-        given(customerRepository.findById(id)).willReturn(Optional.empty());
-
-        // when/then - verify that the EntityNotFoundException is thrown
-        assertThatThrownBy(() -> customerService.updateCustomerEmail(id, customerEmailUpdateDTO))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage("Customer with id : '" + id + "' not found");
-
-
-        verify(customerRepository, times(1)).findById(id);
-        verify(customerRepository, never()).save(any(Customer.class));
-        verify(customerMapper, never()).customerToCustomerDTO(any(Customer.class));
-
-    }
-
-
-    @Test
-    @DisplayName("Test deleting a customer by ID")
-    void givenValidId_whenDeleteCustomer_thenDeleteCustomer() {
-
-        // given - precondition or setup
-        Long id = 1L;
-        given(customerRepository.findById(id)).willReturn(Optional.of(customer));
-        doNothing().when(customerRepository).delete(customer);
-
-        // when - action or behaviour that we are going to test
-        customerService.deleteCustomer(id);
-
-        // then - verify the output
-        verify(customerRepository, times(1)).findById(id);
-        verify(customerRepository, times(1)).delete(customer);
-
-    }
-
-    @Test
-    @DisplayName("Test deleting a customer by invalid ID throws EntityNotFoundException")
-    void givenInvalidId_whenDeleteCustomer_thenThrowEntityNotFoundException() {
-
-        // given - precondition or setup
-        Long id = 1L;
-        given(customerRepository.findById(id)).willReturn(Optional.empty());
-
-        // when/then - verify that the EntityNotFoundException is thrown
-        assertThatThrownBy(() -> customerService.deleteCustomer(id))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage("Customer with id : '" + id + "' not found");
-
-        verify(customerRepository, times(1)).findById(id);
-        verify(customerRepository, never()).delete(any(Customer.class));
-
-    }
-
-}
-```
-
-</details>
+> **Full source:** [`CustomerServiceImplTest.java`](src/test/java/com/ainigma100/customerapi/service/impl/CustomerServiceImplTest.java)
 
 
 
@@ -2720,265 +1441,7 @@ its dependencies, such as services and mappers.
   input matching or `eq()` for strict matching based on the context of your test scenario. For more details on using
   argument matchers or `eq()` in Mockito, you can search online resources or refer to Mockito documentation.
 
-<details>
-  <summary>View CustomerControllerTest code</summary>
-
-```java
-package com.ainigma100.customerapi.controller;
-
-import com.ainigma100.customerapi.dto.CustomerDTO;
-import com.ainigma100.customerapi.dto.CustomerEmailUpdateDTO;
-import com.ainigma100.customerapi.dto.CustomerRequestDTO;
-import com.ainigma100.customerapi.dto.CustomerSearchCriteriaDTO;
-import com.ainigma100.customerapi.enums.Status;
-import com.ainigma100.customerapi.mapper.CustomerMapper;
-import com.ainigma100.customerapi.service.CustomerService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
-
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.willDoNothing;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-
-/*
- * @WebMvcTest annotation will load all the components required
- * to test the Controller layer. It will not load the service or repository layer components
- */
-@WebMvcTest(CustomerController.class)
-class CustomerControllerTest {
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockitoBean
-    private CustomerService customerService;
-
-    @MockitoBean
-    private CustomerMapper customerMapper;
-
-    private CustomerRequestDTO customerRequestDTO;
-    private CustomerDTO customerDTO;
-    private CustomerSearchCriteriaDTO customerSearchCriteriaDTO;
-
-    @BeforeEach
-    void setUp() {
-
-        customerRequestDTO = new CustomerRequestDTO();
-        customerRequestDTO.setFirstName("John");
-        customerRequestDTO.setLastName("Wick");
-        customerRequestDTO.setEmail("jwick@tester.com");
-        customerRequestDTO.setPhoneNumber("0123456789");
-        customerRequestDTO.setDateOfBirth(LocalDate.now().minusYears(18));
-
-
-        customerDTO = new CustomerDTO();
-        customerDTO.setId(1L);
-        customerDTO.setFirstName("John");
-        customerDTO.setLastName("Wick");
-        customerDTO.setEmail("jwick@tester.com");
-        customerDTO.setPhoneNumber("0123456789");
-        customerDTO.setDateOfBirth(LocalDate.now().minusYears(18));
-
-
-        customerSearchCriteriaDTO = new CustomerSearchCriteriaDTO();
-        customerSearchCriteriaDTO.setPage(0);
-        customerSearchCriteriaDTO.setSize(10);
-
-    }
-
-
-    @Test
-    void givenCustomerDTO_whenCreateCustomer_thenReturnCustomerDTO() throws Exception {
-
-        // given - precondition or setup
-        given(customerMapper.customerRequestDTOToCustomerDTO(any(CustomerRequestDTO.class)))
-                .willReturn(customerDTO);
-
-        given(customerService.createCustomer(any(CustomerDTO.class))).willReturn(customerDTO);
-
-        // when - action or behaviour that we are going to test
-        ResultActions response = mockMvc.perform(post("/api/v1/customers")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(customerRequestDTO)));
-
-        // then - verify the output
-        response.andDo(print())
-                // verify the status code that is returned
-                .andExpect(status().isCreated())
-                // verify the actual returned value and the expected value
-                // $ - root member of a JSON structure whether it is an object or array
-                .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())))
-                .andExpect(jsonPath("$.results.id", is(1)))
-                .andExpect(jsonPath("$.results.firstName", is("John")))
-                .andExpect(jsonPath("$.results.lastName", is("Wick")))
-                .andExpect(jsonPath("$.results.email", is("jwick@tester.com")))
-                .andExpect(jsonPath("$.results.phoneNumber", is("*******789")))
-                .andExpect(jsonPath("$.results.dateOfBirth", is(LocalDate.now().minusYears(18).toString())));
-    }
-
-
-    @Test
-    void givenCustomerDTO_whenGetCustomerById_thenReturnCustomerDTO() throws Exception {
-
-        // given - precondition or setup
-        given(customerService.getCustomerById(any(Long.class))).willReturn(customerDTO);
-
-        // when - action or behaviour that we are going to test
-        ResultActions response = mockMvc.perform(get("/api/v1/customers/{id}", 1L)
-                .contentType(MediaType.APPLICATION_JSON));
-
-        // then - verify the output
-        response.andDo(print())
-                // verify the status code that is returned
-                .andExpect(status().isOk())
-                // verify the actual returned value and the expected value
-                // $ - root member of a JSON structure whether it is an object or array
-                .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())))
-                .andExpect(jsonPath("$.results.id", is(1)))
-                .andExpect(jsonPath("$.results.firstName", is("John")))
-                .andExpect(jsonPath("$.results.lastName", is("Wick")))
-                .andExpect(jsonPath("$.results.email", is("jwick@tester.com")))
-                .andExpect(jsonPath("$.results.phoneNumber", is("*******789")))
-                .andExpect(jsonPath("$.results.dateOfBirth", is(LocalDate.now().minusYears(18).toString())));
-    }
-
-
-    @Test
-    void givenCustomerDTO_whenUpdateCustomer_thenReturnCustomerDTO() throws Exception {
-
-        // given - precondition or setup
-        given(customerMapper.customerRequestDTOToCustomerDTO(any(CustomerRequestDTO.class)))
-                .willReturn(customerDTO);
-
-        given(customerService.updateCustomer(any(Long.class), any(CustomerDTO.class))).willReturn(customerDTO);
-
-        // when - action or behaviour that we are going to test
-        ResultActions response = mockMvc.perform(put("/api/v1/customers/{id}", 1L)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(customerRequestDTO)));
-
-        // then - verify the output
-        response.andDo(print())
-                // verify the status code that is returned
-                .andExpect(status().isOk())
-                // verify the actual returned value and the expected value
-                // $ - root member of a JSON structure whether it is an object or array
-                .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())))
-                .andExpect(jsonPath("$.results.id", is(1)))
-                .andExpect(jsonPath("$.results.firstName", is("John")))
-                .andExpect(jsonPath("$.results.lastName", is("Wick")))
-                .andExpect(jsonPath("$.results.email", is("jwick@tester.com")))
-                .andExpect(jsonPath("$.results.phoneNumber", is("*******789")))
-                .andExpect(jsonPath("$.results.dateOfBirth", is(LocalDate.now().minusYears(18).toString())));
-    }
-
-
-    @Test
-    void givenCustomerEmailUpdateDTO_whenUpdateCustomerEmail_thenReturnCustomerDTO() throws Exception {
-
-        // given - precondition or setup
-        CustomerEmailUpdateDTO customerEmailUpdateDTO = new CustomerEmailUpdateDTO();
-        customerEmailUpdateDTO.setEmail("loco@gmail.com");
-        customerDTO.setEmail(customerEmailUpdateDTO.getEmail());
-
-        given(customerService.updateCustomerEmail(any(Long.class), any(CustomerEmailUpdateDTO.class)))
-                .willReturn(customerDTO);
-
-        // when - action or behaviour that we are going to test
-        ResultActions response = mockMvc.perform(patch("/api/v1/customers/{id}/email", 1L)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(customerEmailUpdateDTO)));
-
-        // then - verify the output
-        response.andDo(print())
-                // verify the status code that is returned
-                .andExpect(status().isOk())
-                // verify the actual returned value and the expected value
-                // $ - root member of a JSON structure whether it is an object or array
-                .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())))
-                .andExpect(jsonPath("$.results.id", is(1)))
-                .andExpect(jsonPath("$.results.firstName", is("John")))
-                .andExpect(jsonPath("$.results.lastName", is("Wick")))
-                .andExpect(jsonPath("$.results.email", is("loco@gmail.com")))
-                .andExpect(jsonPath("$.results.phoneNumber", is("*******789")))
-                .andExpect(jsonPath("$.results.dateOfBirth", is(LocalDate.now().minusYears(18).toString())));
-    }
-
-
-    @Test
-    void givenCustomerDTO_whenDeleteCustomer_thenReturnCustomerDTO() throws Exception {
-
-        // given - precondition or setup
-        willDoNothing().given(customerService).deleteCustomer(any(Long.class));
-
-        // when - action or behaviour that we are going to test
-        ResultActions response = mockMvc.perform(delete("/api/v1/customers/{id}", 1L)
-                .contentType(MediaType.APPLICATION_JSON));
-
-        // then - verify the output
-        response.andDo(print())
-                // verify the status code that is returned
-                .andExpect(status().isOk())
-                // verify the actual returned value and the expected value
-                // $ - root member of a JSON structure whether it is an object or array
-                .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())));
-    }
-
-
-    @Test
-    void givenCustomerSearchCriteriaDTO_whenGetAllCustomersUsingPagination_thenReturnCustomerDTOPage() throws Exception {
-
-        // given - precondition or setup
-        List<CustomerDTO> customerDTOList = Collections.singletonList(customerDTO);
-        Page<CustomerDTO> customerDTOPage = new PageImpl<>(customerDTOList);
-        given(customerService.getAllCustomersUsingPagination(any(CustomerSearchCriteriaDTO.class)))
-                .willReturn(customerDTOPage);
-
-        // when - action or behaviour that we are going to test
-        ResultActions response = mockMvc.perform(post("/api/v1/customers/search")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(customerSearchCriteriaDTO)));
-
-        // then - verify the output
-        response.andDo(print())
-                // verify the status code that is returned
-                .andExpect(status().isOk())
-                // verify the actual returned value and the expected value
-                // $ - root member of a JSON structure whether it is an object or array
-                .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())))
-                .andExpect(jsonPath("$.results.content.size()", is(customerDTOList.size())))
-                .andExpect(jsonPath("$.results.content[0].firstName", is(customerDTOList.get(0).getFirstName())))
-                .andExpect(jsonPath("$.results.content[0].lastName", is(customerDTOList.get(0).getLastName())))
-                .andExpect(jsonPath("$.results.content[0].email", is(customerDTOList.get(0).getEmail())))
-                .andExpect(jsonPath("$.results.content[0].phoneNumber", is("*******789")));
-    }
-
-}
-```
-
-</details>
+> **Full source:** [`CustomerControllerTest.java`](src/test/java/com/ainigma100/customerapi/controller/CustomerControllerTest.java)
 
 
 <br><br>
@@ -3168,8 +1631,12 @@ How this project is configured (Liquibase). Please note that you may want a diff
   If your tests depend on prefilled data, you can enable Liquibase during testing as well
 
 Add a new change:
-1. Create a new SQL file under `src/main/resources/db/changelog/changeset/`, e.g., `002-add-index.sql`.
-2. Reference it from the master changelog by adding a new `<include>` entry.
+1. Create a new SQL file under `src/main/resources/db/changelog/changeset/`, e.g., `002-add-version-to-customers.sql`
+   (this project ships exactly that file to add a `version` column for JPA optimistic locking).
+2. Reference it from the master changelog by adding a new `<include>` entry, e.g.:
+   ```xml
+   <include file="/db/changelog/changeset/002-add-version-to-customers.sql" />
+   ```
 3. Commit both files, and Liquibase will apply the change on the next application start.
 
 Troubleshooting:
@@ -3242,48 +1709,7 @@ It’s important to note that all the search fields `firstName`, `lastName`, `em
 optional. You can use them to filter records based on the criteria you need. If no filtering is needed, you can simply
 pass the pagination and sorting details.
 
-<details>
-  <summary>View CustomerSearchCriteriaDTO code</summary>
-
-```java
-package com.ainigma100.customerapi.dto;
-
-import com.ainigma100.customerapi.utils.SortItem;
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.*;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-
-import java.time.LocalDate;
-import java.util.List;
-
-@Setter
-@Getter
-@RequiredArgsConstructor
-public class CustomerSearchCriteriaDTO {
-
-    private String firstName;
-    private String lastName;
-    private String email;
-    private String phoneNumber;
-    private LocalDate dateOfBirth;
-
-    @NotNull(message = "page cannot be null")
-    @PositiveOrZero(message = "page must be a zero or a positive number")
-    private Integer page;
-
-    @Schema(example = "10")
-    @NotNull(message = "size cannot be null")
-    @Positive(message = "size must be a positive number")
-    private Integer size;
-
-    private List<SortItem> sortList;
-
-}
-```
-
-</details>
+> **Full source:** [`CustomerSearchCriteriaDTO.java`](src/main/java/com/ainigma100/customerapi/dto/CustomerSearchCriteriaDTO.java)
 
 
 
@@ -3370,114 +1796,14 @@ This approach makes the query easy to use and flexible for different search need
 To facilitate pagination and sorting, a utility class is often needed. Below is an example of a utility class that helps
 in creating pageable objects based on the SortItem list provided in the DTO.
 
-<details>
-  <summary>View Utils code</summary>
-
-```java
-package com.ainigma100.customerapi.utils;
-
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Supplier;
-
-@Slf4j
-public class Utils {
-
-    // Private constructor to prevent instantiation
-    private Utils() {
-        throw new IllegalStateException("Utility class");
-    }
-
-
-    /**
-     * Retrieves a value from a Supplier or sets a default value if a NullPointerException occurs.
-     * Usage example:
-     *
-     * <pre>{@code
-     * // Example 1: Retrieve a list or provide an empty list if null
-     * List<Employee> employeeList = Utils.retrieveValueOrSetDefault(() -> someSupplierMethod(), new ArrayList<>());
-     *
-     * // Example 2: Retrieve an Employee object or provide a default object if null
-     * Employee emp = Utils.retrieveValueOrSetDefault(() -> anotherSupplierMethod(), new Employee());
-     * }</pre>
-     *
-     * @param supplier     the Supplier providing the value to retrieve
-     * @param defaultValue the default value to return if a NullPointerException occurs
-     * @return the retrieved value or the default value if a NullPointerException occurs
-     * @param <T>          the type of the value
-     */
-    public static <T> T retrieveValueOrSetDefault(Supplier<T> supplier, T defaultValue) {
-
-        try {
-            return supplier.get();
-
-        } catch (NullPointerException ex) {
-
-            log.error("Error while retrieveValueOrSetDefault {}", ex.getMessage());
-
-            return defaultValue;
-        }
-    }
-
-
-    public static Pageable createPageableBasedOnPageAndSizeAndSorting(List<SortItem> sortList, Integer page, Integer size) {
-
-        List<Sort.Order> orders = new ArrayList<>();
-
-        if (sortList != null) {
-            // iterate the SortList to see based on which attributes we are going to Order By the results.
-            for (SortItem sortValue : sortList) {
-                orders.add(new Sort.Order(sortValue.getDirection(), sortValue.getField()));
-            }
-        }
-
-
-        return PageRequest.of(
-                Optional.ofNullable(page).orElse(0),
-                Optional.ofNullable(size).orElse(10),
-                Sort.by(orders));
-    }
-
-}
-```
-
-</details>
+> **Full source:** [`Utils.java`](src/main/java/com/ainigma100/customerapi/utils/Utils.java)
 
 ### SortItem
 
 The SortItem class encapsulates the sorting criteria, including the field to be sorted and the direction (ascending or
 descending).
 
-<details>
-  <summary>View SortItem code</summary>
-
-```java
-package com.ainigma100.customerapi.utils;
-
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import org.springframework.data.domain.Sort;
-
-import java.io.Serializable;
-
-@Getter
-public class SortItem implements Serializable {
-
-
-    @Schema(example = "id") // set a default sorting property for swagger
-    private String field;
-    private Sort.Direction direction;
-
-}
-```
-
-</details>
+> **Full source:** [`SortItem.java`](src/main/java/com/ainigma100/customerapi/utils/SortItem.java)
 
 
 **Note**: You can check the implementation and the testing of this feature by reading the code.
@@ -3555,7 +1881,7 @@ properties and dependencies:
     <!-- other properties -->
 
     <!-- Add the latest versions -->
-    <springdoc-openapi-starter-webmvc-ui.version>2.8.15</springdoc-openapi-starter-webmvc-ui.version>
+    <springdoc-openapi-starter-webmvc-ui.version>3.0.3</springdoc-openapi-starter-webmvc-ui.version>
     <openapi-generator-maven-plugin.version>7.8.0</openapi-generator-maven-plugin.version>
     <jackson-databind-nullable.version>0.2.6</jackson-databind-nullable.version>
 </properties>
@@ -3662,4 +1988,4 @@ frequently call external services based on OpenAPI specifications.
 ## 15. Feedback and Contributions
 
 Feedback and contributions are welcome! If you have suggestions, improvements, or additional insights, please feel free
-to share. Together, we can make this a valuable resource for anyone learning Spring Boot 3.
+to share. Together, we can make this a valuable resource for anyone learning Spring Boot 4.

@@ -65,14 +65,10 @@ public class CustomerServiceImpl implements CustomerService {
         Customer recordFromDB = customerRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Customer with id : '" + id + "' not found"));
 
-        // just to be safe that the object does not have another id
-        customerDTO.setId(recordFromDB.getId());
+        customerMapper.updateCustomerFromDto(customerDTO, recordFromDB);
 
-        Customer recordToBeSaved = customerMapper.customerDTOToCustomer(customerDTO);
-
-        Customer savedRecord = customerRepository.save(recordToBeSaved);
-
-        return customerMapper.customerToCustomerDTO(savedRecord);
+        Customer updatedCustomer = customerRepository.save(recordFromDB);
+        return customerMapper.customerToCustomerDTO(updatedCustomer);
     }
 
 

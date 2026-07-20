@@ -28,6 +28,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.*;
 
 /*
@@ -185,7 +186,7 @@ class CustomerServiceImplTest {
         // given - precondition or setup
         Long id = 1L;
         given(customerRepository.findById(id)).willReturn(Optional.of(customer));
-        given(customerMapper.customerDTOToCustomer(customerDTO)).willReturn(customer);
+        willDoNothing().given(customerMapper).updateCustomerFromDto(customerDTO, customer);
         given(customerRepository.save(customer)).willReturn(customer);
         given(customerMapper.customerToCustomerDTO(customer)).willReturn(customerDTO);
 
@@ -200,7 +201,7 @@ class CustomerServiceImplTest {
         assertThat(result.getPhoneNumber()).isEqualTo(customerDTO.getPhoneNumber());
 
         verify(customerRepository, times(1)).findById(id);
-        verify(customerMapper, times(1)).customerDTOToCustomer(customerDTO);
+        verify(customerMapper, times(1)).updateCustomerFromDto(customerDTO, customer);
         verify(customerRepository, times(1)).save(customer);
         verify(customerMapper, times(1)).customerToCustomerDTO(customer);
 

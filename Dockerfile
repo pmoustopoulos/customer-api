@@ -1,7 +1,7 @@
 # Reference:
 # - https://docs.docker.com/get-started/docker-concepts/building-images/multi-stage-builds/
 # ==== BUILD STAGE ====
-FROM eclipse-temurin:21 AS build
+FROM eclipse-temurin:25 AS build
 WORKDIR /app
 
 # Copy Maven Wrapper and dependency files first (better caching)
@@ -17,7 +17,7 @@ COPY src src
 RUN ./mvnw clean package -DskipTests
 
 # ==== RUNTIME STAGE ====
-FROM eclipse-temurin:21-jre-alpine AS runtime
+FROM eclipse-temurin:25-jre-alpine AS runtime
 WORKDIR /app
 
 # Reference: https://testdriven.io/tips/687229d1-9de8-4198-b3d7-d199a1440531/

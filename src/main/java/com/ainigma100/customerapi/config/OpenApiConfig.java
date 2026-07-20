@@ -1,8 +1,5 @@
 package com.ainigma100.customerapi.config;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import lombok.RequiredArgsConstructor;
@@ -14,9 +11,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.web.client.RestClient;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Optional;
@@ -125,18 +125,18 @@ public class OpenApiConfig {
 
     private void formatAndSaveToFile(String content, String fileName) {
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
-
-            // Enable pretty-print
-            objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+            // Jackson 3: build a pretty-printing JsonMapper via the builder
+            JsonMapper jsonMapper = JsonMapper.builder()
+                    .enable(SerializationFeature.INDENT_OUTPUT)
+                    .build();
 
             // Read the JSON content as a JsonNode
-            JsonNode jsonNode = objectMapper.readTree(content);
+            JsonNode jsonNode = jsonMapper.readTree(content);
 
             // Write the formatted JSON to a file
-            objectMapper.writeValue(new File(fileName), jsonNode);
+            jsonMapper.writeValue(new File(fileName), jsonNode);
 
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             log.error("Error while saving JSON to file", e);
         }
     }

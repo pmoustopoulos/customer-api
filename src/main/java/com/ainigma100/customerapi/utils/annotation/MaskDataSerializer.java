@@ -1,15 +1,11 @@
 package com.ainigma100.customerapi.utils.annotation;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
 
-import java.io.IOException;
-
-
-public class MaskDataSerializer extends JsonSerializer<Object> implements ContextualSerializer {
+public class MaskDataSerializer extends ValueSerializer<Object> {
 
 
     private final int visibleCharactersAtEnd;
@@ -28,7 +24,7 @@ public class MaskDataSerializer extends JsonSerializer<Object> implements Contex
 
 
     @Override
-    public void serialize(Object value, JsonGenerator gen, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(Object value, JsonGenerator gen, SerializationContext serializationContext) {
 
         if (value != null) {
 
@@ -47,10 +43,9 @@ public class MaskDataSerializer extends JsonSerializer<Object> implements Contex
     }
 
 
-    // Find more info here: https://fasterxml.github.io/jackson-core/javadoc/1.9/org/codehaus/jackson/map/ContextualSerializer.html
+    // In Jackson 3 the ContextualSerializer contract is folded into ValueSerializer#createContextual
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property) {
-
+    public ValueSerializer<?> createContextual(SerializationContext serializationContext, BeanProperty property) {
 
         if (property != null) {
 

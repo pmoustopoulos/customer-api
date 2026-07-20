@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
@@ -113,6 +114,7 @@ public class CustomerController {
 
 
     @Operation(summary = "Delete a customer by ID")
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<APIResponse<String>> deleteCustomer(@PathVariable("id") Long id) {
 

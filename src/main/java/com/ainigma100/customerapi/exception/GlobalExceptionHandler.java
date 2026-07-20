@@ -13,6 +13,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -40,6 +41,21 @@ public class GlobalExceptionHandler {
     private boolean isProduction() {
         return Stream.of(environment.getActiveProfiles())
                 .anyMatch(profile -> profile.equalsIgnoreCase("prod") || profile.equalsIgnoreCase("production"));
+    }
+
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException exception) {
+
+        APIResponse<ErrorDTO> response = new APIResponse<>();
+        response.setStatus(Status.FAILED.getValue());
+
+        String errorMessage = isProduction() ? "Access denied" : exception.getMessage();
+        response.setErrors(Collections.singletonList(new ErrorDTO("", errorMessage)));
+
+        log.error("AccessDeniedException occurred: {}", exception.getMessage(), exception);
+
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }
 
 

@@ -2,12 +2,15 @@
   "openapi" : "3.1.0",
   "info" : {
     "title" : "Customer API - v1.0.0",
-    "description" : "Active profile: <b>DEV</b>",
-    "version" : "2.8.4"
+    "description" : "Active Profile: <b>DEV</b><br/>Spring Boot: <b>4.1.0</b>",
+    "version" : "3.0.3"
   },
   "servers" : [ {
-    "url" : "http://192.168.1.63:8088/customer-api",
+    "url" : "http://127.0.0.1:8088/customer-api",
     "description" : "Generated server url"
+  } ],
+  "security" : [ {
+    "bearerAuth" : [ ]
   } ],
   "paths" : {
     "/api/v1/customers/{id}" : {
@@ -220,13 +223,15 @@
           },
           "email" : {
             "type" : "string",
+            "format" : "email",
             "description" : "Customer's email address",
-            "example" : "jwick@tester.com"
+            "example" : "jwick@tester.com",
+            "minLength" : 1
           },
           "phoneNumber" : {
             "type" : "string",
             "description" : "Customer's phone number, must be exactly 10 characters",
-            "example" : 6981234567,
+            "example" : "6981234567",
             "maxLength" : 10,
             "minLength" : 10
           },
@@ -371,6 +376,16 @@
             "type" : "integer",
             "format" : "int32"
           },
+          "pageable" : {
+            "$ref" : "#/components/schemas/PageableObject"
+          },
+          "sort" : {
+            "$ref" : "#/components/schemas/SortObject"
+          },
+          "numberOfElements" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
           "first" : {
             "type" : "boolean"
           },
@@ -391,16 +406,6 @@
             "type" : "integer",
             "format" : "int32"
           },
-          "sort" : {
-            "$ref" : "#/components/schemas/SortObject"
-          },
-          "numberOfElements" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "pageable" : {
-            "$ref" : "#/components/schemas/PageableObject"
-          },
           "empty" : {
             "type" : "boolean"
           }
@@ -409,16 +414,6 @@
       "PageableObject" : {
         "type" : "object",
         "properties" : {
-          "offset" : {
-            "type" : "integer",
-            "format" : "int64"
-          },
-          "sort" : {
-            "$ref" : "#/components/schemas/SortObject"
-          },
-          "unpaged" : {
-            "type" : "boolean"
-          },
           "paged" : {
             "type" : "boolean"
           },
@@ -429,19 +424,29 @@
           "pageSize" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "sort" : {
+            "$ref" : "#/components/schemas/SortObject"
+          },
+          "unpaged" : {
+            "type" : "boolean"
+          },
+          "offset" : {
+            "type" : "integer",
+            "format" : "int64"
           }
         }
       },
       "SortObject" : {
         "type" : "object",
         "properties" : {
-          "empty" : {
+          "sorted" : {
             "type" : "boolean"
           },
           "unsorted" : {
             "type" : "boolean"
           },
-          "sorted" : {
+          "empty" : {
             "type" : "boolean"
           }
         }
@@ -450,7 +455,9 @@
         "type" : "object",
         "properties" : {
           "email" : {
-            "type" : "string"
+            "type" : "string",
+            "format" : "email",
+            "minLength" : 1
           }
         },
         "required" : [ "email" ]
@@ -471,6 +478,15 @@
             "type" : "string"
           }
         }
+      }
+    },
+    "securitySchemes" : {
+      "bearerAuth" : {
+        "type" : "http",
+        "description" : "Paste a test token like `admin-token` or `user-token`",
+        "name" : "bearerAuth",
+        "scheme" : "bearer",
+        "bearerFormat" : "JWT"
       }
     }
   }

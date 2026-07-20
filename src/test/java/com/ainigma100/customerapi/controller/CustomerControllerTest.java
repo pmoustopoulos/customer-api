@@ -6,16 +6,21 @@ import com.ainigma100.customerapi.dto.CustomerRequestDTO;
 import com.ainigma100.customerapi.dto.CustomerSearchCriteriaDTO;
 import com.ainigma100.customerapi.enums.Status;
 import com.ainigma100.customerapi.mapper.CustomerMapper;
+import com.ainigma100.customerapi.security.config.SecurityDevMockConfig;
 import com.ainigma100.customerapi.service.CustomerService;
 import tools.jackson.databind.ObjectMapper;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -29,17 +34,31 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+
 /*
  * @WebMvcTest annotation will load all the components required
- * to test the Controller layer. It will not load the service or repository layer components
+ * to test the Controller layer. It will not load the service or repository layer components.
+ *
+ * Authentication mirrors the running application: SecurityDevMockConfig contributes a mock
+ * JwtDecoder that turns "admin-token"/"user-token" into the matching roles, so each request
+ * sends a Bearer token and exercises the real oauth2 resource server + AzureRoleConverter path.
  */
 @WebMvcTest(CustomerController.class)
+@AutoConfigureMockMvc // keep security filters enabled
+@Tag("unit")
+@ActiveProfiles("test")
+@Import(SecurityDevMockConfig.class)
 class CustomerControllerTest {
+
+    private static final String USER_TOKEN = "Bearer user-token";
+    private static final String ADMIN_TOKEN = "Bearer admin-token";
+    private static final String NO_ROLES_TOKEN = "Bearer no-roles-token";
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -94,7 +113,8 @@ class CustomerControllerTest {
         given(customerService.createCustomer(any(CustomerDTO.class))).willReturn(customerDTO);
 
         // when - action or behaviour that we are going to test
-        ResultActions response = mockMvc.perform(post("/api/v1/customers")
+        ResultActions response = mockMvc.perform(post("/api/v1/customers").with(csrf()) // add CSRF token at usage; harmless for stateless JWT
+                .header("Authorization", USER_TOKEN)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(customerRequestDTO)));
 
@@ -124,6 +144,7 @@ class CustomerControllerTest {
 
         // when - action or behaviour that we are going to test
         ResultActions response = mockMvc.perform(get("/api/v1/customers/{id}", 1L)
+                .header("Authorization", USER_TOKEN)
                 .contentType(MediaType.APPLICATION_JSON));
 
         // then - verify the output
@@ -152,7 +173,8 @@ class CustomerControllerTest {
         given(customerService.updateCustomer(any(Long.class), any(CustomerDTO.class))).willReturn(customerDTO);
 
         // when - action or behaviour that we are going to test
-        ResultActions response = mockMvc.perform(put("/api/v1/customers/{id}", 1L)
+        ResultActions response = mockMvc.perform(put("/api/v1/customers/{id}", 1L).with(csrf()) // add CSRF token at usage; harmless for stateless JWT
+                .header("Authorization", USER_TOKEN)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(customerRequestDTO)));
 
@@ -184,7 +206,8 @@ class CustomerControllerTest {
                 .willReturn(customerDTO);
 
         // when - action or behaviour that we are going to test
-        ResultActions response = mockMvc.perform(patch("/api/v1/customers/{id}/email", 1L)
+        ResultActions response = mockMvc.perform(patch("/api/v1/customers/{id}/email", 1L).with(csrf()) // add CSRF token at usage; harmless for stateless JWT
+                .header("Authorization", USER_TOKEN)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(customerEmailUpdateDTO)));
 
@@ -211,7 +234,8 @@ class CustomerControllerTest {
         willDoNothing().given(customerService).deleteCustomer(any(Long.class));
 
         // when - action or behaviour that we are going to test
-        ResultActions response = mockMvc.perform(delete("/api/v1/customers/{id}", 1L)
+        ResultActions response = mockMvc.perform(delete("/api/v1/customers/{id}", 1L).with(csrf()) // add CSRF token at usage; harmless for stateless JWT
+                .header("Authorization", ADMIN_TOKEN)
                 .contentType(MediaType.APPLICATION_JSON));
 
         // then - verify the output
@@ -223,6 +247,15 @@ class CustomerControllerTest {
                 .andExpect(jsonPath("$.status", is(Status.SUCCESS.getValue())));
     }
 
+    @Test
+    void givenUserRole_whenDeleteCustomer_thenForbidden() throws Exception {
+        // when - a USER attempts to delete
+        mockMvc.perform(delete("/api/v1/customers/{id}", 1L)
+                        .header("Authorization", USER_TOKEN)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isForbidden());
+    }
 
     @Test
     void givenCustomerSearchCriteriaDTO_whenGetAllCustomersUsingPagination_thenReturnCustomerDTOPage() throws Exception {
@@ -234,7 +267,8 @@ class CustomerControllerTest {
                 .willReturn(customerDTOPage);
 
         // when - action or behaviour that we are going to test
-        ResultActions response = mockMvc.perform(post("/api/v1/customers/search")
+        ResultActions response = mockMvc.perform(post("/api/v1/customers/search").with(csrf()) // add CSRF token at usage; harmless for stateless JWT
+                .header("Authorization", USER_TOKEN)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(customerSearchCriteriaDTO)));
 
@@ -250,6 +284,32 @@ class CustomerControllerTest {
                 .andExpect(jsonPath("$.results.content[0].lastName", is(customerDTOList.get(0).getLastName())))
                 .andExpect(jsonPath("$.results.content[0].email", is(customerDTOList.get(0).getEmail())))
                 .andExpect(jsonPath("$.results.content[0].phoneNumber", is("*******789")));
+    }
+
+
+
+    @Test
+    void givenNoAuth_whenGetCustomerById_thenUnauthorized() throws Exception {
+        // given - precondition or setup
+        // no Authorization header is sent
+        // when - action or behaviour that we are going to test
+        ResultActions response = mockMvc.perform(get("/api/v1/customers/{id}", 1L)
+                .contentType(MediaType.APPLICATION_JSON));
+        // then - verify the output
+        response.andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void givenAuthWithoutRequiredRoles_whenGetCustomerById_thenForbidden() throws Exception {
+        // given - a valid token that carries no ADMIN/USER role
+        // when - action or behaviour that we are going to test
+        ResultActions response = mockMvc.perform(get("/api/v1/customers/{id}", 1L)
+                .header("Authorization", NO_ROLES_TOKEN)
+                .contentType(MediaType.APPLICATION_JSON));
+        // then - verify the output
+        response.andDo(print())
+                .andExpect(status().isForbidden());
     }
 
 }

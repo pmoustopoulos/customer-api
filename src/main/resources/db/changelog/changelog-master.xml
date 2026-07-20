@@ -7,5 +7,6 @@
 
 
     <include file="/db/changelog/changeset/001-create-customers.sql" />
+    <include file="/db/changelog/changeset/002-add-version-to-customers.sql" />
 
 </databaseChangeLog>

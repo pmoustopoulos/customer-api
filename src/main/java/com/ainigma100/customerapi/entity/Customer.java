@@ -43,6 +43,10 @@ public class Customer {
     @UpdateTimestamp
     private LocalDateTime updatedDate;
 
+    @Version
+    @Column(nullable = false)
+    private Long version;
+
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;

@@ -3,7 +3,7 @@ package com.ainigma100.customerapi.security.handler;
 import com.ainigma100.customerapi.dto.APIResponse;
 import com.ainigma100.customerapi.dto.ErrorDTO;
 import com.ainigma100.customerapi.enums.Status;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -22,7 +22,11 @@ import java.util.Collections;
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
     private static final Logger log = LoggerFactory.getLogger(CustomAccessDeniedHandler.class);
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
+
+    public CustomAccessDeniedHandler(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     @Override
     public void handle(HttpServletRequest request,
@@ -44,10 +48,9 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         log.warn("403 Forbidden: method={} path={} remote={} user={} reason={}",
                 method, path, remote, user, errorMessage);
 
-        ErrorDTO errorDTO = new ErrorDTO("", errorMessage);
+        ErrorDTO errorDTO = new ErrorDTO("", "Access is denied");
         apiResponse.setErrors(Collections.singletonList(errorDTO));
 
-        response.setHeader("luiss-access-denied", "Access denied: insufficient permissions");
         response.setStatus(HttpStatus.FORBIDDEN.value());
         response.setContentType("application/json;charset=UTF-8");
 

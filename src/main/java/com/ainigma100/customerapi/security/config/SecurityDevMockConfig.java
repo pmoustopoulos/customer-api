@@ -10,25 +10,29 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 
 /**
  * Development/Test security configuration using a mocked JWT token.
  *
- * This configuration is only active in non-production profiles and provides a
- * fake JwtDecoder to simplify local development and tests without a real Identity Provider,
- * for example Azure AD, Auth0, or Keycloak.
+ * This configuration is fail-closed: it is only active when one of the explicitly
+ * listed development/test profiles is active ({@code dev}, {@code local}, {@code test},
+ * {@code testcontainers}). It provides a fake JwtDecoder to simplify local development
+ * and tests without a real Identity Provider, for example Azure AD, Auth0, or Keycloak.
+ * Any other (including unknown or missing) profile falls back to the real
+ * {@link SecurityProdConfig}.
  */
-@Profile({"!prod"})
+@Profile({"dev", "local", "test", "testcontainers"})
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityDevMockConfig extends AbstractSecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return configureCommonSecurity(http);
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, ObjectMapper objectMapper) {
+        return configureCommonSecurity(http, objectMapper);
     }
 
     @Override

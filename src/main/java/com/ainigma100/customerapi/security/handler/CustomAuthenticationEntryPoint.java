@@ -3,7 +3,7 @@ package com.ainigma100.customerapi.security.handler;
 import com.ainigma100.customerapi.dto.APIResponse;
 import com.ainigma100.customerapi.dto.ErrorDTO;
 import com.ainigma100.customerapi.enums.Status;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,7 +23,11 @@ import java.util.Collections;
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     private static final Logger log = LoggerFactory.getLogger(CustomAuthenticationEntryPoint.class);
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
+
+    public CustomAuthenticationEntryPoint(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     @Override
     public void commence(HttpServletRequest request,
@@ -45,9 +49,8 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         log.warn("401 Unauthorized: method={} path={} remote={} hasAuthorizationHeader={} reason={}",
                 method, path, remote, hasAuthHeader, message);
 
-        apiResponse.setErrors(Collections.singletonList(new ErrorDTO("", message)));
+        apiResponse.setErrors(Collections.singletonList(new ErrorDTO("", "Authentication is required")));
 
-        response.setHeader("luiss-auth-failure", "Authentication failed");
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType("application/json;charset=UTF-8");
 

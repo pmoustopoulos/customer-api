@@ -25,9 +25,10 @@ public class AzureRoleConverter implements Converter<Jwt, Collection<GrantedAuth
         }
 
         return roles.stream()
-                .filter(role -> role instanceof String)
-                .map(role -> "ROLE_" + ((String) role).toUpperCase())
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+                .filter(String.class::isInstance)
+                .map(String.class::cast)
+                .map(role -> "ROLE_" + role.toUpperCase())
+                .<GrantedAuthority>map(SimpleGrantedAuthority::new)
+                .toList();
     }
 }

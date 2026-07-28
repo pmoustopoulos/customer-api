@@ -13,6 +13,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -32,15 +34,22 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class GlobalExceptionHandler {
 
+    private static final Set<String> NON_PRODUCTION_PROFILES = Set.of("dev", "local", "test", "testcontainers");
     private final Environment environment;
 
     /**
-     * Checks if the application is running in production mode.
-     * Returns true if the active profile is 'prod' or 'production'.
+     * Checks if the application is running in production mode
      */
     private boolean isProduction() {
-        return Stream.of(environment.getActiveProfiles())
-                .anyMatch(profile -> profile.equalsIgnoreCase("prod") || profile.equalsIgnoreCase("production"));
+
+        String[] activeProfiles = environment.getActiveProfiles();
+
+        if (activeProfiles.length == 0) {
+            return true;
+        }
+
+        return Stream.of(activeProfiles)
+                .noneMatch(profile -> NON_PRODUCTION_PROFILES.contains(profile.toLowerCase()));
     }
 
 
@@ -59,7 +68,7 @@ public class GlobalExceptionHandler {
     }
 
 
-    @ExceptionHandler({RuntimeException.class, NullPointerException.class})
+    @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Object> handleRuntimeExceptions(RuntimeException exception) {
 
         APIResponse<ErrorDTO> response = new APIResponse<>();
@@ -68,7 +77,7 @@ public class GlobalExceptionHandler {
         String errorMessage = isProduction() ? "An internal server error occurred" : exception.getMessage();
         response.setErrors(Collections.singletonList(new ErrorDTO("", errorMessage)));
 
-        log.error("RuntimeException or NullPointerException occurred: {}", exception.getMessage(), exception);
+        log.error("RuntimeException occurred: {}", exception.getMessage(), exception);
 
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -182,6 +191,22 @@ public class GlobalExceptionHandler {
         log.error("EntityExistsException occurred: {}", exception.getMessage(), exception);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity<APIResponse<ErrorDTO>> handleOptimisticLockingFailure(ObjectOptimisticLockingFailureException exception) {
+
+        APIResponse<ErrorDTO> response = new APIResponse<>();
+        response.setStatus(Status.FAILED.getValue());
+
+        String errorMessage = isProduction()
+                ? "The record was updated by someone else. Please reload and try again."
+                : exception.getMessage();
+        response.setErrors(Collections.singletonList(new ErrorDTO("", errorMessage)));
+
+        log.error("ObjectOptimisticLockingFailureException occurred: {}", exception.getMessage(), exception);
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
 }

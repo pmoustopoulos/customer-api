@@ -3,6 +3,9 @@ package com.ainigma100.customerapi.security.config;
 import com.ainigma100.customerapi.security.converter.AzureRoleConverter;
 import com.ainigma100.customerapi.security.handler.CustomAccessDeniedHandler;
 import com.ainigma100.customerapi.security.handler.CustomAuthenticationEntryPoint;
+import tools.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -10,6 +13,11 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 /**
  * Abstract base class for security configurations.
@@ -34,10 +42,10 @@ public abstract class AbstractSecurityConfig {
      * Configures the security filter chain with common settings.
      *
      * @param http the HttpSecurity to configure
+     * @param objectMapper the Jackson ObjectMapper used by the error handlers at the end of the method
      * @return the configured SecurityFilterChain
-     * @throws Exception if an error occurs during configuration
      */
-    protected SecurityFilterChain configureCommonSecurity(HttpSecurity http) throws Exception {
+    protected SecurityFilterChain configureCommonSecurity(HttpSecurity http, ObjectMapper objectMapper) {
 
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(new AzureRoleConverter());
@@ -45,7 +53,7 @@ public abstract class AbstractSecurityConfig {
         String[] permittedUrls = publicUrls();
 
         http
-                // Configure CORS with default settings
+                // Enable CORS using the corsConfigurationSource bean defined below
                 .cors(Customizer.withDefaults())
 
                 // Disable CSRF for REST APIs
@@ -80,10 +88,24 @@ public abstract class AbstractSecurityConfig {
 
         // Configure exception handling
         http.exceptionHandling(ex -> ex
-                .authenticationEntryPoint(new CustomAuthenticationEntryPoint()) // Handle 401
-                .accessDeniedHandler(new CustomAccessDeniedHandler())           // Handle 403
+                .authenticationEntryPoint(new CustomAuthenticationEntryPoint(objectMapper)) // Handle 401
+                .accessDeniedHandler(new CustomAccessDeniedHandler(objectMapper))           // Handle 403
         );
 
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource(
+            @Value("${app.cors.allowed-origins:}") List<String> allowedOrigins) {
+
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(allowedOrigins);
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
